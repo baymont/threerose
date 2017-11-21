@@ -1,0 +1,11 @@
+{
+    "rules": {
+        "class-name": true,
+        "no-duplicate-variable": true,
+        "no-any": true,
+        "semicolon": [
+            true,
+            "always"
+        ]
+    }
+}

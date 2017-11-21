@@ -1,0 +1,36 @@
+{
+  "name": "bframe",
+  "version": "0.1.0",
+  "description": "A virtual reality framework for the web with handrails to hold on to.",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp build",
+    "start:dev": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baymont/bframe.git"
+  },
+  "author": "Harold Martinez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/baymont/bframe/issues"
+  },
+  "homepage": "https://github.com/baymont/bframe#readme",
+  "dependencies": {
+    "@tweenjs/tween.js": "^17.1.1",
+    "babylonjs": "^3.1.0-beta5",
+    "document-register-element": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/tween.js": "^16.9.0",
+    "awesome-typescript-loader": "^3.4.0",
+    "gulp": "^3.9.1",
+    "tslint": "^5.8.0",
+    "tslint-loader": "^3.5.3",
+    "typescript": "^2.6.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4",
+    "webpack-stream": "^4.0.0"
+  }
+}

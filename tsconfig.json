@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es2015",
+        "lib": [
+            "es2016",
+            "dom"
+        ],
+        "types": [
+            "babylonjs"
+        ],
+        "sourceMap": true,
+        "inlineSources": true,
+        "pretty": true,
+        "noImplicitAny": true,
+        "jsx": "react"
+    },
+    "files": [
+        "./src/bframe.ts"
+    ]
+}
