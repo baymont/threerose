@@ -13,11 +13,11 @@ export interface ISphereProps extends IComponentProps {
   
 // Define a custom element type.
 export default class Sphere extends BComponent<ISphereProps> {
-    constructor(props: ISphereProps, children?: BComponent<any>[]) {
+    constructor(props: ISphereProps, children?: BComponent<{}>[]) {
         super(props, children);
     }
 
-    protected create(): BABYLON.TransformNode {
+    protected create(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateSphere(this.key, this.props, this.context.scene);
     }
 }

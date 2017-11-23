@@ -19,8 +19,7 @@
   "homepage": "https://github.com/baymont/bframe#readme",
   "dependencies": {
     "@tweenjs/tween.js": "^17.1.1",
-    "babylonjs": "^3.1.0-beta5",
-    "document-register-element": "^1.7.0"
+    "babylonjs": "^3.1.0-beta5"
   },
   "devDependencies": {
     "@types/tween.js": "^16.9.0",

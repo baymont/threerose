@@ -12,11 +12,11 @@ export interface IBoxProps extends IComponentProps {
   
 // Define a custom element type.
 export default class Box extends BComponent<IBoxProps> {
-    constructor(props: IBoxProps, children?: BComponent<any>[]) {
+    constructor(props: IBoxProps, children?: BComponent<{}>[]) {
         super(props, children);
     }
 
-    protected create(): BABYLON.TransformNode {
+    protected create(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateBox(this.key, this.props, this.context.scene);
     }
 }

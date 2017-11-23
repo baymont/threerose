@@ -3,6 +3,7 @@ import BComponent, { IComponentContext, IComponentProps, Vector3 } from './core/
 import * as BABYLON from 'babylonjs';
 import Sphere from './primitives/Sphere';
 import Box from './primitives/Box';
+import SpinningSystem from './systems/SpinningSystem';
 
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -39,7 +40,9 @@ var rootSphere: JSX.Element =
     <Sphere diameter={2} segments={16} position={new Vector3(0, 2, 0)} />
   </Sphere>
   <Sphere diameter={2} segments={16} position={{x: -2, y: 2, z: 0}} />
-  <Box size={4} position={new Vector3(-4)} />
+  <Box systems={[new SpinningSystem()]} size={3} position={new Vector3(-5)} />
+  <Box systems={[new SpinningSystem(false)]} size={3} position={new Vector3(-10)} />
+  <Box systems={[new SpinningSystem(false, 0.01)]} size={3} position={new Vector3(-15)} />
 </Sphere>;
 
 rootSphere.mount({engine: engine, scene: scene});
