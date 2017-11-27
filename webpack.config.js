@@ -1,20 +1,33 @@
-const { CheckerPlugin } = require('awesome-typescript-loader')
+var webpack = require('webpack');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: {
+    'bframe': './src/index.ts',
+    'bframe.min': './src/index.ts'
+  },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
   },
   output: {
-    path: __dirname + "/dist",
-    filename: "bframe.js"
-    },
+    path: __dirname + "/_bundles",
+    filename: "[name].js",
+    libraryTarget: 'umd',
+    library: 'bframe',
+    umdNamedDefine: true
+  },
+  externals: [
+    'babylonjs'
+  ],
   devtool: 'source-map',
   module: {
     loaders: [
       {
         test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader'
+        loader: 'awesome-typescript-loader',
+        exclude: /node_modules/,
+        query: {
+          declaration: false,
+        }
       },
       {
         test: /\.ts$/,
@@ -27,6 +40,10 @@ module.exports = {
     ]
   },
   plugins: [
-      new CheckerPlugin()
+      new webpack.optimize.UglifyJsPlugin({
+        minimize: true,
+        sourceMap: true,
+        include: /\.min\.js$/,
+      })
   ]
 };

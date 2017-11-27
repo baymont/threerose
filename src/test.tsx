@@ -1,4 +1,4 @@
-import * as React from './core/bsx';
+import { React } from './core/bsx';
 import BComponent, { IComponentContext, IComponentProps, Vector3 } from './core/BComponent';
 import * as BABYLON from 'babylonjs';
 import Sphere from './primitives/Sphere';
