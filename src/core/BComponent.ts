@@ -1,34 +1,14 @@
 import * as BABYLON from 'babylonjs';
 import BSystem from './BSystem';
-
-export class Vector3 {
-    constructor(x: number = 0, y: number = 0, z: number = 0) {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-    }
-    x: number;
-    y: number;
-    z: number;
-}
-
-export interface IComponentContext {
-    engine: BABYLON.Engine;
-    scene: BABYLON.Scene;
-}
-
-export interface IComponentProps {
-    position?: Vector3;
-    rotation?: Vector3;
-    systems?: BSystem[];
-}
+import IComponentState from './common/IComponentState';
+import IComponentContext from './common/IComponentContext';
 
 /**
  * b-frame component 
  */
-export default abstract class BComponent<TProps extends IComponentProps> {
-    constructor( props: TProps, children?: BComponent<{}>[]) {
-        this.props = props;
+export default abstract class BComponent<TState extends IComponentState> {
+    constructor(state: TState, children?: BComponent<{}>[]) {
+        this.state = state;
         this.children = children === undefined ? [] : children;
     }
 
@@ -39,7 +19,7 @@ export default abstract class BComponent<TProps extends IComponentProps> {
     readonly key: string;
     context: IComponentContext;
     childContext?: {};
-    props: TProps;
+    state: TState;
 
     /**
      * Mounts the component with the returned Babylon.JS Node
@@ -62,12 +42,12 @@ export default abstract class BComponent<TProps extends IComponentProps> {
     /**
      * Called before update. False will reject the changes.
      */
-    protected willUpdate(newProps: TProps): boolean {
+    protected willUpdate(newState: TState): boolean {
         return true;
     }
 
     /**
-     * Called after props being updated.
+     * Called after state being updated.
      */
     protected update(): void {
     }
@@ -84,6 +64,34 @@ export default abstract class BComponent<TProps extends IComponentProps> {
     protected willUnmount(): void {
     }
 
+    /**
+     * Unmount the component and it's children.
+     */
+    public unmount(): void {
+        this.willUnmount();
+
+        // Unmount all children first.
+        this.children.forEach((child) => {
+            child.unmount();
+        });
+
+        this._node.dispose();
+        this._node = undefined;
+        this._isMounted = false;
+    }
+
+    /**
+     * Unmounts and remounts the component and it's children.
+     */
+    public remount(): void {
+        if (!this._isMounted) {
+            return;
+        }
+
+        this.unmount();
+        this.mount(this.context);
+    }
+
     public addChild(child: BComponent<{}>) {
         this.children.push(child);
         child.parent = this;
@@ -96,16 +104,18 @@ export default abstract class BComponent<TProps extends IComponentProps> {
         }
     }
 
-    public mount(context: IComponentContext){
+    public mount(context: IComponentContext, parentNode?: BABYLON.Mesh){
         if (!this._isMounted) {
             this.context = context;
             this._node = this.create();
-            this.updateCoreProps();
+            this.updateCoreState();
         }
 
         // Set to parent
         if (this.parent !== undefined) {
             this._node.parent = this.parent._node;
+        } else if (parentNode !== undefined) {
+            this._node.parent = parentNode;
         }
 
         // Mount children
@@ -119,31 +129,31 @@ export default abstract class BComponent<TProps extends IComponentProps> {
             this._isMounted = true;
 
             // Run systems after mounting
-            if (this.props.systems !== undefined) {
-                this.props.systems.forEach((system: BSystem) => {
+            if (this.state.systems !== undefined) {
+                this.state.systems.forEach((system: BSystem) => {
                     this.mountSystem(system);
                 });
             }
         }
     }
 
-    public updateProps(props: TProps) {
-        if (this.willUpdate(props)) {
-            this.props = Object.assign(this.props, props);
+    public setState(state: TState) {
+        if (this.willUpdate(state)) {
+            this.state = Object.assign(this.state, state);
 
             // run systems
-            if (this.props.systems !== undefined) {
-                this.props.systems.forEach((system: BSystem) => {
+            if (this.state.systems !== undefined) {
+                this.state.systems.forEach((system: BSystem) => {
                     if (system.loaded) {
-                        system.onPropsUpdated();
+                        system.onStateChanged();
                     } else {
                         this.mountSystem(system);
                     }
                 });
             }
 
-            // update core props after systems
-            this.updateCoreProps();
+            // update core props from state after systems
+            this.updateCoreState();
 
             // finally let the implemantation update itself
             this.update();
@@ -166,12 +176,12 @@ export default abstract class BComponent<TProps extends IComponentProps> {
         }
     }
 
-    private updateCoreProps(): void {
-        if (this.props.position !== undefined) {
-            this._node.position = new BABYLON.Vector3(this.props.position.x, this.props.position.y, this.props.position.z);
+    private updateCoreState(): void {
+        if (this.state.position !== undefined) {
+            this._node.position = new BABYLON.Vector3(this.state.position.x, this.state.position.y, this.state.position.z);
         }
-        if (this.props.rotation !== undefined) {
-            this._node.rotation = new BABYLON.Vector3(this.props.rotation.x, this.props.rotation.y, this.props.rotation.z);
+        if (this.state.rotation !== undefined) {
+            this._node.rotation = new BABYLON.Vector3(this.state.rotation.x, this.state.rotation.y, this.state.rotation.z);
         }
     }
 }

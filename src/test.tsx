@@ -4,6 +4,7 @@ import * as BABYLON from 'babylonjs';
 import Sphere from './primitives/Sphere';
 import Box from './primitives/Box';
 import SpinningSystem from './systems/SpinningSystem';
+import Group from './controls/Group';
 
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -32,18 +33,16 @@ engine.runRenderLoop(() => {
 });
 
 var rootSphere: JSX.Element = 
-<Sphere diameter={2} segments={16}>
+<Group name='MainContainer'>
   <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z:0}}>
     <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z: 0}} />
   </Sphere>
-  <Sphere diameter={2} segments={16} position={new Vector3(2, 2)}>
-    <Sphere diameter={2} segments={16} position={new Vector3(0, 2, 0)} />
-  </Sphere>
+  <Sphere diameter={2} segments={16} position={new Vector3(2, 2)} />
   <Sphere diameter={2} segments={16} position={{x: -2, y: 2, z: 0}} />
   <Box systems={[new SpinningSystem()]} size={3} position={new Vector3(-5)} />
   <Box systems={[new SpinningSystem(false)]} size={3} position={new Vector3(-10)} />
   <Box systems={[new SpinningSystem(false, 0.01)]} size={3} position={new Vector3(-15)} />
-</Sphere>;
+</Group>;
 
 rootSphere.mount({engine: engine, scene: scene});
 

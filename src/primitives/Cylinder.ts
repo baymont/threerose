@@ -17,10 +17,6 @@ export interface ICylinderProps extends IComponentProps {
   
 // Define a custom element type.
 export default class Cylinder extends BComponent<ICylinderProps> {
-    constructor(props: ICylinderProps, children?: BComponent<{}>[]) {
-        super(props, children);
-    }
-
     protected create(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateCylinder(this.key, this.props, this.context.scene);
     }

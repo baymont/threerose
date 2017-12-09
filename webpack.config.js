@@ -3,7 +3,8 @@ var webpack = require('webpack');
 module.exports = {
   entry: {
     'bframe': './src/index.ts',
-    'bframe.min': './src/index.ts'
+    'bframe.min': './src/index.ts',
+    'test': './src/test.tsx'
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
@@ -15,9 +16,6 @@ module.exports = {
     library: 'bframe',
     umdNamedDefine: true
   },
-  externals: [
-    'babylonjs'
-  ],
   devtool: 'source-map',
   module: {
     loaders: [

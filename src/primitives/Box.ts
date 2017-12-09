@@ -19,4 +19,6 @@ export default class Box extends BComponent<IBoxProps> {
     protected create(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateBox(this.key, this.props, this.context.scene);
     }
+
+    
 }
