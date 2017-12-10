@@ -1,4 +1,5 @@
 import BBehavior from '../core/BBehavior';
+import EasingFunction from './common/EasingFunction';
 
 export class AnimationKey<T> {
     frame: number;
@@ -16,9 +17,10 @@ export default class AnimationBehavior extends BBehavior {
     private _to: number;
     private _loop: boolean;
     private _speedRatio: number;
+    private _easingFunction: BABYLON.EasingFunction;
 
     /**
-     * Animation behavior for number
+     * Animation behavior for numbers
      */
     constructor(targetPath: string, frames: AnimationKey<number>[], from: number = 0, to: number = 100) {
         super();
@@ -30,22 +32,27 @@ export default class AnimationBehavior extends BBehavior {
     }
 
     public didMount(): void {
-        var animationBox = new BABYLON.Animation(this._name, this._targetPath, 30, this._dataType,
+        var animation = new BABYLON.Animation(this._name, this._targetPath, 30, this._dataType,
         BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-
-        var easingFunction = new BABYLON.CircleEase();
         
-        // For each easing function, you can choose beetween EASEIN (default), EASEOUT, EASEINOUT
-        easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-    
-        // Adding easing function to my animation
-        animationBox.setEasingFunction(easingFunction);
+        if (this._easingFunction !== undefined) {
+            // For each easing function, you can choose beetween EASEIN (default), EASEOUT, EASEINOUT
+            this._easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
         
-        animationBox.setKeys(this._frames);
+            // Adding easing function to my animation
+            animation.setEasingFunction(this._easingFunction);
+        }
+        
+        animation.setKeys(this._frames);
 
-        this.context.node.animations.push(animationBox);
+        this.context.node.animations.push(animation);
         
         this.context.scene.beginAnimation(this.context.node, this._from, this._to, this._loop, this._speedRatio);
+    }
+
+    public easingFunction(value: EasingFunction): AnimationBehavior {
+        this._easingFunction = value;
+        return this;
     }
 
     public loop(value: boolean): AnimationBehavior {

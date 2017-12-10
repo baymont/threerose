@@ -6,6 +6,7 @@ import SpinningBehavior from '../behaviors/SpinningBehavior';
 import Group from '../controls/Group';
 import Vector3 from '../core/common/Vector3';
 import AnimationBehavior from '../behaviors/AnimationBehavior';
+import EasingFunction from '../behaviors/common/EasingFunction';
 
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -38,6 +39,11 @@ const simpleAnimation = new AnimationBehavior('position.z',
   .speedRatio(0.5)
   .loop(true);
 
+const anotherSimpleAnimation = new AnimationBehavior('position.x', 
+  AnimationBehavior.threeFrame(-10, 3, -10))
+  .easingFunction(EasingFunction.elasticEase())
+  .loop(true);
+
 var rootSphere: JSX.Element = 
 <Group key='MainContainer'>
   <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z:0}}>
@@ -46,7 +52,7 @@ var rootSphere: JSX.Element =
   <Sphere diameter={2} segments={16} position={new Vector3(2, 2)} />
   <Sphere diameter={2} segments={16} position={{x: -2, y: 2, z: 0}} />
   <Box behaviors={[simpleAnimation]} size={3} position={new Vector3(-5)} />
-  <Box behaviors={[new AnimationBehavior('position.x', AnimationBehavior.threeFrame(-10, 3, -10)).loop(true), new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
+  <Box behaviors={[anotherSimpleAnimation, new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
   <Box behaviors={[new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
 </Group>;
 

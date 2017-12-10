@@ -1,7 +1,7 @@
 {
   "name": "bframe",
-  "version": "0.1.3",
-  "description": "A virtual reality framework for the web with handrails to hold on to.",
+  "version": "0.1.4",
+  "description": "The functional Mixed Reality framework for web devs.",
   "main": "_bundles/bframe.js",
   "typings": "lib/index.d.ts",
   "scripts": {
