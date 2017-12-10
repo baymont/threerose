@@ -1,10 +1,11 @@
-import { React } from './core/bsx';
-import BComponent, { IComponentContext, IComponentProps, Vector3 } from './core/BComponent';
+import { React } from '../core/bsx';
 import * as BABYLON from 'babylonjs';
-import Sphere from './primitives/Sphere';
-import Box from './primitives/Box';
-import SpinningSystem from './systems/SpinningSystem';
-import Group from './controls/Group';
+import Sphere from '../primitives/Sphere';
+import Box from '../primitives/Box';
+import SpinningBehavior from '../behaviors/SpinningBehavior';
+import Group from '../controls/Group';
+import Vector3 from '../core/common/Vector3';
+import AnimationBehavior from '../behaviors/AnimationBehavior';
 
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -32,22 +33,27 @@ engine.runRenderLoop(() => {
   scene.render();
 });
 
+const simpleAnimation = new AnimationBehavior('position.z', 
+  [{ frame: 0, value: 0 }, { frame: 50, value: 3 }, { frame: 100, value: 0 }])
+  .speedRatio(0.5)
+  .loop(true);
+
 var rootSphere: JSX.Element = 
-<Group name='MainContainer'>
+<Group key='MainContainer'>
   <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z:0}}>
     <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z: 0}} />
   </Sphere>
   <Sphere diameter={2} segments={16} position={new Vector3(2, 2)} />
   <Sphere diameter={2} segments={16} position={{x: -2, y: 2, z: 0}} />
-  <Box systems={[new SpinningSystem()]} size={3} position={new Vector3(-5)} />
-  <Box systems={[new SpinningSystem(false)]} size={3} position={new Vector3(-10)} />
-  <Box systems={[new SpinningSystem(false, 0.01)]} size={3} position={new Vector3(-15)} />
+  <Box behaviors={[simpleAnimation]} size={3} position={new Vector3(-5)} />
+  <Box behaviors={[new AnimationBehavior('position.x', AnimationBehavior.threeFrame(-10, 3, -10)).loop(true), new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
+  <Box behaviors={[new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
 </Group>;
 
 rootSphere.mount({engine: engine, scene: scene});
 
 canvas.addEventListener('click', (e) => {
-  var newSphere: Sphere = new Sphere({diameter:2, segments: 16, position: {x: 2, y: 0, z: 0}});
-  rootSphere.addChild(newSphere);
+  var newSphere: Sphere = new Sphere("key_sphere", {diameter:2, segments: 16, position: {x: 2, y: 0, z: 0}});
+  rootSphere.mountChild(newSphere);
   rootSphere = newSphere;
 });

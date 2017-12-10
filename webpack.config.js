@@ -4,7 +4,7 @@ module.exports = {
   entry: {
     'bframe': './src/index.ts',
     'bframe.min': './src/index.ts',
-    'test': './src/test.tsx'
+    'test': './src/_www/test.tsx'
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
@@ -15,6 +15,9 @@ module.exports = {
     libraryTarget: 'umd',
     library: 'bframe',
     umdNamedDefine: true
+  },
+  externals: {
+    'babylonjs': 'BABYLON'
   },
   devtool: 'source-map',
   module: {

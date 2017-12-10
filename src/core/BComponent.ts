@@ -1,30 +1,31 @@
 import * as BABYLON from 'babylonjs';
-import BSystem from './BSystem';
-import IComponentState from './common/IComponentState';
+import BBehavior from './BBehavior';
+import IComponentProps from './common/IComponentProps';
 import IComponentContext from './common/IComponentContext';
 
 /**
  * b-frame component 
  */
-export default abstract class BComponent<TState extends IComponentState> {
-    constructor(state: TState, children?: BComponent<{}>[]) {
-        this.state = state;
-        this.children = children === undefined ? [] : children;
+export default abstract class BComponent<TProps extends IComponentProps, TState> {
+    constructor(key: string, props: TProps) {
+        this.key = key;
+        this.props = props;
     }
 
     private _isMounted: boolean;
     private _node: BABYLON.Mesh;
-    readonly children: BComponent<{}>[];
-    parent?: BComponent<{}>;
+    readonly children: BComponent<IComponentProps, {}>[] = [];
+    parent?: BComponent<{}, {}>;
     readonly key: string;
     context: IComponentContext;
     childContext?: {};
+    readonly props: TProps;
     state: TState;
 
     /**
      * Mounts the component with the returned Babylon.JS Node
      */
-    protected abstract create(): BABYLON.Mesh;
+    protected abstract onMount(): BABYLON.Mesh;
 
     /**
      * Called after this instance and all of its childrens are mounted.
@@ -92,7 +93,11 @@ export default abstract class BComponent<TState extends IComponentState> {
         this.mount(this.context);
     }
 
-    public addChild(child: BComponent<{}>) {
+    public mountChild(child: BComponent<{}, {}>) {
+        if (child._isMounted) {
+            throw new Error("Child already mounted.");
+        }
+
         this.children.push(child);
         child.parent = this;
         child.parentUpdated(this._isMounted);
@@ -107,8 +112,8 @@ export default abstract class BComponent<TState extends IComponentState> {
     public mount(context: IComponentContext, parentNode?: BABYLON.Mesh){
         if (!this._isMounted) {
             this.context = context;
-            this._node = this.create();
-            this.updateCoreState();
+            this._node = this.onMount();
+            this.updateCoreProps();
         }
 
         // Set to parent
@@ -128,10 +133,10 @@ export default abstract class BComponent<TState extends IComponentState> {
             this.didMount();
             this._isMounted = true;
 
-            // Run systems after mounting
-            if (this.state.systems !== undefined) {
-                this.state.systems.forEach((system: BSystem) => {
-                    this.mountSystem(system);
+            // Run behaviors after mounting
+            if (this.props.behaviors !== undefined) {
+                this.props.behaviors.forEach((behavior: BBehavior) => {
+                    this.mountBehavior(behavior);
                 });
             }
         }
@@ -141,19 +146,16 @@ export default abstract class BComponent<TState extends IComponentState> {
         if (this.willUpdate(state)) {
             this.state = Object.assign(this.state, state);
 
-            // run systems
-            if (this.state.systems !== undefined) {
-                this.state.systems.forEach((system: BSystem) => {
-                    if (system.loaded) {
-                        system.onStateChanged();
+            // run behaviors
+            if (this.props.behaviors !== undefined) {
+                this.props.behaviors.forEach((behavior: BBehavior) => {
+                    if (behavior.loaded) {
+                        behavior.onComponentUpdated();
                     } else {
-                        this.mountSystem(system);
+                        this.mountBehavior(behavior);
                     }
                 });
             }
-
-            // update core props from state after systems
-            this.updateCoreState();
 
             // finally let the implemantation update itself
             this.update();
@@ -168,20 +170,20 @@ export default abstract class BComponent<TState extends IComponentState> {
         });
     }
     
-    private mountSystem(system: BSystem): void {
-        system.context = { engine: this.context.engine, scene: this.context.scene, node: this._node };
-        system.didMount();
-        if (system.runOnRenderLoop) {
-            this.context.scene.registerBeforeRender(system.tick.bind(system));
+    private mountBehavior(behavior: BBehavior): void {
+        behavior.context = { engine: this.context.engine, scene: this.context.scene, node: this._node };
+        behavior.didMount();
+        if (behavior.runOnRenderLoop) {
+            this.context.scene.registerBeforeRender(behavior.tick.bind(behavior));
         }
     }
 
-    private updateCoreState(): void {
-        if (this.state.position !== undefined) {
-            this._node.position = new BABYLON.Vector3(this.state.position.x, this.state.position.y, this.state.position.z);
+    private updateCoreProps(): void {
+        if (this.props.position !== undefined) {
+            this._node.position = new BABYLON.Vector3(this.props.position.x, this.props.position.y, this.props.position.z);
         }
-        if (this.state.rotation !== undefined) {
-            this._node.rotation = new BABYLON.Vector3(this.state.rotation.x, this.state.rotation.y, this.state.rotation.z);
+        if (this.props.rotation !== undefined) {
+            this._node.rotation = new BABYLON.Vector3(this.props.rotation.x, this.props.rotation.y, this.props.rotation.z);
         }
     }
 }

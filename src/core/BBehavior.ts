@@ -1,13 +1,13 @@
 import * as BABYLON from 'babylonjs';
 
-export interface IBSystemContext {
+export interface IBBehaviorContext {
     engine: BABYLON.Engine;
     scene: BABYLON.Scene;
     node: BABYLON.Mesh;
 }
 
-export default abstract class BSystem {
-    context: IBSystemContext;
+export default abstract class BBehavior {
+    context: IBBehaviorContext;
     loaded: boolean;
     abstract runOnRenderLoop: boolean;
 
@@ -17,7 +17,7 @@ export default abstract class BSystem {
     public didMount(): void {
     }
 
-    public onPropsUpdated(): void {
+    public onComponentUpdated(): void {
     }
 
     public tick(): void {

@@ -1,6 +1,6 @@
-import BSystem from '../core/BSystem';
+import BBehavior from '../core/BBehavior';
 
-export default class SpinningSystem extends BSystem {
+export default class SpinningBehavior extends BBehavior {
     runOnRenderLoop: boolean = true;
     private _clockwise: boolean;
     private _speed: number;

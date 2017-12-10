@@ -5,11 +5,10 @@
   "main": "_bundles/bframe.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
     "clean": "shx rm -rf _bundles lib lib-esm",
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "rebuild": "npm run clean && npm run build",
-    "start:dev": "webpack-dev-server"
+    "start:dev": "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/"
   },
   "repository": {
     "type": "git",
@@ -22,14 +21,15 @@
   },
   "homepage": "https://github.com/baymont/bframe#readme",
   "dependencies": {
-    "babylonjs": "^3.1.0-beta5"
+    "babylonjs": "^3.1.0-rc-0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.4.0",
+    "http-server": "^0.10.0",
+    "shx": "^0.2.2",
     "tslint": "^5.8.0",
     "tslint-loader": "^3.5.3",
     "typescript": "^2.6.1",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.4"
+    "webpack": "^3.8.1"
   }
 }
