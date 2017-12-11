@@ -31,6 +31,10 @@ export default class AnimationBehavior extends BBehavior {
         this._to = to;
     }
 
+    public clone(): AnimationBehavior {
+        return Object.create(this);
+    }
+
     public didMount(): void {
         var animation = new BABYLON.Animation(this._name, this._targetPath, 30, this._dataType,
         BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);

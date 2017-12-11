@@ -35,13 +35,13 @@ engine.runRenderLoop(() => {
 });
 
 const simpleAnimation = new AnimationBehavior('position.z', 
-  [{ frame: 0, value: 0 }, { frame: 50, value: 3 }, { frame: 100, value: 0 }])
+  [{ frame: 0, value: 0 }, { frame: 50, value: 5 }, { frame: 100, value: 0 }])
   .speedRatio(0.5)
   .loop(true);
 
 const anotherSimpleAnimation = new AnimationBehavior('position.x', 
   AnimationBehavior.threeFrame(-10, 3, -10))
-  .easingFunction(EasingFunction.elasticEase())
+  .easingFunction(EasingFunction.circleEase())
   .loop(true);
 
 var rootSphere: JSX.Element = 
@@ -53,7 +53,7 @@ var rootSphere: JSX.Element =
   <Sphere diameter={2} segments={16} position={{x: -2, y: 2, z: 0}} />
   <Box behaviors={[simpleAnimation]} size={3} position={new Vector3(-5)} />
   <Box behaviors={[anotherSimpleAnimation, new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
-  <Box behaviors={[new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
+  <Box behaviors={[simpleAnimation.clone().speedRatio(2), anotherSimpleAnimation.clone().speedRatio(0.5), new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
 </Group>;
 
 rootSphere.mount({engine: engine, scene: scene});
