@@ -4,9 +4,12 @@ import Sphere from '../primitives/Sphere';
 import Box from '../primitives/Box';
 import SpinningBehavior from '../behaviors/SpinningBehavior';
 import Group from '../controls/Group';
+import ImageControl, { IImageProps } from '../controls/ImageControl';
 import Vector3 from '../core/common/Vector3';
 import AnimationBehavior from '../behaviors/AnimationBehavior';
 import EasingFunction from '../behaviors/common/EasingFunction';
+import BComponent from '../core/BComponent';
+import IComponentProps from '../core/common/IComponentProps';
 
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -44,22 +47,28 @@ const anotherSimpleAnimation = new AnimationBehavior('position.x',
   .easingFunction(EasingFunction.circleEase())
   .loop(true);
 
+var imageControl: ImageControl;
 var rootSphere: JSX.Element = 
-<Group key='MainContainer'>
+<Group key="Container">
+  <ImageControl ref={(image: ImageControl) => { imageControl = image; }} url='https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg' />
   <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z:0}}>
     <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z: 0}} />
   </Sphere>
   <Sphere diameter={2} segments={16} position={new Vector3(2, 2)} />
   <Sphere diameter={2} segments={16} position={{x: -2, y: 2, z: 0}} />
+
   <Box behaviors={[simpleAnimation]} size={3} position={new Vector3(-5)} />
   <Box behaviors={[anotherSimpleAnimation, new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
   <Box behaviors={[simpleAnimation.clone().speedRatio(2), anotherSimpleAnimation.clone().speedRatio(0.5), new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
+
 </Group>;
 
 rootSphere.mount({engine: engine, scene: scene});
 
 canvas.addEventListener('click', (e) => {
-  var newSphere: Sphere = new Sphere("key_sphere", {diameter:2, segments: 16, position: {x: 2, y: 0, z: 0}});
+  imageControl.setProps({ url: 'http://thenerdstash.com/wp-content/uploads/2017/06/fallout-4-VR.jpg' });
+
+  var newSphere: Sphere = new Sphere("key_sphere", undefined, {diameter:2, segments: 16, position: {x: 2, y: 0, z: 0}});
   rootSphere.mountChild(newSphere);
   rootSphere = newSphere;
 });

@@ -8,7 +8,7 @@
     "clean": "shx rm -rf _bundles lib lib-esm",
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "rebuild": "npm run clean && npm run build",
-    "start:dev": "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/"
+    "start:dev": "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/ -c"
   },
   "repository": {
     "type": "git",

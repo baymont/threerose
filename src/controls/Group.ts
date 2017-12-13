@@ -5,8 +5,14 @@ import IComponentProps from '../core/common/IComponentProps';
 /**
  * A basic control for grouping 3D components.
  */
-export default class Group extends BComponent<IComponentProps, {}> {
+export default class Group extends BComponent<IComponentProps> {
+
     protected onMount(): BABYLON.Mesh {
         return new BABYLON.Mesh(this.key, this.context.scene);
+    }
+
+    
+    protected onUpdated(): void {
+        // Nothing to update
     }
 }

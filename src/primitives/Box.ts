@@ -11,8 +11,13 @@ export interface IBoxProps extends IComponentProps {
 }
   
 // Define a custom element type.
-export default class Box extends BComponent<IBoxProps, {}> {
+export default class Box extends BComponent<IBoxProps> {
+    
     protected onMount(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateBox(this.key, this.props, this.context.scene);
+    }
+    
+    protected onUpdated(): void {
+        throw new Error("Method not implemented.");
     }
 }

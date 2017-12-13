@@ -6,21 +6,25 @@ import IComponentContext from './common/IComponentContext';
 /**
  * b-frame component 
  */
-export default abstract class BComponent<TProps extends IComponentProps, TState> {
-    constructor(key: string, props: TProps) {
+export default abstract class BComponent<TProps extends IComponentProps> {
+    constructor(key: string, ref: (component: BComponent<TProps>) => void, props: TProps) {
         this.key = key;
-        this.props = props;
+        this.ref = ref;
+        this._props = props;
     }
 
     private _isMounted: boolean;
     private _node: BABYLON.Mesh;
-    readonly children: BComponent<IComponentProps, {}>[] = [];
-    parent?: BComponent<{}, {}>;
-    readonly key: string;
-    context: IComponentContext;
+    private _props: TProps;
+    private _parent?: BComponent<{}>;
+    protected context: IComponentContext;
     childContext?: {};
-    readonly props: TProps;
-    state: TState;
+    readonly children: BComponent<IComponentProps>[] = [];
+    readonly key: string;
+    readonly ref: (component: BComponent<TProps>) => void;
+
+    public get parent(): BComponent<{}> { return this._parent; }
+    public get props(): TProps { return this._props; }
 
     /**
      * Mounts the component with the returned Babylon.JS Node
@@ -43,20 +47,19 @@ export default abstract class BComponent<TProps extends IComponentProps, TState>
     /**
      * Called before update. False will reject the changes.
      */
-    protected willUpdate(newState: TState): boolean {
+    protected willUpdate(newProps: TProps): boolean {
         return true;
     }
 
     /**
-     * Called after state being updated.
+     * Called after props updated.
      */
-    protected update(): void {
-    }
+    protected abstract onUpdated(): void;
 
     /**
      * Called when a parent component was updated.
      */
-    protected parentUpdated(isMounted: boolean): void {
+    protected parentUpdated(isParentMounted: boolean): void {
     }
 
     /**
@@ -93,13 +96,13 @@ export default abstract class BComponent<TProps extends IComponentProps, TState>
         this.mount(this.context);
     }
 
-    public mountChild(child: BComponent<{}, {}>) {
+    public mountChild(child: BComponent<{}>) {
         if (child._isMounted) {
             throw new Error("Child already mounted.");
         }
 
         this.children.push(child);
-        child.parent = this;
+        child._parent = this;
         child.parentUpdated(this._isMounted);
 
         // Mount child
@@ -131,6 +134,9 @@ export default abstract class BComponent<TProps extends IComponentProps, TState>
 
         if (!this._isMounted) {
             this.didMount();
+            if (this.ref) {
+                this.ref(this)
+            }
             this._isMounted = true;
 
             // Run behaviors after mounting
@@ -142,9 +148,9 @@ export default abstract class BComponent<TProps extends IComponentProps, TState>
         }
     }
 
-    public setState(state: TState) {
-        if (this.willUpdate(state)) {
-            this.state = Object.assign(this.state, state);
+    public setProps(props: TProps) {
+        if (this.willUpdate(props)) {
+            this._props = Object.assign(this.props, props);
 
             // run behaviors
             if (this.props.behaviors !== undefined) {
@@ -158,7 +164,7 @@ export default abstract class BComponent<TProps extends IComponentProps, TState>
             }
 
             // finally let the implemantation update itself
-            this.update();
+            this.onUpdated();
             this.notifyChildren();
         }
     }

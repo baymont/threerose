@@ -6,6 +6,8 @@ export { default as BBehavior,
 
 export * from './core/bsx';
 
+export * from './controls';
+
 export * from './primitives';
 
 export * from './behaviors';

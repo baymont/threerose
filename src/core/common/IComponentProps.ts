@@ -3,7 +3,7 @@ import BComponent from "../BComponent";
 import Vector3 from "./Vector3";
 
 export default interface IComponentProps {
-    behaviors?: BBehavior[];
-    position?: Vector3;
-    rotation?: Vector3;
+    readonly behaviors?: BBehavior[];
+    readonly position?: Vector3;
+    readonly rotation?: Vector3;
 }
