@@ -1,16 +1,10 @@
-import BComponent from '../core/BComponent';
-import * as BABYLON from 'babylonjs';
+import Container from './common/Container';
 import IComponentProps from '../core/common/IComponentProps';
 
 /**
- * The base for making group controls.
+ * A basic control for grouping 3D components.
  */
-export default abstract class Group<T extends IComponentProps> extends BComponent<T> {
-    
-    protected onMount(): BABYLON.Mesh {
-        return new BABYLON.Mesh(this.key, this.context.scene);
-    }
-
+export default class Group extends Container<IComponentProps> {
     
     protected onUpdated(): void {
         // Nothing to update

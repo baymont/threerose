@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs';
-import Group from './Group';
+import Container from './common/Container';
 import IComponentProps from '../core/common/IComponentProps';
-import BComponent from '../core/BComponent';
+import Component from '../core/Component';
 
 export enum StackOrientation {
     X,
@@ -9,14 +9,14 @@ export enum StackOrientation {
     Z
 }
 
-export interface IStackGroupProps extends IComponentProps {
+export interface IStackContainerProps extends IComponentProps {
     orientation: StackOrientation;
 }
 
 /**
- * Stack 3D components.
+ * Stacks 3D components.
  */
-export default class StackGroupControl extends Group<IStackGroupProps> {
+export default class StackContainer extends Container<IStackContainerProps> {
     
     protected didMount(): void {
         this.onUpdated();
@@ -30,7 +30,7 @@ export default class StackGroupControl extends Group<IStackGroupProps> {
         let offset: number = 0;
 
         // update children's position
-        this.children.forEach((child: BComponent<any>) => {
+        this.children.forEach((child: Component<any>) => {
             // TODO: assuming Y for now
             child.node.position.y = offset;
             offset += child.node.getBoundingInfo().boundingBox.maximum.y - child.node.getBoundingInfo().boundingBox.minimum.y

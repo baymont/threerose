@@ -1,13 +1,13 @@
 import * as BABYLON from 'babylonjs';
-import BBehavior from './BBehavior';
-import IComponentProps from './common/IComponentProps';
+import Behavior from './Behavior';
+import IControlProps from './common/IComponentProps';
 import IComponentContext from './common/IComponentContext';
 
 /**
- * b-frame component 
+ * Threerose component 
  */
-export default abstract class BComponent<TProps extends IComponentProps> {
-    constructor(key: string, ref: (component: BComponent<TProps>) => void, props: TProps) {
+export default abstract class Component<TProps extends IControlProps> {
+    constructor(key: string, ref: (component: Component<TProps>) => void, props: TProps) {
         this.key = key;
         this.ref = ref;
         this._props = props;
@@ -16,17 +16,17 @@ export default abstract class BComponent<TProps extends IComponentProps> {
     private _isMounted: boolean;
     private _node: BABYLON.Mesh;
     private _props: TProps;
-    private _parent?: BComponent<{}>;
+    private _parent?: Component<{}>;
     protected context: IComponentContext;
     childContext?: {};
-    readonly children: BComponent<IComponentProps>[] = [];
+    readonly children: Component<IControlProps>[] = [];
     readonly key: string;
-    readonly ref: (component: BComponent<TProps>) => void;
+    readonly ref: (component: Component<TProps>) => void;
 
     protected get isMounted(): boolean { return this._isMounted; }   
 
     public get node(): BABYLON.Mesh { return this._node; }
-    public get parent(): BComponent<{}> { return this._parent; }
+    public get parent(): Component<{}> { return this._parent; }
     public get props(): TProps { return this._props; }
 
     /**
@@ -108,7 +108,7 @@ export default abstract class BComponent<TProps extends IComponentProps> {
         this.mount(this.context);
     }
 
-    public mountChild(child: BComponent<{}>) {
+    public mountChild(child: Component<{}>) {
         if (child._isMounted) {
             throw new Error("Child already mounted.");
         }
@@ -154,20 +154,20 @@ export default abstract class BComponent<TProps extends IComponentProps> {
 
             // Run behaviors after mounting
             if (this.props.behaviors !== undefined) {
-                this.props.behaviors.forEach((behavior: BBehavior) => {
+                this.props.behaviors.forEach((behavior: Behavior) => {
                     this.mountBehavior(behavior);
                 });
             }
         }
     }
 
-    public setProps(props: TProps) {
+    public updateProps(props: TProps) {
         if (this.willUpdate(props)) {
             this._props = Object.assign(this.props, props);
 
             // run behaviors
             if (this.props.behaviors !== undefined) {
-                this.props.behaviors.forEach((behavior: BBehavior) => {
+                this.props.behaviors.forEach((behavior: Behavior) => {
                     if (behavior.loaded) {
                         behavior.onComponentUpdated();
                     } else {
@@ -189,7 +189,7 @@ export default abstract class BComponent<TProps extends IComponentProps> {
         });
     }
     
-    private mountBehavior(behavior: BBehavior): void {
+    private mountBehavior(behavior: Behavior): void {
         behavior.context = { engine: this.context.engine, scene: this.context.scene, node: this._node };
         behavior.didMount();
         if (behavior.runOnRenderLoop) {

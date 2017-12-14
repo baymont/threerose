@@ -1,15 +1,14 @@
-import { React } from '../core/bsx';
+import { React } from '../core/rsx';
 import * as BABYLON from 'babylonjs';
 import Sphere from '../primitives/Sphere';
 import Box from '../primitives/Box';
-import SpinningBehavior from '../behaviors/SpinningBehavior';
-import StackGroupControl from '../controls/StackGroupControl';
-import ImageControl, { IImageProps } from '../controls/ImageControl';
+import StackContainer, { StackOrientation } from '../controls/StackContainer';
+import ImageScreen, { IImageProps } from '../controls/ImageScreen';
 import Vector3 from '../core/common/Vector3';
 import AnimationBehavior from '../behaviors/AnimationBehavior';
 import EasingFunction from '../behaviors/common/EasingFunction';
-import BComponent from '../core/BComponent';
 import IComponentProps from '../core/common/IComponentProps';
+import SpinningBehavior from '../behaviors/SpinningBehavior';
 
 
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
@@ -47,10 +46,10 @@ const anotherSimpleAnimation = new AnimationBehavior('position.x',
   .easingFunction(EasingFunction.circleEase())
   .loop(true);
 
-var imageControl: ImageControl;
+var imageControl: ImageScreen;
 var rootSphere: JSX.Element = 
-<StackGroupControl orientation={1}>
-  <ImageControl ref={(image: ImageControl) => { imageControl = image; }} url='https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg' />
+<StackContainer orientation={StackOrientation.Y}>
+  <ImageScreen ref={(image: ImageScreen) => { imageControl = image; }} url='https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg' />
   <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z:0}}>
     <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z: 0}} />
   </Sphere>
@@ -60,13 +59,12 @@ var rootSphere: JSX.Element =
   <Box behaviors={[simpleAnimation]} size={3} position={new Vector3(-5)} />
   <Box behaviors={[anotherSimpleAnimation, new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
   <Box behaviors={[simpleAnimation.clone().speedRatio(2), anotherSimpleAnimation.clone().speedRatio(0.5), new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
-
-</StackGroupControl>;
+</StackContainer>;
 
 rootSphere.mount({engine: engine, scene: scene});
 
 canvas.addEventListener('click', (e) => {
-  imageControl.setProps({ url: 'http://thenerdstash.com/wp-content/uploads/2017/06/fallout-4-VR.jpg' });
+  imageControl.updateProps({ url: 'http://thenerdstash.com/wp-content/uploads/2017/06/fallout-4-VR.jpg' });
 
   var newSphere: Sphere = new Sphere("key_sphere", undefined, {diameter:2, segments: 16, position: {x: 2, y: 0, z: 0}});
   rootSphere.mountChild(newSphere);

@@ -2,8 +2,8 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: {
-    'bframe': './src/index.ts',
-    'bframe.min': './src/index.ts',
+    'threerose': './src/index.ts',
+    'threerose.min': './src/index.ts',
     'test': './src/_www/test.tsx'
   },
   resolve: {
@@ -13,7 +13,7 @@ module.exports = {
     path: __dirname + "/_bundles",
     filename: "[name].js",
     libraryTarget: 'umd',
-    library: 'bframe',
+    library: 'threerose',
     umdNamedDefine: true
   },
   externals: {

@@ -1,4 +1,4 @@
-import BComponent from '../core/BComponent';
+import Component from '../core/Component';
 import * as BABYLON from 'babylonjs';
 import IComponentProps from '../core/common/IComponentProps';
 
@@ -11,7 +11,7 @@ export interface IBoxProps extends IComponentProps {
 }
   
 // Define a custom element type.
-export default class Box extends BComponent<IBoxProps> {
+export default class Box extends Component<IBoxProps> {
     
     protected onMount(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateBox(this.key, this.props, this.context.scene);

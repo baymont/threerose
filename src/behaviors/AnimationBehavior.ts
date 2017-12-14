@@ -1,4 +1,4 @@
-import BBehavior from '../core/BBehavior';
+import Behavior from '../core/Behavior';
 import EasingFunction from './common/EasingFunction';
 
 export class AnimationKey<T> {
@@ -6,7 +6,7 @@ export class AnimationKey<T> {
     value: T;
 }
 
-export default class AnimationBehavior extends BBehavior {
+export default class AnimationBehavior extends Behavior {
     runOnRenderLoop: boolean = false;
 
     private _name: string;

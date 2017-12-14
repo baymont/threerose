@@ -1,8 +1,8 @@
 {
-  "name": "bframe",
-  "version": "0.1.4",
+  "name": "threerose",
+  "version": "0.1.0",
   "description": "The functional Mixed Reality framework for web devs.",
-  "main": "_bundles/bframe.js",
+  "main": "_bundles/threerose.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "clean": "shx rm -rf _bundles lib lib-esm",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/baymont/bframe.git"
+    "url": "git+https://github.com/baymont/threerose.git"
   },
   "author": "Harold Martinez",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/baymont/bframe/issues"
+    "url": "https://github.com/baymont/threerose/issues"
   },
-  "homepage": "https://github.com/baymont/bframe#readme",
+  "homepage": "https://github.com/baymont/threerose#readme",
   "dependencies": {
     "babylonjs": "^3.1.0-rc-0"
   },
