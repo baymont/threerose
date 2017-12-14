@@ -3,7 +3,7 @@ import * as BABYLON from 'babylonjs';
 import Sphere from '../primitives/Sphere';
 import Box from '../primitives/Box';
 import SpinningBehavior from '../behaviors/SpinningBehavior';
-import Group from '../controls/Group';
+import StackGroupControl from '../controls/StackGroupControl';
 import ImageControl, { IImageProps } from '../controls/ImageControl';
 import Vector3 from '../core/common/Vector3';
 import AnimationBehavior from '../behaviors/AnimationBehavior';
@@ -49,7 +49,7 @@ const anotherSimpleAnimation = new AnimationBehavior('position.x',
 
 var imageControl: ImageControl;
 var rootSphere: JSX.Element = 
-<Group key="Container">
+<StackGroupControl orientation={1}>
   <ImageControl ref={(image: ImageControl) => { imageControl = image; }} url='https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg' />
   <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z:0}}>
     <Sphere diameter={2} segments={16} position={{x: 0, y: 2, z: 0}} />
@@ -61,7 +61,7 @@ var rootSphere: JSX.Element =
   <Box behaviors={[anotherSimpleAnimation, new SpinningBehavior(false)]} size={3} position={new Vector3(-10)} />
   <Box behaviors={[simpleAnimation.clone().speedRatio(2), anotherSimpleAnimation.clone().speedRatio(0.5), new SpinningBehavior(false, 0.01)]} size={3} position={new Vector3(-15)} />
 
-</Group>;
+</StackGroupControl>;
 
 rootSphere.mount({engine: engine, scene: scene});
 

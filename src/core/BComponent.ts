@@ -23,6 +23,9 @@ export default abstract class BComponent<TProps extends IComponentProps> {
     readonly key: string;
     readonly ref: (component: BComponent<TProps>) => void;
 
+    protected get isMounted(): boolean { return this._isMounted; }   
+
+    public get node(): BABYLON.Mesh { return this._node; }
     public get parent(): BComponent<{}> { return this._parent; }
     public get props(): TProps { return this._props; }
 
@@ -57,6 +60,12 @@ export default abstract class BComponent<TProps extends IComponentProps> {
     protected abstract onUpdated(): void;
 
     /**
+     * Called when child components gets added.
+     */
+    protected childrenUpdated(): void {
+    }
+
+    /**
      * Called when a parent component was updated.
      */
     protected parentUpdated(isParentMounted: boolean): void {
@@ -82,6 +91,9 @@ export default abstract class BComponent<TProps extends IComponentProps> {
         this._node.dispose();
         this._node = undefined;
         this._isMounted = false;
+
+
+        this.parent.childrenUpdated();
     }
 
     /**
@@ -109,6 +121,7 @@ export default abstract class BComponent<TProps extends IComponentProps> {
         if (this._isMounted) {
             child.childContext = this.getChildContext();
             child.mount(this.context);
+            this.childrenUpdated();
         }
     }
 
