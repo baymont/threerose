@@ -33,7 +33,7 @@ export default class StackContainer extends Container<IStackContainerProps> {
         this.children.forEach((child: Component<any>) => {
             // TODO: assuming Y for now
             child.node.position.y = offset;
-            offset += child.node.getBoundingInfo().boundingBox.maximum.y - child.node.getBoundingInfo().boundingBox.minimum.y
+            offset += child.node.getHierarchyBoundingVectors().max.y - child.node.getHierarchyBoundingVectors().min.y
         });
     }
 }

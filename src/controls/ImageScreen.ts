@@ -14,8 +14,8 @@ export default class ImageScreen extends Component<IImageProps> {
 
     protected onMount(): BABYLON.Mesh {
         const node = BABYLON.MeshBuilder.CreateBox("ImageViewer", {
-            width: 2,
-            height: 1.5,
+            width: 1,
+            height: 1,
             depth: 0.1
           }, this.context.scene);
         const screen = BABYLON.Mesh.CreatePlane("ImageViewerScreen", 1, this.context.scene);
@@ -34,7 +34,13 @@ export default class ImageScreen extends Component<IImageProps> {
     }
 
     protected onUpdated(): void { 
-        const texture = new BABYLON.Texture(this.props.url, this.context.scene);
+        const texture = new BABYLON.Texture(this.props.url, this.context.scene, undefined, undefined, undefined, () => {
+            this.node.scaling.x = texture.getSize().width / 100;
+            this.node.scaling.y = texture.getSize().height / 100;
+        });
+        this.node.onAfterRenderObservable.add((data, state) => {
+            state.currentTarget
+        })
         this._material.diffuseTexture = texture;
         this._material.diffuseTexture.hasAlpha = true
         this._material.emissiveTexture = texture;
