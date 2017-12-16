@@ -63,6 +63,13 @@ const anotherSimpleAnimation = new AnimationBehavior(
     .easingFunction(EasingFunction.circleEase())
     .loop(true);
 
+    const bigger = new AnimationBehavior(
+        'scaling.y',
+        AnimationBehavior.threeFrame(1, 1.5, 1)
+    )
+        .easingFunction(EasingFunction.circleEase())
+        .loop(true);
+
 var imageControl: ImageScreen;
 var rootSphere: JSX.Element = (
     <StackContainer orientation={StackOrientation.Y}>
@@ -74,12 +81,12 @@ var rootSphere: JSX.Element = (
         />
         <Sphere diameter={2} segments={16} position={{ x: 0, y: 2, z: 0 }}>
             <Sphere
-                diameter={2}
+                diameter={1.5}
                 segments={16}
-                position={{ x: 0, y: 2, z: 0 }}
+                position={{ x: 2, y: 0, z: 0 }}
             />
         </Sphere>
-        <Sphere diameter={2} segments={16} position={new Vector3(2, 2)} />
+        <Sphere behaviors={[bigger]} diameter={2} segments={16} position={new Vector3(2, 2)} />
         <Sphere diameter={2} segments={16} position={{ x: -2, y: 2, z: 0 }} />
 
         <Box

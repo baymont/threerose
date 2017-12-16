@@ -22,19 +22,24 @@ export default class StackContainer extends Container<IStackContainerProps> {
     }
 
     protected onUpdated(): void {
-        this.childrenUpdated();
+        this.onChildrenUpdated();
     }
 
-    protected childrenUpdated(): void {
+    protected onSizeChanged(): void {
+        this.onChildrenUpdated();
+    }
+
+    protected onChildrenUpdated(): void {
         let offset: number = 0;
 
         // update children's position
-        this.children.forEach((child: Component<any>) => {
+        this.children.forEach((child: Component<{}>) => {
             // TODO: assuming Y for now
+            child.node.setPivotMatrix(BABYLON.Matrix.Translation(0.5, 1, 0.5));
             child.node.position.y = offset;
-            offset +=
-                child.node.getHierarchyBoundingVectors().max.y -
-                child.node.getHierarchyBoundingVectors().min.y;
+
+            const bounds = child.node.getHierarchyBoundingVectors(true);
+            offset += bounds.max.y - bounds.min.y;
         });
     }
 }

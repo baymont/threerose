@@ -1,7 +1,6 @@
 import Behavior from '../core/Behavior';
 
 export default class SpinningBehavior extends Behavior {
-    runOnRenderLoop: boolean = true;
     private _clockwise: boolean;
     private _speed: number;
 

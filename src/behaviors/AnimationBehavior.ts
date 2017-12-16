@@ -7,12 +7,10 @@ export class AnimationKey<T> {
 }
 
 export default class AnimationBehavior extends Behavior {
-    runOnRenderLoop: boolean = false;
-
     private _name: string;
     private _targetPath: string;
     private _dataType: number;
-    private _frames: AnimationKey<any>[];
+    private _frames: AnimationKey<{}>[];
     private _from: number;
     private _to: number;
     private _loop: boolean;

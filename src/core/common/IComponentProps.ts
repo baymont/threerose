@@ -6,4 +6,4 @@ export default interface IComponentProps {
     readonly behaviors?: Behavior[];
     readonly position?: Vector3;
     readonly rotation?: Vector3;
-};
+}

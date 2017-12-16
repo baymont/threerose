@@ -9,13 +9,11 @@ export interface IBehaviorContext {
 export default abstract class Behavior {
     context: IBehaviorContext;
     loaded: boolean;
-    abstract runOnRenderLoop: boolean;
 
     /**
      * Called when the attached component is mounted.
      */
     public didMount(): void {
-        var t = 'dsfdf';
     }
 
     public onComponentUpdated(): void {}

@@ -56,9 +56,6 @@ export default class ImageScreen extends Component<IImageProps> {
                 this.node.scaling.y = texture.getSize().height / 100;
             }
         );
-        this.node.onAfterRenderObservable.add((data, state) => {
-            state.currentTarget;
-        });
         this._material.diffuseTexture = texture;
         this._material.diffuseTexture.hasAlpha = true;
         this._material.emissiveTexture = texture;

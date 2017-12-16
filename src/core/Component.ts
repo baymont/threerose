@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 import Behavior from './Behavior';
 import IControlProps from './common/IComponentProps';
 import IComponentContext from './common/IComponentContext';
+import Vector3 from './common/Vector3';
 
 /**
  * bframe component
@@ -21,6 +22,7 @@ export default abstract class Component<TProps extends IControlProps> {
     private _node: BABYLON.Mesh;
     private _props: TProps;
     private _parent?: Component<{}>;
+    private _size: Vector3 = new Vector3();
     protected context: IComponentContext;
     childContext?: {};
     readonly children: Component<IControlProps>[] = [];
@@ -39,6 +41,10 @@ export default abstract class Component<TProps extends IControlProps> {
     }
     public get props(): TProps {
         return this._props;
+    }
+
+    public get size(): Vector3 {
+        return this._size;
     }
 
     /**
@@ -71,9 +77,14 @@ export default abstract class Component<TProps extends IControlProps> {
     protected abstract onUpdated(): void;
 
     /**
+     * Called on size changed.
+     */
+    protected onSizeChanged(): void {}
+
+    /**
      * Called when child components gets added.
      */
-    protected childrenUpdated(): void {}
+    protected onChildrenUpdated(): void {}
 
     /**
      * Called when a parent component was updated.
@@ -84,11 +95,6 @@ export default abstract class Component<TProps extends IControlProps> {
      * Called before render.
      */
     protected tick(): void {}
-
-    /**
-     * Called after render.
-     */
-    protected tock(): void {}
 
     /**
      * Called before unmounting.
@@ -109,7 +115,7 @@ export default abstract class Component<TProps extends IControlProps> {
         // unmount behaviors
         if (this.props.behaviors !== undefined) {
             this.props.behaviors.forEach((behavior: Behavior) => {
-                this._unmountBehavior(behavior);
+                behavior.unmount();
             });
         }
 
@@ -121,7 +127,7 @@ export default abstract class Component<TProps extends IControlProps> {
         this._node = undefined;
         this._isMounted = false;
 
-        this.parent.childrenUpdated();
+        this.parent.onChildrenUpdated();
     }
 
     /**
@@ -149,7 +155,7 @@ export default abstract class Component<TProps extends IControlProps> {
         if (this._isMounted) {
             child.childContext = this.getChildContext();
             child.mount(this.context);
-            this.childrenUpdated();
+            this.onChildrenUpdated();
         }
     }
 
@@ -227,19 +233,43 @@ export default abstract class Component<TProps extends IControlProps> {
             node: this._node
         };
         behavior.didMount();
-        if (behavior.runOnRenderLoop) {
-            this.context.scene.registerBeforeRender(
-                behavior.tick.bind(behavior)
-            );
-        }
     }
 
     private _onBeforeRender(): void {
-        this.tick();
-    }
+        // go through behaviors
+        if (this.props.behaviors !== undefined) {
+            this.props.behaviors.forEach(behavior => behavior.tick());
+        }
 
-    private _onAfterRender(): void {
-        this.tock();
+        // tick the componenet
+        this.tick();
+
+        // update size
+        const bounds = this._node.getHierarchyBoundingVectors(true);
+        const newSize = bounds.max.subtract(bounds.min);
+
+        if (
+            this._size.x !== newSize.x ||
+            this._size.y !== newSize.y ||
+            this._size.z !== newSize.z
+        ) {
+            this._size = newSize;
+            this.onSizeChanged();
+        }
+
+        // update pos props
+        if (this.props.position != undefined) {
+            this.props.position.x = this._node.position.x;
+            this.props.position.y = this._node.position.y;
+            this.props.position.z = this._node.position.z;
+        }
+
+        // update rot props
+        if (this.props.rotation !== undefined) {
+            this.props.rotation.x = this._node.rotation.x;
+            this.props.rotation.y = this._node.rotation.y;
+            this.props.rotation.z = this._node.rotation.z;
+        }
     }
 
     private _updateCoreProps(): void {
@@ -255,15 +285,6 @@ export default abstract class Component<TProps extends IControlProps> {
                 this.props.rotation.x,
                 this.props.rotation.y,
                 this.props.rotation.z
-            );
-        }
-    }
-
-    private _unmountBehavior(behavior: Behavior): void {
-        behavior.unmount();
-        if (behavior.runOnRenderLoop) {
-            this.context.scene.unregisterBeforeRender(
-                behavior.tick.bind(behavior)
             );
         }
     }
