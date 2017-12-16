@@ -4,7 +4,7 @@ import IControlProps from './common/IComponentProps';
 import IComponentContext from './common/IComponentContext';
 
 /**
- * Threerose component
+ * bframe component
  */
 export default abstract class Component<TProps extends IControlProps> {
     constructor(

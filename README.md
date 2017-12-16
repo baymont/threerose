@@ -1,10 +1,10 @@
-# Threerose (alpha)
+# bframe (alpha)
 
 The functional Mixed Reality framework for web devs. Powered by Babylon.JS. TypeScript first.
 
 ## Set Up
 
-`npm install threerose`
+`npm install bframe`
 
 That's it!
 
@@ -18,7 +18,7 @@ That's it!
 
 ### Components
 
-At the core of threerose are *components*. Primitive ones include: `Sphere`, `Box`, `Cylinder`, and so on.
+At the core of bframe are *components*. Primitive ones include: `Sphere`, `Box`, `Cylinder`, and so on.
 
 ### Complex
 
