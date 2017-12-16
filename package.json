@@ -1,35 +1,36 @@
 {
-  "name": "threerose",
-  "version": "0.1.0",
-  "description": "The functional Mixed Reality framework for web devs.",
-  "main": "_bundles/threerose.js",
-  "typings": "lib/index.d.ts",
-  "scripts": {
-    "clean": "shx rm -rf _bundles lib lib-esm",
-    "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
-    "rebuild": "npm run clean && npm run build",
-    "start:dev": "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/ -c"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/baymont/threerose.git"
-  },
-  "author": "Harold Martinez",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/baymont/threerose/issues"
-  },
-  "homepage": "https://github.com/baymont/threerose#readme",
-  "dependencies": {
-    "babylonjs": "^3.1.0-rc-0"
-  },
-  "devDependencies": {
-    "awesome-typescript-loader": "^3.4.0",
-    "http-server": "^0.10.0",
-    "shx": "^0.2.2",
-    "tslint": "^5.8.0",
-    "tslint-loader": "^3.5.3",
-    "typescript": "^2.6.1",
-    "webpack": "^3.8.1"
-  }
+    "name": "threerose",
+    "version": "0.1.5",
+    "description": "The functional Mixed Reality framework for web devs.",
+    "main": "_bundles/threerose.js",
+    "typings": "lib/index.d.ts",
+    "scripts": {
+        "clean": "shx rm -rf _bundles lib lib-esm",
+        "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
+        "rebuild": "npm run clean && npm run build",
+        "start:dev":
+            "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/ -c"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/baymont/threerose.git"
+    },
+    "author": "Harold Martinez",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/baymont/threerose/issues"
+    },
+    "homepage": "https://github.com/baymont/threerose#readme",
+    "dependencies": {
+        "babylonjs": "^3.1.0-rc-0"
+    },
+    "devDependencies": {
+        "awesome-typescript-loader": "^3.4.0",
+        "http-server": "^0.10.0",
+        "shx": "^0.2.2",
+        "tslint": "^5.8.0",
+        "tslint-loader": "^3.5.3",
+        "typescript": "^2.6.1",
+        "webpack": "^3.8.1"
+    }
 }

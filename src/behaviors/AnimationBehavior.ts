@@ -22,7 +22,12 @@ export default class AnimationBehavior extends Behavior {
     /**
      * Animation behavior for numbers
      */
-    constructor(targetPath: string, frames: AnimationKey<number>[], from: number = 0, to: number = 100) {
+    constructor(
+        targetPath: string,
+        frames: AnimationKey<number>[],
+        from: number = 0,
+        to: number = 100
+    ) {
         super();
         this._targetPath = targetPath;
         this._dataType = BABYLON.Animation.ANIMATIONTYPE_FLOAT;
@@ -36,22 +41,35 @@ export default class AnimationBehavior extends Behavior {
     }
 
     public didMount(): void {
-        var animation = new BABYLON.Animation(this._name, this._targetPath, 30, this._dataType,
-        BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-        
+        var animation = new BABYLON.Animation(
+            this._name,
+            this._targetPath,
+            30,
+            this._dataType,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+        );
+
         if (this._easingFunction !== undefined) {
             // For each easing function, you can choose beetween EASEIN (default), EASEOUT, EASEINOUT
-            this._easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-        
+            this._easingFunction.setEasingMode(
+                BABYLON.EasingFunction.EASINGMODE_EASEINOUT
+            );
+
             // Adding easing function to my animation
             animation.setEasingFunction(this._easingFunction);
         }
-        
+
         animation.setKeys(this._frames);
 
         this.context.node.animations.push(animation);
-        
-        this.context.scene.beginAnimation(this.context.node, this._from, this._to, this._loop, this._speedRatio);
+
+        this.context.scene.beginAnimation(
+            this.context.node,
+            this._from,
+            this._to,
+            this._loop,
+            this._speedRatio
+        );
     }
 
     public easingFunction(value: EasingFunction): AnimationBehavior {
@@ -69,11 +87,26 @@ export default class AnimationBehavior extends Behavior {
         return this;
     }
 
-    public static twoFrame(first: number, second: number, start: number = 0, end: number = 100): AnimationKey<number>[] {
+    public static twoFrame(
+        first: number,
+        second: number,
+        start: number = 0,
+        end: number = 100
+    ): AnimationKey<number>[] {
         return [{ frame: start, value: first }, { frame: end, value: second }];
     }
 
-    public static threeFrame(first: number, second: number, third: number, start: number = 0, end: number = 100): AnimationKey<number>[] {
-        return [{ frame: start, value: first }, { frame: (end - start) / 2, value: second }, { frame: end, value: third }];
+    public static threeFrame(
+        first: number,
+        second: number,
+        third: number,
+        start: number = 0,
+        end: number = 100
+    ): AnimationKey<number>[] {
+        return [
+            { frame: start, value: first },
+            { frame: (end - start) / 2, value: second },
+            { frame: end, value: third }
+        ];
     }
 }

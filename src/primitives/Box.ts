@@ -9,15 +9,18 @@ export interface IBoxProps extends IComponentProps {
     depth?: number;
     sideOrientation?: number;
 }
-  
+
 // Define a custom element type.
 export default class Box extends Component<IBoxProps> {
-    
     protected onMount(): BABYLON.Mesh {
-        return BABYLON.MeshBuilder.CreateBox(this.key, this.props, this.context.scene);
+        return BABYLON.MeshBuilder.CreateBox(
+            this.key,
+            this.props,
+            this.context.scene
+        );
     }
-    
+
     protected onUpdated(): void {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }

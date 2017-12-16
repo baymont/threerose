@@ -17,7 +17,6 @@ export interface IStackContainerProps extends IComponentProps {
  * Stacks 3D components.
  */
 export default class StackContainer extends Container<IStackContainerProps> {
-    
     protected didMount(): void {
         this.onUpdated();
     }
@@ -33,7 +32,9 @@ export default class StackContainer extends Container<IStackContainerProps> {
         this.children.forEach((child: Component<any>) => {
             // TODO: assuming Y for now
             child.node.position.y = offset;
-            offset += child.node.getBoundingInfo().boundingBox.maximum.y - child.node.getBoundingInfo().boundingBox.minimum.y
+            offset +=
+                child.node.getBoundingInfo().boundingBox.maximum.y -
+                child.node.getBoundingInfo().boundingBox.minimum.y;
         });
     }
 }

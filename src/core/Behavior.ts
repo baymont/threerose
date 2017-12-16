@@ -12,17 +12,15 @@ export default abstract class Behavior {
     abstract runOnRenderLoop: boolean;
 
     /**
-     * Called when the attached component is mounted. 
+     * Called when the attached component is mounted.
      */
     public didMount(): void {
+        var t = 'dsfdf';
     }
 
-    public onComponentUpdated(): void {
-    }
+    public onComponentUpdated(): void {}
 
-    public tick(): void {
-    }
+    public tick(): void {}
 
-    public unmount(): void {
-    }
+    public unmount(): void {}
 }

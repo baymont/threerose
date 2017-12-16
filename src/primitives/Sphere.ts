@@ -11,15 +11,18 @@ export interface ISphereProps extends IComponentProps {
     readonly slice?: number;
     readonly sideOrientation?: number;
 }
-  
+
 // Define a custom element type.
 export default class Sphere extends Component<ISphereProps> {
-
     protected onMount(): BABYLON.Mesh {
-        return BABYLON.MeshBuilder.CreateSphere(this.key, this.props, this.context.scene);
+        return BABYLON.MeshBuilder.CreateSphere(
+            this.key,
+            this.props,
+            this.context.scene
+        );
     }
 
     protected onUpdated(): void {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }
