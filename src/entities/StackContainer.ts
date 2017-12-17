@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import Container from './common/Container';
 import IComponentProps from '../core/common/IComponentProps';
-import Component from '../core/Component';
+import Entity from '../core/Component';
 
 export enum StackOrientation {
     X,
@@ -33,7 +33,7 @@ export default class StackContainer extends Container<IStackContainerProps> {
         let offset: number = 0;
 
         // update children's position
-        this.children.forEach((child: Component<{}>) => {
+        this.children.forEach((child: Entity<{}>) => {
             // TODO: assuming Y for now
             child.node.setPivotMatrix(BABYLON.Matrix.Translation(0.5, 1, 0.5));
             child.node.position.y = offset;

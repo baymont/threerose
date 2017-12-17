@@ -1,13 +1,13 @@
 import * as BABYLON from 'babylonjs';
 
-export interface IBehaviorContext {
+export interface IComponentContext {
     engine: BABYLON.Engine;
     scene: BABYLON.Scene;
     node: BABYLON.Mesh;
 }
 
-export default abstract class Behavior {
-    context: IBehaviorContext;
+export default abstract class Component {
+    context: IComponentContext;
     loaded: boolean;
 
     /**

@@ -1,16 +1,16 @@
 import * as BABYLON from 'babylonjs';
-import Behavior from './Behavior';
+import Component from './Behavior';
 import IControlProps from './common/IComponentProps';
 import IComponentContext from './common/IComponentContext';
 import Vector3 from './common/Vector3';
 
 /**
- * bframe component
+ * bframe entity
  */
-export default abstract class Component<TProps extends IControlProps> {
+export default class Entity<TProps extends IControlProps> {
     constructor(
         key: string,
-        ref: (component: Component<TProps>) => void,
+        ref: (entity: Entity<TProps>) => void,
         props: TProps
     ) {
         this.key = key;
@@ -21,13 +21,13 @@ export default abstract class Component<TProps extends IControlProps> {
     private _isMounted: boolean;
     private _node: BABYLON.Mesh;
     private _props: TProps;
-    private _parent?: Component<{}>;
+    private _parent?: Entity<{}>;
     private _size: Vector3 = new Vector3();
     protected context: IComponentContext;
     childContext?: {};
-    readonly children: Component<IControlProps>[] = [];
+    readonly children: Entity<IControlProps>[] = [];
     readonly key: string;
-    readonly ref: (component: Component<TProps>) => void;
+    readonly ref: (component: Entity<TProps>) => void;
 
     protected get isMounted(): boolean {
         return this._isMounted;
@@ -36,7 +36,7 @@ export default abstract class Component<TProps extends IControlProps> {
     public get node(): BABYLON.Mesh {
         return this._node;
     }
-    public get parent(): Component<{}> {
+    public get parent(): Entity<{}> {
         return this._parent;
     }
     public get props(): TProps {
@@ -50,7 +50,9 @@ export default abstract class Component<TProps extends IControlProps> {
     /**
      * Mounts the component with the returned Babylon.JS Node
      */
-    protected abstract onMount(): BABYLON.Mesh;
+    protected onMount(): BABYLON.Mesh {
+        return new BABYLON.Mesh("Entity", this.context.scene);
+    }
 
     /**
      * Called after this instance and all of its childrens are mounted.
@@ -74,7 +76,7 @@ export default abstract class Component<TProps extends IControlProps> {
     /**
      * Called after props updated.
      */
-    protected abstract onUpdated(): void;
+    protected onUpdated(): void {}
 
     /**
      * Called on size changed.
@@ -113,8 +115,8 @@ export default abstract class Component<TProps extends IControlProps> {
         });
 
         // unmount behaviors
-        if (this.props.behaviors !== undefined) {
-            this.props.behaviors.forEach((behavior: Behavior) => {
+        if (this.props.components) {
+            this.props.components.forEach((behavior: Component) => {
                 behavior.unmount();
             });
         }
@@ -139,10 +141,10 @@ export default abstract class Component<TProps extends IControlProps> {
         }
 
         this.unmount();
-        this.mount(this.context);
+        this._mount(this.context);
     }
 
-    public mountChild(child: Component<{}>) {
+    public mountChild(child: Entity<{}>) {
         if (child._isMounted) {
             throw new Error('Child already mounted.');
         }
@@ -154,12 +156,12 @@ export default abstract class Component<TProps extends IControlProps> {
         // Mount child
         if (this._isMounted) {
             child.childContext = this.getChildContext();
-            child.mount(this.context);
+            child._mount(this.context);
             this.onChildrenUpdated();
         }
     }
 
-    public mount(context: IComponentContext, parentNode?: BABYLON.Mesh) {
+    protected _mount(context: IComponentContext, parentNode?: BABYLON.Mesh): void {
         if (!this._isMounted) {
             this.context = context;
             this._node = this.onMount();
@@ -167,16 +169,16 @@ export default abstract class Component<TProps extends IControlProps> {
         }
 
         // Set to parent
-        if (this.parent !== undefined) {
+        if (this.parent) {
             this._node.parent = this.parent._node;
-        } else if (parentNode !== undefined) {
+        } else if (parentNode) {
             this._node.parent = parentNode;
         }
 
         // Mount children
         this.children.forEach(child => {
             child.childContext = this.getChildContext();
-            child.mount(this.context);
+            child._mount(this.context);
         });
 
         if (!this._isMounted) {
@@ -190,8 +192,8 @@ export default abstract class Component<TProps extends IControlProps> {
             this._isMounted = true;
 
             // Run behaviors after mounting
-            if (this.props.behaviors !== undefined) {
-                this.props.behaviors.forEach((behavior: Behavior) => {
+            if (this.props.components) {
+                this.props.components.forEach((behavior: Component) => {
                     this._mountBehavior(behavior);
                 });
             }
@@ -203,8 +205,8 @@ export default abstract class Component<TProps extends IControlProps> {
             this._props = Object.assign(this.props, props);
 
             // run behaviors
-            if (this.props.behaviors !== undefined) {
-                this.props.behaviors.forEach((behavior: Behavior) => {
+            if (this.props.components) {
+                this.props.components.forEach((behavior: Component) => {
                     if (behavior.loaded) {
                         behavior.onComponentUpdated();
                     } else {
@@ -226,7 +228,7 @@ export default abstract class Component<TProps extends IControlProps> {
         });
     }
 
-    private _mountBehavior(behavior: Behavior): void {
+    private _mountBehavior(behavior: Component): void {
         behavior.context = {
             engine: this.context.engine,
             scene: this.context.scene,
@@ -237,35 +239,39 @@ export default abstract class Component<TProps extends IControlProps> {
 
     private _onBeforeRender(): void {
         // go through behaviors
-        if (this.props.behaviors !== undefined) {
-            this.props.behaviors.forEach(behavior => behavior.tick());
+        if (this.props.components) {
+            this.props.components.forEach(behavior => behavior.tick());
         }
 
         // tick the componenet
         this.tick();
 
         // update size
-        const bounds = this._node.getHierarchyBoundingVectors(true);
-        const newSize = bounds.max.subtract(bounds.min);
+        try {
+            const bounds = this._node.getHierarchyBoundingVectors(true);
+            const newSize = bounds.max.subtract(bounds.min);
 
-        if (
-            this._size.x !== newSize.x ||
-            this._size.y !== newSize.y ||
-            this._size.z !== newSize.z
-        ) {
-            this._size = newSize;
-            this.onSizeChanged();
+            if (
+                this._size.x !== newSize.x ||
+                this._size.y !== newSize.y ||
+                this._size.z !== newSize.z
+            ) {
+                this._size = newSize;
+                this.onSizeChanged();
+            }
+        } catch (err) {
+            // Workaround for v3.1.0, TODO: https://github.com/BabylonJS/Babylon.js/issues/3406
         }
 
         // update pos props
-        if (this.props.position != undefined) {
+        if (this.props.position) {
             this.props.position.x = this._node.position.x;
             this.props.position.y = this._node.position.y;
             this.props.position.z = this._node.position.z;
         }
 
         // update rot props
-        if (this.props.rotation !== undefined) {
+        if (this.props.rotation) {
             this.props.rotation.x = this._node.rotation.x;
             this.props.rotation.y = this._node.rotation.y;
             this.props.rotation.z = this._node.rotation.z;
@@ -273,14 +279,14 @@ export default abstract class Component<TProps extends IControlProps> {
     }
 
     private _updateCoreProps(): void {
-        if (this.props.position !== undefined) {
+        if (this.props.position) {
             this._node.position = new BABYLON.Vector3(
                 this.props.position.x,
                 this.props.position.y,
                 this.props.position.z
             );
         }
-        if (this.props.rotation !== undefined) {
+        if (this.props.rotation) {
             this._node.rotation = new BABYLON.Vector3(
                 this.props.rotation.x,
                 this.props.rotation.y,

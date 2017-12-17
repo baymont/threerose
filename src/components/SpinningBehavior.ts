@@ -1,6 +1,6 @@
-import Behavior from '../core/Behavior';
+import Component from '../core/Behavior';
 
-export default class SpinningBehavior extends Behavior {
+export default class Spinning extends Component {
     private _clockwise: boolean;
     private _speed: number;
 

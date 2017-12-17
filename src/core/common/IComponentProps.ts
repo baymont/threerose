@@ -1,9 +1,9 @@
-import Behavior from '../Behavior';
-import Component from '../Component';
+import Component from '../Behavior';
+import Entity from '../Component';
 import Vector3 from './Vector3';
 
 export default interface IComponentProps {
-    readonly behaviors?: Behavior[];
+    readonly components?: Component[];
     readonly position?: Vector3;
     readonly rotation?: Vector3;
 }

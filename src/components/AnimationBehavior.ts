@@ -1,4 +1,4 @@
-import Behavior from '../core/Behavior';
+import Component from '../core/Behavior';
 import EasingFunction from './common/EasingFunction';
 
 export class AnimationKey<T> {
@@ -6,7 +6,7 @@ export class AnimationKey<T> {
     value: T;
 }
 
-export default class AnimationBehavior extends Behavior {
+export default class Animation extends Component {
     private _name: string;
     private _targetPath: string;
     private _dataType: number;
@@ -34,7 +34,7 @@ export default class AnimationBehavior extends Behavior {
         this._to = to;
     }
 
-    public clone(): AnimationBehavior {
+    public clone(): Animation {
         return Object.create(this);
     }
 
@@ -70,17 +70,17 @@ export default class AnimationBehavior extends Behavior {
         );
     }
 
-    public easingFunction(value: EasingFunction): AnimationBehavior {
+    public easingFunction(value: EasingFunction): Animation {
         this._easingFunction = value;
         return this;
     }
 
-    public loop(value: boolean): AnimationBehavior {
+    public loop(value: boolean): Animation {
         this._loop = value;
         return this;
     }
 
-    public speedRatio(value: number): AnimationBehavior {
+    public speedRatio(value: number): Animation {
         this._speedRatio = value;
         return this;
     }

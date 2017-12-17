@@ -1,12 +1,12 @@
-export { default as IComponentContext } from './core/common/IComponentContext';
-export { default as Component } from './core/Component';
+export { default as IBehaviorContext } from './core/common/IComponentContext';
+export { default as Entity } from './core/Component';
 
-export { default as Behavior, IBehaviorContext } from './core/Behavior';
+export { default as Component, IComponentContext } from './core/Behavior';
 
 export * from './core/rsx';
 
-export * from './controls';
+export * from './entities';
 
 export * from './primitives';
 
-export * from './behaviors';
+export * from './components';

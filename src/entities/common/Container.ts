@@ -1,4 +1,4 @@
-import Component from '../../core/Component';
+import Entity from '../../core/Component';
 import * as BABYLON from 'babylonjs';
 import IComponentProps from '../../core/common/IComponentProps';
 
@@ -7,7 +7,7 @@ import IComponentProps from '../../core/common/IComponentProps';
  */
 export default abstract class Container<
     T extends IComponentProps
-> extends Component<T> {
+> extends Entity<T> {
     protected onMount(): BABYLON.Mesh {
         return new BABYLON.Mesh(this.key, this.context.scene);
     }
