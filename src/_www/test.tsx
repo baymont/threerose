@@ -13,6 +13,8 @@ import Scene from '../core/common/Scene';
 import Camera from '../core/common/Camera';
 import HemisphericLight from '../core/common/HemisphericLight';
 import Ground from '../core/common/Ground';
+import { Entity } from '../core/Component';
+import ModelLoader from '../components/ModelLoader';
 
 const canvas: HTMLCanvasElement = document.getElementById(
     'canvas'
@@ -24,6 +26,15 @@ var scene: Scene = (
         <Camera />
         <HemisphericLight />
         <Ground>
+            <Entity
+                scaling={new Vector3(100, 100, 100)}
+                position={new Vector3(0, 3, -5)}
+                components={[
+                    new ModelLoader(
+                        'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf'
+                    )
+                ]}
+            />
             <StackContainer orientation={StackOrientation.Y}>
                 <ImageScreen url="https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg" />
                 <Sphere
@@ -43,7 +54,9 @@ var scene: Scene = (
                         new Animation(
                             'position.x',
                             Animation.threeFrame(0, -1, 0)
-                        ).loop(true).speedRatio(0.5),
+                        )
+                            .loop(true)
+                            .speedRatio(0.5),
                         new Spinning(false)
                     ]}
                     size={1}

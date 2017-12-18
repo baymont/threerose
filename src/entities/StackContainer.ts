@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import Container from './common/Container';
 import IComponentProps from '../core/common/IComponentProps';
-import Entity from '../core/Component';
+import EntityBase from '../core/Component';
 import Vector3 from '../../lib/core/common/Vector3';
 
 export enum StackOrientation {
@@ -34,7 +34,7 @@ export default class StackContainer extends Container<IStackContainerProps> {
         let offset: number = 0;
 
         // update children's position
-        this.children.forEach((child: Entity<{}>) => {
+        this.children.forEach((child: EntityBase<{}>) => {
             // TODO: assuming Y for now
             // Wrap in stack container
             const stackItem: BABYLON.Mesh =

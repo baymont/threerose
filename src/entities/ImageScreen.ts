@@ -1,4 +1,4 @@
-import Entity from '../core/Component';
+import EntityBase from '../core/Component';
 import * as BABYLON from 'babylonjs';
 import IComponentProps from '../core/common/IComponentProps';
 
@@ -9,7 +9,7 @@ export interface IImageProps extends IComponentProps {
 /**
  * An image component for 2D images.
  */
-export default class ImageScreen extends Entity<IImageProps> {
+export default class ImageScreen extends EntityBase<IImageProps> {
     private _material: BABYLON.StandardMaterial;
 
     protected onMount(): BABYLON.Mesh {

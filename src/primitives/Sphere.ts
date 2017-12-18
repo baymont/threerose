@@ -1,4 +1,4 @@
-import Entity from '../core/Component';
+import EntityBase from '../core/Component';
 import IComponentProps from '../core/common/IComponentProps';
 
 export interface ISphereProps extends IComponentProps {
@@ -13,7 +13,7 @@ export interface ISphereProps extends IComponentProps {
 }
 
 // Define a custom element type.
-export default class Sphere extends Entity<ISphereProps> {
+export default class Sphere extends EntityBase<ISphereProps> {
     protected onMount(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateSphere(
             this.key,

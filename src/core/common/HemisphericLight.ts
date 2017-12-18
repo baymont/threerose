@@ -1,4 +1,4 @@
-import Entity from '../Component';
+import EntityBase from '../Component';
 import IComponentProps from './IComponentProps';
 import IComponentContext from './IComponentContext';
 import Scene from './Scene';
@@ -6,7 +6,7 @@ import Scene from './Scene';
 /**
  * bframe hemispheric light
  */
-export default class HemisphericLight extends Entity<IComponentProps> {
+export default class HemisphericLight extends EntityBase<IComponentProps> {
     protected onMount(): BABYLON.Mesh {
         const light = new BABYLON.HemisphericLight(
             'skyLight',

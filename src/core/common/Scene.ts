@@ -1,4 +1,4 @@
-import Entity from '../Component';
+import EntityBase from '../Component';
 import IComponentProps from './IComponentProps';
 import IComponentContext from './IComponentContext';
 import Camera from './Camera';
@@ -6,7 +6,7 @@ import Camera from './Camera';
 /**
  * Represents the root of any bframe tree
  */
-export default class Scene extends Entity<IComponentProps> {
+export default class Scene extends EntityBase<IComponentProps> {
     public get canvas(): HTMLCanvasElement {
         return this.context.engine.getRenderingCanvas();
     }

@@ -7,10 +7,10 @@ import Vector3 from './common/Vector3';
 /**
  * bframe entity
  */
-export default class Entity<TProps extends IControlProps> {
+export default class EntityBase<TProps extends IControlProps> {
     constructor(
         key: string,
-        ref: (entity: Entity<TProps>) => void,
+        ref: (entity: EntityBase<TProps>) => void,
         props: TProps
     ) {
         this.key = key;
@@ -21,13 +21,13 @@ export default class Entity<TProps extends IControlProps> {
     private _isMounted: boolean;
     private _node: BABYLON.Mesh;
     private _props: TProps;
-    private _parent?: Entity<{}>;
+    private _parent?: EntityBase<{}>;
     private _size: Vector3 = new Vector3();
     protected context: IComponentContext;
     childContext?: {};
-    readonly children: Entity<IControlProps>[] = [];
+    readonly children: EntityBase<IControlProps>[] = [];
     readonly key: string;
-    readonly ref: (component: Entity<TProps>) => void;
+    readonly ref: (component: EntityBase<TProps>) => void;
 
     protected get isMounted(): boolean {
         return this._isMounted;
@@ -36,7 +36,7 @@ export default class Entity<TProps extends IControlProps> {
     public get node(): BABYLON.Mesh {
         return this._node;
     }
-    public get parent(): Entity<{}> {
+    public get parent(): EntityBase<{}> {
         return this._parent;
     }
     public get props(): TProps {
@@ -51,7 +51,7 @@ export default class Entity<TProps extends IControlProps> {
      * Mounts the component with the returned Babylon.JS Node
      */
     protected onMount(): BABYLON.Mesh {
-        return new BABYLON.Mesh("Entity", this.context.scene);
+        return new BABYLON.Mesh(this.key || "Entity", this.context.scene);
     }
 
     /**
@@ -144,7 +144,7 @@ export default class Entity<TProps extends IControlProps> {
         this._mount(this.context);
     }
 
-    public mountChild(child: Entity<{}>) {
+    public mountChild(child: EntityBase<{}>) {
         if (child._isMounted) {
             throw new Error('Child already mounted.');
         }
@@ -276,6 +276,13 @@ export default class Entity<TProps extends IControlProps> {
             this.props.rotation.y = this._node.rotation.y;
             this.props.rotation.z = this._node.rotation.z;
         }
+
+        // update rot props
+        if (this.props.scaling) {
+            this.props.scaling.x = this._node.scaling.x;
+            this.props.scaling.y = this._node.scaling.y;
+            this.props.scaling.z = this._node.scaling.z;
+        }
     }
 
     private _updateCoreProps(): void {
@@ -293,5 +300,17 @@ export default class Entity<TProps extends IControlProps> {
                 this.props.rotation.z
             );
         }
+
+        if (this.props.scaling) {
+            this._node.scaling = new BABYLON.Vector3(
+                this.props.scaling.x,
+                this.props.scaling.y,
+                this.props.scaling.z
+            );
+        }
     }
+}
+
+
+export class Entity extends EntityBase<IControlProps> { 
 }

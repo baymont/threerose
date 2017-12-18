@@ -1,4 +1,4 @@
-import Entity from '../Component';
+import EntityBase from '../Component';
 import IComponentProps from './IComponentProps';
 import IComponentContext from './IComponentContext';
 import Scene from './Scene';
@@ -6,7 +6,7 @@ import Scene from './Scene';
 /**
  * bframe camera
  */
-export default class Camera extends Entity<IComponentProps> {
+export default class Camera extends EntityBase<IComponentProps> {
     protected _camera: BABYLON.FreeCamera;
 
     protected onMount(): BABYLON.Mesh {
