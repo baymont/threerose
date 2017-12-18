@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 import Container from './common/Container';
 import IComponentProps from '../core/common/IComponentProps';
 import Entity from '../core/Component';
+import Vector3 from '../../lib/core/common/Vector3';
 
 export enum StackOrientation {
     X,
@@ -35,11 +36,31 @@ export default class StackContainer extends Container<IStackContainerProps> {
         // update children's position
         this.children.forEach((child: Entity<{}>) => {
             // TODO: assuming Y for now
-            child.node.setPivotMatrix(BABYLON.Matrix.Translation(0.5, 1, 0.5));
-            child.node.position.y = offset;
+            // Wrap in stack container
+            const stackItem: BABYLON.Mesh =
+                child.node.parent.name === 'StackItem'
+                    ? child.node.parent as BABYLON.Mesh
+                    : new BABYLON.Mesh('StackItem');
 
-            const bounds = child.node.getHierarchyBoundingVectors(true);
-            offset += bounds.max.y - bounds.min.y;
+            if (child.node.parent !== stackItem) {
+                stackItem.parent = this.node;
+                child.node.parent = stackItem;
+            }
+
+            stackItem.position.y = offset;
+
+            const bounds = stackItem.getHierarchyBoundingVectors(true);
+
+            const dimensions = bounds.max.subtract(bounds.min);
+            stackItem.setPivotMatrix(
+                BABYLON.Matrix.Translation(
+                    0,
+                    dimensions.y / 2,
+                    0
+                )
+            );
+
+            offset += dimensions.y;
         });
     }
 }
