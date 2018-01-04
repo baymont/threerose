@@ -1,6 +1,6 @@
 {
   "name": "bframe",
-  "version": "0.1.5",
+  "version": "0.1.11",
   "description": "The functional Mixed Reality framework for web devs.",
   "main": "_bundles/bframe.js",
   "typings": "lib/index.d.ts",
@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/haroldma/bframe#readme",
   "dependencies": {
-    "babylonjs": "^3.1.0",
-    "babylonjs-loaders": "^3.1.0"
+    "babylonjs": "^3.1.1",
+    "babylonjs-loaders": "^3.1.1"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.4.0",

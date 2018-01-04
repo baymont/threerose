@@ -9,13 +9,13 @@ import Vector3 from './common/Vector3';
  */
 export default class EntityBase<TProps extends IControlProps> {
     constructor(
-        key: string,
-        ref: (entity: EntityBase<TProps>) => void,
-        props: TProps
+        props?: TProps,
+        key?: string,
+        ref?: (entity: EntityBase<TProps>) => void
     ) {
+        this._props = props || <TProps>{};
         this.key = key;
         this.ref = ref;
-        this._props = props;
     }
 
     private _isMounted: boolean;
@@ -161,7 +161,7 @@ export default class EntityBase<TProps extends IControlProps> {
         }
     }
 
-    protected _mount(context: IComponentContext, parentNode?: BABYLON.Mesh): void {
+    private _mount(context: IComponentContext, parentNode?: BABYLON.Mesh): void {
         if (!this._isMounted) {
             this.context = context;
             this._node = this.onMount();

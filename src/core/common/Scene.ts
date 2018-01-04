@@ -19,7 +19,8 @@ export default class Scene extends EntityBase<IComponentProps> {
             });
         }
 
-        super._mount({
+        // tslint:disable-next-line no-any
+        (<any>this)._mount({
             engine: engine,
             scene: scene,
             sceneEntity: this

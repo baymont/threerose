@@ -17,7 +17,12 @@ module.exports = {
         umdNamedDefine: true
     },
     externals: {
-        babylonjs: 'BABYLON'
+        "babylonjs": {
+            root: 'BABYLON',
+            commonjs2: 'babylonjs',
+            commonjs: 'babylonjs',
+            amd: 'babylonjs'
+        }
     },
     devtool: 'source-map',
     module: {

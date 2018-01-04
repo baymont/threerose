@@ -18,7 +18,7 @@ declare global {
 
 export namespace React {
     export function createElement<T extends EntityBase<TT>, TT>(
-        constructorFn: new (key: string, ref: () => T, props: TT) => T,
+        constructorFn: new (props: TT, key: string, ref: () => T) => T,
         attributes: TT,
         child: EntityBase<IComponentProps>
     ) {
@@ -31,9 +31,11 @@ export namespace React {
 
         attributes = attributes || {} as TT;
         const component: EntityBase<TT> = new constructorFn(
+            attributes,
+            // tslint:disable:no-any
             (<any>attributes).key,
-            (<any>attributes).ref,
-            attributes
+            (<any>attributes).ref
+            // tslint:enable:no-any
         );
         children.forEach((child: EntityBase<IComponentProps>) => {
             component.mountChild(child);

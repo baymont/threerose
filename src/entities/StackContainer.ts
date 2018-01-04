@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs';
 import Container from './common/Container';
 import IComponentProps from '../core/common/IComponentProps';
 import EntityBase from '../core/Component';
-import Vector3 from '../../lib/core/common/Vector3';
+import Vector3 from '../core/common/Vector3';
 
 export enum StackOrientation {
     X,
