@@ -7,10 +7,14 @@ import Camera from './Camera';
  * Represents the root of any bframe tree
  */
 export default class Scene extends EntityBase<IComponentProps> {
+    constructor() {
+        super({}, 'Scene');
+    }
+
     public get canvas(): HTMLCanvasElement {
         return this.context.engine.getRenderingCanvas();
     }
-
+    
     public mount(engine: BABYLON.Engine, scene?: BABYLON.Scene) {
         if (scene === undefined) {
             scene = new BABYLON.Scene(engine);

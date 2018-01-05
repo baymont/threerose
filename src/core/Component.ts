@@ -76,7 +76,7 @@ export default class EntityBase<TProps extends IControlProps> {
     /**
      * Called after props updated.
      */
-    protected onUpdated(): void {}
+    protected onUpdated(oldProps: TProps): void {}
 
     /**
      * Called on size changed.
@@ -169,10 +169,12 @@ export default class EntityBase<TProps extends IControlProps> {
         }
 
         // Set to parent
-        if (this.parent) {
-            this._node.parent = this.parent._node;
-        } else if (parentNode) {
-            this._node.parent = parentNode;
+        if (!this._node.parent) {
+            if (parentNode) {
+                this._node.parent = parentNode;
+            } else if (this.parent) {
+                this._node.parent = this.parent._node;
+            }
         }
 
         // Mount children
@@ -202,6 +204,7 @@ export default class EntityBase<TProps extends IControlProps> {
 
     public updateProps(props: TProps) {
         if (this.willUpdate(props)) {
+            const oldProps = this.props;
             this._props = Object.assign(this.props, props);
 
             // run behaviors
@@ -216,7 +219,7 @@ export default class EntityBase<TProps extends IControlProps> {
             }
 
             // finally let the implemantation update itself
-            this.onUpdated();
+            this.onUpdated(oldProps);
             this.notifyChildren();
         }
     }
