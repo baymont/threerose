@@ -1,20 +1,22 @@
 import { React } from '../core/rsx';
 import * as BABYLON from 'babylonjs';
-import Sphere from '../primitives/Sphere';
-import Box from '../primitives/Box';
-import StackContainer, { StackOrientation } from '../entities/StackContainer';
-import ImageScreen, { IImageProps } from '../entities/ImageScreen';
-import Vector3 from '../core/common/Vector3';
-import Animation from '../components/AnimationBehavior';
-import EasingFunction from '../components/common/EasingFunction';
-import IComponentProps from '../core/common/IComponentProps';
-import Spinning from '../components/SpinningBehavior';
 import Scene from '../core/common/Scene';
-import Camera from '../core/common/Camera';
-import HemisphericLight from '../core/common/HemisphericLight';
-import Ground from '../core/common/Ground';
-import { Entity } from '../core/Component';
+import Camera from '../entities/common/Camera';
+import HemisphericLight from '../entities/common/HemisphericLight';
+import Ground from '../entities/common/Ground';
+import Entity from '../core/Entity';
+import Vector3 from '../core/common/Vector3';
 import ModelLoader from '../components/ModelLoader';
+import StackContainer from '../entities/StackContainer';
+import { StackOrientation } from '../entities/StackContainer';
+import Sphere from '../primitives/Sphere';
+import ImageViewer from '../entities/ImageViewer';
+import Animation from '../components/Animation';
+import EasingFunction from '../components/common/EasingFunction';
+import Box from '../primitives/Box';
+import Spinning from '../components/Spinning';
+import OnClick from '../components/OnClick';
+import OnHover from '../components/OnHover';
 
 const canvas: HTMLCanvasElement = document.getElementById(
     'canvas'
@@ -32,11 +34,14 @@ var scene: Scene = (
                 components={[
                     new ModelLoader(
                         'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf'
-                    )
+                    ),
+                    new OnClick(() => {
+                        alert('Clicked!');
+                    })
                 ]}
             />
             <StackContainer orientation={StackOrientation.Y}>
-                <ImageScreen url="https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg" />
+                <ImageViewer url="https://az835927.vo.msecnd.net/sites/mixed-reality/Resources/images/Hero-MixedReality-230px.jpg" />
                 <Sphere
                     components={[
                         new Animation(
@@ -57,7 +62,10 @@ var scene: Scene = (
                         )
                             .loop(true)
                             .speedRatio(0.5),
-                        new Spinning(false)
+                        new Spinning(false),
+                        new OnHover((out: boolean) => {
+                            alert(out ? 'Out!' : 'Hover!');
+                        })
                     ]}
                     size={1}
                 />
@@ -77,4 +85,3 @@ var scene: Scene = (
 ) as Scene;
 
 scene.mount(engine);
-engine.scenes[0].debugLayer.show();

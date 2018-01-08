@@ -1,12 +1,9 @@
-import EntityBase from '../Component';
-import IComponentProps from './IComponentProps';
-import IComponentContext from './IComponentContext';
-import Camera from './Camera';
-
+import Entity from '../Entity';
+import Camera from '../../entities/common/Camera';
 /**
  * Represents the root of any bframe tree
  */
-export default class Scene extends EntityBase<IComponentProps> {
+export default class Scene extends Entity {
     constructor() {
         super({}, 'Scene');
     }

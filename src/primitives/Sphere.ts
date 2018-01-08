@@ -1,7 +1,8 @@
-import EntityBase from '../core/Component';
-import IComponentProps from '../core/common/IComponentProps';
+import * as BABYLON from 'babylonjs';
+import IEntityProps from '../core/common/IEntityProps';
+import Entity from '../core/Entity';
 
-export interface ISphereProps extends IComponentProps {
+export interface ISphereProps extends IEntityProps {
     readonly segments?: number;
     readonly diameter?: number;
     readonly diameterX?: number;
@@ -13,7 +14,7 @@ export interface ISphereProps extends IComponentProps {
 }
 
 // Define a custom element type.
-export default class Sphere extends EntityBase<ISphereProps> {
+export default class Sphere extends Entity<ISphereProps> {
     protected onMount(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateSphere(
             this.key,

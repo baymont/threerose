@@ -1,8 +1,8 @@
-import EntityBase from '../core/Component';
 import * as BABYLON from 'babylonjs';
-import IComponentProps from '../core/common/IComponentProps';
+import IEntityProps from '../core/common/IEntityProps';
+import Entity from '../core/Entity';
 
-export interface IBoxProps extends IComponentProps {
+export interface IBoxProps extends IEntityProps {
     size?: number;
     width?: number;
     height?: number;
@@ -11,7 +11,7 @@ export interface IBoxProps extends IComponentProps {
 }
 
 // Define a custom element type.
-export default class Box extends EntityBase<IBoxProps> {
+export default class Box extends Entity<IBoxProps> {
     protected onMount(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateBox(
             this.key,

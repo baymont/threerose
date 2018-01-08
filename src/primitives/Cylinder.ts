@@ -1,8 +1,8 @@
-import EntityBase from '../core/Component';
 import * as BABYLON from 'babylonjs';
-import IComponentProps from '../core/common/IComponentProps';
+import IEntityProps from '../core/common/IEntityProps';
+import Entity from '../core/Entity';
 
-export interface ICylinderProps extends IComponentProps {
+export interface ICylinderProps extends IEntityProps {
     readonly height?: number;
     readonly diameterTop?: number;
     readonly diameterBottom?: number;
@@ -16,7 +16,7 @@ export interface ICylinderProps extends IComponentProps {
 }
 
 // Define a custom element type.
-export default class Cylinder extends EntityBase<ICylinderProps> {
+export default class Cylinder extends Entity<ICylinderProps> {
     protected onMount(): BABYLON.Mesh {
         return BABYLON.MeshBuilder.CreateCylinder(
             this.key,

@@ -1,5 +1,5 @@
-import Component from '../core/Behavior';
 import EasingFunction from './common/EasingFunction';
+import Component from '../core/Component';
 
 export class AnimationKey<T> {
     frame: number;

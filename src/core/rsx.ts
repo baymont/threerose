@@ -1,45 +1,50 @@
-import EntityBase from './Component';
-import IComponentProps from './common/IComponentProps';
+import Entity from './Entity';
+import Component from './Component';
 
 declare global {
     export namespace JSX {
         // tslint:disable:no-empty-interface
-        interface Element extends EntityBase<IComponentProps> {}
+        interface Element extends Entity {}
         interface ElementAttributesProperty {
             props: {};
         }
         interface IntrinsicAttributes {
+            components?: Component[];
             key?: string;
-            ref?: (component: EntityBase<IComponentProps>) => void;
+            ref?: (component: Entity) => void;
         }
         // tslint:enable:no-empty-interface
     }
 }
 
 export namespace React {
-    export function createElement<T extends EntityBase<TT>, TT>(
+    export function createElement<T extends Entity<TT>, TT>(
         constructorFn: new (props: TT, key: string, ref: () => T) => T,
         attributes: TT,
-        child: EntityBase<IComponentProps>
+        child: Entity
     ) {
         // Children can be more than one argument
         let childrenLength = arguments.length - 2;
-        let children: EntityBase<IComponentProps>[] = Array(childrenLength);
+        let children: Entity[] = Array(childrenLength);
         for (var i = 0; i < childrenLength; i++) {
             children[i] = arguments[i + 2];
         }
 
         attributes = attributes || {} as TT;
-        const component: EntityBase<TT> = new constructorFn(
+        const entity: Entity<TT> = new constructorFn(
             attributes,
             // tslint:disable:no-any
             (<any>attributes).key,
             (<any>attributes).ref
             // tslint:enable:no-any
         );
-        children.forEach((child: EntityBase<IComponentProps>) => {
-            component.mountChild(child);
+
+        // tslint:disable-next-line:no-any
+        entity.addComponents((<any>attributes).components);
+
+        children.forEach((child: Entity) => {
+            entity.mountChild(child);
         });
-        return component;
+        return entity;
     }
 }

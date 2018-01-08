@@ -1,4 +1,4 @@
-import Component from '../core/Behavior';
+import Component from '../core/Component';
 
 export default class Spinning extends Component {
     private _clockwise: boolean;

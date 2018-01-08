@@ -1,4 +1,4 @@
-import Component from '../core/Behavior';
+import Component from '../core/Component';
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 

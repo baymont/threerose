@@ -1,12 +1,9 @@
-import EntityBase from '../Component';
-import IComponentProps from './IComponentProps';
-import IComponentContext from './IComponentContext';
-import Scene from './Scene';
+import Entity from '../../core/Entity';
 
 /**
  * bframe ground
  */
-export default class Ground extends EntityBase<IComponentProps> {
+export default class Ground extends Entity {
     protected onMount(): BABYLON.Mesh {
         const ground = BABYLON.MeshBuilder.CreateGround(
             'groundPlane',
