@@ -145,7 +145,7 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
         this._mount(this.context);
     }
 
-    public mountChild(child: Entity<{}>) {
+    public mountChild<T extends Entity>(child: T): T {
         if (child._isMounted) {
             throw new Error('Child already mounted.');
         }
@@ -160,6 +160,8 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
             child._mount(this.context);
             this.onChildrenUpdated();
         }
+
+        return child;
     }
 
     public addComponent(component: Component): Entity {
@@ -227,27 +229,28 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
     }
 
     public updateProps(props: TProps) {
-        if (this.willUpdate(props)) {
+        if (!this._isMounted || this.willUpdate(props)) {
             const oldProps = this.props;
             this._props = Object.assign(this.props, props);
 
-            // run behaviors
-            if (this.components) {
-                this.components.forEach((component: Component) => {
-                    if (component.loaded) {
-                        component.onEntityUpdated();
-                    } else {
-                        this._mountComponent(component);
-                    }
-                });
+            if (this._isMounted) {
+                if (this.components) {
+                    this.components.forEach((component: Component) => {
+                        if (component.loaded) {
+                            component.onEntityUpdated();
+                        } else {
+                            this._mountComponent(component);
+                        }
+                    });
+                }
+
+                // finally let the implemantation update itself
+                this.onUpdated(oldProps);
+
+                this._updateCoreProps();
+
+                this.notifyChildren();
             }
-
-            // finally let the implemantation update itself
-            this.onUpdated(oldProps);
-
-            this._updateCoreProps();
-
-            this.notifyChildren();
         }
     }
 
