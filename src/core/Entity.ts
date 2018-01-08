@@ -230,7 +230,7 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
 
     public updateProps(props: TProps) {
         if (!this._isMounted || this.willUpdate(props)) {
-            const oldProps = this.props;
+            const oldProps = Object.assign({}, this.props);
             this._props = Object.assign(this.props, props);
 
             if (this._isMounted) {
