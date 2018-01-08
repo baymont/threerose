@@ -244,6 +244,9 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
 
             // finally let the implemantation update itself
             this.onUpdated(oldProps);
+
+            this._updateCoreProps();
+
             this.notifyChildren();
         }
     }
@@ -316,24 +319,24 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
     private _updateCoreProps(): void {
         if (this.props.position) {
             this._node.position = new BABYLON.Vector3(
-                this.props.position.x,
-                this.props.position.y,
-                this.props.position.z
+                this.props.position.x || 0,
+                this.props.position.y || 0,
+                this.props.position.z || 0
             );
         }
         if (this.props.rotation) {
             this._node.rotation = new BABYLON.Vector3(
-                this.props.rotation.x,
-                this.props.rotation.y,
-                this.props.rotation.z
+                this.props.rotation.x || 0,
+                this.props.rotation.y || 0,
+                this.props.rotation.z || 0
             );
         }
 
         if (this.props.scaling) {
             this._node.scaling = new BABYLON.Vector3(
-                this.props.scaling.x,
-                this.props.scaling.y,
-                this.props.scaling.z
+                this.props.scaling.x || 0,
+                this.props.scaling.y || 0,
+                this.props.scaling.z || 0
             );
         } else if (this.props.scale) {
             this._node.scaling = new BABYLON.Vector3(

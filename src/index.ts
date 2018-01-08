@@ -6,7 +6,7 @@ export { default as Component, IComponentContext } from './core/Component';
 
 export { default as Scene } from './core/common/Scene';
 
-export * from './core/rsx';
+//export * from './core/rsx';
 
 export * from './entities';
 
