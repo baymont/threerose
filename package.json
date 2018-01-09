@@ -1,6 +1,6 @@
 {
   "name": "bframe",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "The functional Mixed Reality framework for web devs.",
   "main": "_bundles/bframe.js",
   "typings": "lib/index.d.ts",

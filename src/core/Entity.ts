@@ -8,6 +8,18 @@ import Vector3 from './common/Vector3';
  * bframe entity
  */
 export default class Entity<TProps extends IEntityProps = IEntityProps> {
+    private _onBeforeRenderObservable: BABYLON.Observer<BABYLON.Scene>;
+    private _isMounted: boolean;
+    private _node: BABYLON.Mesh;
+    private _props: TProps;
+    private _parent?: Entity<{}>;
+    protected context: IEntityContext;
+    childContext?: {};
+    readonly components: Component[] = [];
+    readonly children: Entity<IEntityProps>[] = [];
+    readonly key: string;
+    readonly ref: (entity: Entity<TProps>) => void;
+
     constructor(
         props?: TProps,
         key?: string,
@@ -17,18 +29,6 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
         this.key = key;
         this.ref = ref;
     }
-
-    private _isMounted: boolean;
-    private _node: BABYLON.Mesh;
-    private _props: TProps;
-    private _parent?: Entity<{}>;
-    private _size: Vector3 = new Vector3();
-    protected context: IEntityContext;
-    childContext?: {};
-    readonly components: Component[] = [];
-    readonly children: Entity<IEntityProps>[] = [];
-    readonly key: string;
-    readonly ref: (entity: Entity<TProps>) => void;
 
     protected get isMounted(): boolean {
         return this._isMounted;
@@ -42,10 +42,6 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
     }
     public get props(): TProps {
         return this._props;
-    }
-
-    public get size(): Vector3 {
-        return this._size;
     }
 
     /**
@@ -78,11 +74,6 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
      * Called after props updated.
      */
     protected onUpdated(oldProps: TProps): void {}
-
-    /**
-     * Called on size changed.
-     */
-    protected onSizeChanged(): void {}
 
     /**
      * Called when child entities gets added.
@@ -122,9 +113,9 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
             });
         }
 
-        this.context.scene.unregisterBeforeRender(
-            this._onBeforeRender.bind(this)
-        );
+        
+        this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObservable);
+        this._onBeforeRenderObservable = undefined;
 
         this._node.dispose();
         this._node = undefined;
@@ -214,9 +205,7 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
             if (this.ref) {
                 this.ref(this);
             }
-            this.context.scene.registerBeforeRender(
-                this._onBeforeRender.bind(this)
-            );
+            this._onBeforeRenderObservable = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender.bind(this));
             this._isMounted = true;
 
             // Run components after mounting
@@ -280,23 +269,6 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
         // tick the componenet
         this.tick();
 
-        // update size
-        try {
-            const bounds = this._node.getHierarchyBoundingVectors(true);
-            const newSize = bounds.max.subtract(bounds.min);
-
-            if (
-                this._size.x !== newSize.x ||
-                this._size.y !== newSize.y ||
-                this._size.z !== newSize.z
-            ) {
-                this._size = newSize;
-                this.onSizeChanged();
-            }
-        } catch (err) {
-            // Workaround for v3.1.0, TODO: https://github.com/BabylonJS/Babylon.js/issues/3406
-        }
-
         // update pos props
         if (this.props.position) {
             this.props.position.x = this._node.position.x;
@@ -311,7 +283,7 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
             this.props.rotation.z = BABYLON.Tools.ToDegrees(this._node.rotation.z);
         }
 
-        // update rot props
+        // update scaling props
         if (this.props.scaling) {
             this.props.scaling.x = this._node.scaling.x;
             this.props.scaling.y = this._node.scaling.y;

@@ -17,19 +17,39 @@ export interface IStackContainerProps extends IEntityProps {
  * Stacks 3D components.
  */
 export default class StackContainer extends Entity<IStackContainerProps> {
+    private _size: BABYLON.Vector3 = BABYLON.Vector3.Zero();
+
     protected didMount(): void {
-        this.onUpdated();
+        this._onSizeChanged();
     }
 
     protected onUpdated(): void {
-        this.onChildrenUpdated();
-    }
-
-    protected onSizeChanged(): void {
-        this.onChildrenUpdated();
+        this._onSizeChanged();
     }
 
     protected onChildrenUpdated(): void {
+        this._onSizeChanged();
+    }
+    
+    protected tick(): void {
+        try {
+            const bounds = this.node.getHierarchyBoundingVectors(true);
+            const newSize = bounds.max.subtract(bounds.min);
+
+            if (
+                this._size.x !== newSize.x ||
+                this._size.y !== newSize.y ||
+                this._size.z !== newSize.z
+            ) {
+                this._size = newSize;
+                this._onSizeChanged();
+            }
+        } catch (err) {
+            // Workaround for v3.1.0, TODO: https://github.com/BabylonJS/Babylon.js/issues/3406
+        }
+    }
+
+    private _onSizeChanged(): void {
         let offset: number = 0;
 
         // update children's position
