@@ -160,7 +160,7 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
     }
 
     public addComponents(components: Component[]): Entity {
-        components.forEach(function(component){
+        components.forEach((component) => {
             if (this.components.indexOf(component) === -1) {
                 this.components.push(component);
                 if (this._isMounted) {
