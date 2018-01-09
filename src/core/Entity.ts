@@ -306,9 +306,9 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
 
         // update rot props
         if (this.props.rotation) {
-            this.props.rotation.x = this._node.rotation.x;
-            this.props.rotation.y = this._node.rotation.y;
-            this.props.rotation.z = this._node.rotation.z;
+            this.props.rotation.x = BABYLON.Tools.ToDegrees(this._node.rotation.x);
+            this.props.rotation.y = BABYLON.Tools.ToDegrees(this._node.rotation.y);
+            this.props.rotation.z = BABYLON.Tools.ToDegrees(this._node.rotation.z);
         }
 
         // update rot props
@@ -329,9 +329,9 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
         }
         if (this.props.rotation) {
             this._node.rotation = new BABYLON.Vector3(
-                this.props.rotation.x || 0,
-                this.props.rotation.y || 0,
-                this.props.rotation.z || 0
+                this.props.rotation.x ? BABYLON.Tools.ToRadians(this.props.rotation.x) : 0,
+                this.props.rotation.y ? BABYLON.Tools.ToRadians(this.props.rotation.y) : 0,
+                this.props.rotation.z ? BABYLON.Tools.ToRadians(this.props.rotation.z) : 0
             );
         }
 
