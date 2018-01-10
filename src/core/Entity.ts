@@ -25,7 +25,7 @@ export default class Entity<TProps extends IEntityProps = IEntityProps> {
         key?: string,
         ref?: (entity: Entity<TProps>) => void
     ) {
-        this._props = props || <TProps>{};
+        this._props = Object.assign({}, props) || <TProps>{};
         this.key = key;
         this.ref = ref;
     }
