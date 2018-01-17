@@ -1,6 +1,5 @@
 import * as BABYLON from 'babylonjs';
 import Vector3 from '../core/common/Vector3';
-import IEntityProps from '../core/common/IEntityProps';
 import Entity from '../core/Entity';
 
 export enum StackOrientation {
@@ -9,7 +8,7 @@ export enum StackOrientation {
     Z
 }
 
-export interface IStackContainerProps extends IEntityProps {
+export interface IStackContainerProps {
     orientation: StackOrientation;
 }
 

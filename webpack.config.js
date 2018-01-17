@@ -2,9 +2,8 @@ var webpack = require('webpack');
 
 module.exports = {
     entry: {
-        bframe: './src/index.ts',
-        'bframe.min': './src/index.ts',
-        test: './src/_www/test.tsx'
+        nucleus3d: './src/index.ts',
+        'nucleus3d.min': './src/index.ts'
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.jsx']
@@ -13,7 +12,7 @@ module.exports = {
         path: __dirname + '/_bundles',
         filename: '[name].js',
         libraryTarget: 'umd',
-        library: 'bframe',
+        library: 'nucleus3d',
         umdNamedDefine: true
     },
     externals: {

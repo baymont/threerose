@@ -1,8 +1,7 @@
 import * as BABYLON from 'babylonjs';
-import IEntityProps from '../core/common/IEntityProps';
 import Entity from '../core/Entity';
 
-export interface ISphereProps extends IEntityProps {
+export interface ISphereProps {
     readonly segments?: number;
     readonly diameter?: number;
     readonly diameterX?: number;

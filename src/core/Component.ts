@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs';
+
 import Entity from './Entity';
 
 export interface IComponentContext {
@@ -8,18 +9,47 @@ export interface IComponentContext {
     node: BABYLON.Mesh;
 }
 
+/**
+ * A mountable component for a nucleus entity
+ *
+ * @alpha
+ */
 export default abstract class Component {
-    context: IComponentContext;
-    loaded: boolean;
+  public context: IComponentContext;
+  public isMounted: boolean;
 
-    /**
-     * Called when the attached component is mounted.
-     */
-    public didMount(): void {}
+  /**
+   * Called after being mounted to a component
+   */
+  public didMount(): void {
+    // EMPTY BLOCK
+  }
 
-    public onEntityUpdated(): void {}
+  /**
+   * Called before an entity's props are updated
+   */
+  public onEntityWillUpdate(oldProps: {}, newProps: {}): void {
+    // EMPTY BLOCK
+  }
 
-    public tick(): void {}
+   /**
+   * Called after an entity's props are updated
+   */
+  public onEntityUpdated(): void {
+    // EMPTY BLOCK
+  }
 
-    public unmount(): void {}
+  /**
+   * Called before render.
+   */
+  public tick(): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called when unmounting from component.
+   */
+  public unmount(): void {
+    // EMPTY BLOCK
+  }
 }

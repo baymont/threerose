@@ -1,14 +1,14 @@
-import Entity from '../../core/Entity';
-import Scene from '../../core/common/Scene';
+import Entity from '../core/Entity';
+import SceneEntity from '../core/common/SceneEntity';
 
 /**
- * bframe camera
+ * nucleus3d camera
  */
 export default class Camera extends Entity {
     protected _camera: BABYLON.FreeCamera;
 
     protected onMount(): BABYLON.Mesh {
-        if (!(this.parent instanceof Scene)) {
+        if (!(this.parent instanceof SceneEntity)) {
             throw new Error('Camera needs to be mounted to a scene.');
         }
         this._camera = new BABYLON.FreeCamera(

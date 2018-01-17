@@ -1,13 +1,25 @@
-# bframe (alpha)
+# nucleus3d (alpha)
 
-The functional Mixed Reality framework for web devs. Powered by Babylon.JS. TypeScript first.
+A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.
 
 ## Set Up
 
-`npm install bframe`
+`npm install nucleus3d`
 
-That's it!
+## Quick start
 
-## Goals
+class Sphere extends Entity {
+   protected onMount(): BABYLON.Mesh {
+    return BABYLON.MeshBuilder.CreateSphere(
+      this.key,
+      this.props,
+      this.context.scene
+    );
+  }
+}
 
-Make it simple for web devs to build 3D experiences.
+const sceneEntity = new SceneEntity();
+
+sceneEntity.mountChild(new Sphere());
+
+sceneEntity.mount(new BABYLON.Engine());

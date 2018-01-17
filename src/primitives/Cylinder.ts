@@ -1,8 +1,7 @@
 import * as BABYLON from 'babylonjs';
-import IEntityProps from '../core/common/IEntityProps';
 import Entity from '../core/Entity';
 
-export interface ICylinderProps extends IEntityProps {
+export interface ICylinderProps {
     readonly height?: number;
     readonly diameterTop?: number;
     readonly diameterBottom?: number;

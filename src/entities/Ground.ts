@@ -1,7 +1,7 @@
-import Entity from '../../core/Entity';
+import Entity from '../core/Entity';
 
 /**
- * bframe ground
+ * nucleus3d ground
  */
 export default class Ground extends Entity {
     protected onMount(): BABYLON.Mesh {

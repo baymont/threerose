@@ -1,8 +1,7 @@
 import * as BABYLON from 'babylonjs';
-import IEntityProps from '../core/common/IEntityProps';
 import Entity from '../core/Entity';
 
-export interface IBoxProps extends IEntityProps {
+export interface IBoxProps {
     size?: number;
     width?: number;
     height?: number;

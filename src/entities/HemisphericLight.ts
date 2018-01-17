@@ -1,7 +1,7 @@
-import Entity from "../../core/Entity";
+import Entity from "../core/Entity";
 
 /**
- * bframe hemispheric light
+ * nucleus3d hemispheric light
  */
 export default class HemisphericLight extends Entity {
     protected onMount(): BABYLON.Mesh {

@@ -1,8 +1,8 @@
 {
-  "name": "bframe",
-  "version": "0.2.9",
-  "description": "The functional Mixed Reality framework for web devs.",
-  "main": "_bundles/bframe.js",
+  "name": "nucleus3d",
+  "version": "0.3.0",
+  "description": "A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.",
+  "main": "_bundles/nucleus3d.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "clean": "shx rm -rf _bundles lib lib-esm",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haroldma/bframe.git"
+    "url": "git+https://github.com/haroldma/nucleus3d.git"
   },
   "author": "Harold Martinez",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/haroldma/bframe/issues"
+    "url": "https://github.com/haroldma/nucleus3d/issues"
   },
-  "homepage": "https://github.com/haroldma/bframe#readme",
+  "homepage": "https://github.com/haroldma/nucleus3d#readme",
   "dependencies": {
     "babylonjs": "^3.1.1",
     "babylonjs-loaders": "^3.1.1"
