@@ -2,10 +2,10 @@ import * as BABYLON from 'babylonjs';
 
 import Entity from './Entity';
 
-export interface IComponentContext {
+export interface IComponentContext<TEntityProps> {
     engine: BABYLON.Engine;
     scene: BABYLON.Scene;
-    entity: Entity;
+    entity: Entity<TEntityProps>;
     node: BABYLON.Mesh;
 }
 
@@ -14,8 +14,8 @@ export interface IComponentContext {
  *
  * @alpha
  */
-export default abstract class Component {
-  public context: IComponentContext;
+export default abstract class Component<TEntityProps = {}> {
+  public context: IComponentContext<TEntityProps>;
   public isMounted: boolean;
 
   /**
@@ -28,7 +28,7 @@ export default abstract class Component {
   /**
    * Called before an entity's props are updated
    */
-  public onEntityWillUpdate(oldProps: {}, newProps: {}): void {
+  public onEntityWillUpdate(oldProps: TEntityProps, newProps: TEntityProps): void {
     // EMPTY BLOCK
   }
 
