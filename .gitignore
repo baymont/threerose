@@ -59,4 +59,4 @@ typings/
 
 lib
 lib-esm
-_bundles
+dist

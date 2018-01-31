@@ -1,6 +1,5 @@
 import Component from '../core/Component';
 import * as BABYLON from 'babylonjs';
-import 'babylonjs-loaders';
 
 export interface IModelLoaderProps {
   url?: string;

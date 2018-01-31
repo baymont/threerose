@@ -9,14 +9,14 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.jsx']
     },
     output: {
-        path: __dirname + '/_bundles',
+        path: __dirname + '/dist',
         filename: '[name].js',
         libraryTarget: 'umd',
         library: 'nucleus3d',
         umdNamedDefine: true
     },
     externals: {
-        "babylonjs": {
+        babylonjs: {
             root: 'BABYLON',
             commonjs2: 'babylonjs',
             commonjs: 'babylonjs',

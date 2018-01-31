@@ -1,11 +1,11 @@
 {
   "name": "nucleus3d",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "shx rm -rf _bundles lib lib-esm",
+    "clean": "shx rm -rf dist lib lib-esm",
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "rebuild": "npm run clean && npm run build",
     "start:dev": "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/ -c"
