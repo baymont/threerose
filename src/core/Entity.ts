@@ -21,16 +21,13 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   private _node: BABYLON.Mesh;
   private _props: TProps;
   private _parent?: Entity<{}>;
-  private readonly _ref: (entity: Entity<TProps>) => void;
 
   constructor(
       props?: TProps,
-      key?: string,
-      ref?: (entity: Entity<TProps>) => void
+      key?: string
   ) {
       this._props = Object.assign({}, props) || <TProps>{};
       this.key = key;
-      this._ref = ref;
   }
 
   public get node(): BABYLON.Mesh {
@@ -143,6 +140,10 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     return this;
   }
 
+  /**
+   * Update properties
+   * @param props The new properties
+   */
   public updateProps(props: TProps): void {
     if (!this._isMounted || this.willUpdate(props)) {
       const oldProps: TProps = Object.assign({}, this.props);
@@ -264,9 +265,6 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     }
 
     this.didMount();
-    if (this._ref) {
-        this._ref(this);
-    }
     this._onBeforeRenderObservable = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender.bind(this));
   }
 

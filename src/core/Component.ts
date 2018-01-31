@@ -24,8 +24,8 @@ export default abstract class Component<TProps = {}> {
       return this._props;
   }
 
-  constructor(props: TProps) {
-    this._props = props;
+  constructor(props?: TProps) {
+    this._props = Object.assign({}, props) || <TProps>{};
   }
 
   /**
@@ -56,6 +56,10 @@ export default abstract class Component<TProps = {}> {
     // EMPTY BLOCK
   }
 
+  /**
+   * Update properties
+   * @param props The new properties
+   */
   public updateProps(props: TProps): void {
     const oldProps: TProps = Object.assign({}, this.props);
     this._props = Object.assign(this.props, props);
