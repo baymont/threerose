@@ -2,22 +2,26 @@ import Component from '../core/Component';
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 
-export default class ModelLoader extends Component {
-    private _modelUrl: string;
+export interface IModelLoaderProps {
+  url?: string;
+}
 
-    constructor(modelUrl: string) {
-        super();
-        this._modelUrl = modelUrl;
-    }
-
+export default class ModelLoader extends Component<IModelLoaderProps> {
     public didMount(): void {
-        this.loadModel(this._modelUrl).then(
+        this.loadModel(this.props.url).then(
             (meshes: Array<BABYLON.AbstractMesh>) => {
                 meshes.forEach((mesh) => {
                     mesh.parent = this.context.node;
                 });
             }
         );
+    }
+
+    protected onUpdated(oldProps: IModelLoaderProps){
+        this.context.node.getChildMeshes().forEach((mesh: BABYLON.AbstractMesh) => {
+            mesh.dispose();
+        });
+        this.didMount();
     }
 
     private loadModel(modelUrl: string): Promise<Array<BABYLON.AbstractMesh>> {

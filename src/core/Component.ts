@@ -2,10 +2,10 @@ import * as BABYLON from 'babylonjs';
 
 import Entity from './Entity';
 
-export interface IComponentContext<TEntityProps> {
+export interface IComponentContext {
     engine: BABYLON.Engine;
     scene: BABYLON.Scene;
-    entity: Entity<TEntityProps>;
+    entity: Entity;
     node: BABYLON.Mesh;
 }
 
@@ -14,9 +14,19 @@ export interface IComponentContext<TEntityProps> {
  *
  * @alpha
  */
-export default abstract class Component<TEntityProps = {}> {
-  public context: IComponentContext<TEntityProps>;
+export default abstract class Component<TProps = {}> {
+  private _props: TProps;
+
+  public context: IComponentContext;
   public isMounted: boolean;
+
+  public get props(): TProps {
+      return this._props;
+  }
+
+  constructor(props: TProps) {
+    this._props = props;
+  }
 
   /**
    * Called after being mounted to a component
@@ -28,7 +38,7 @@ export default abstract class Component<TEntityProps = {}> {
   /**
    * Called before an entity's props are updated
    */
-  public onEntityWillUpdate(oldProps: TEntityProps, newProps: TEntityProps): void {
+  public onEntityWillUpdate(oldProps: {}, newProps: {}): void {
     // EMPTY BLOCK
   }
 
@@ -46,10 +56,23 @@ export default abstract class Component<TEntityProps = {}> {
     // EMPTY BLOCK
   }
 
+  public updateProps(props: TProps): void {
+    const oldProps: TProps = Object.assign({}, this.props);
+    this._props = Object.assign(this.props, props);
+    this.onUpdated(oldProps);
+  }
+
   /**
    * Called when unmounting from component.
    */
   public unmount(): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called after props updated.
+   */
+  protected onUpdated(oldProps: TProps): void {
     // EMPTY BLOCK
   }
 }

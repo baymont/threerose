@@ -7,7 +7,7 @@ export default class OnHover extends Component {
     private _outAction: BABYLON.ExecuteCodeAction;
 
     constructor(callback: (out: boolean) => void) {
-        super();
+        super({});
         this._callback = callback;
     }
 
@@ -15,7 +15,7 @@ export default class OnHover extends Component {
         if (!this.context.node.actionManager) {
             this.context.node.actionManager = new BABYLON.ActionManager(this.context.scene);
         }
-        
+
         this._overAction = new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPointerOverTrigger,
             event => {

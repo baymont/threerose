@@ -7,7 +7,7 @@ export default class OnClick extends Component {
     private _action: BABYLON.ExecuteCodeAction;
 
     constructor(callback: () => void) {
-        super();
+        super({});
         this._callback = callback;
     }
 

@@ -26,7 +26,7 @@ export default class Animation extends Component {
         from: number = 0,
         to: number = 100
     ) {
-        super();
+        super({});
         this._targetPath = targetPath;
         this._dataType = BABYLON.Animation.ANIMATIONTYPE_FLOAT;
         this._frames = frames;
