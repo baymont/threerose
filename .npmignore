@@ -1,5 +1,5 @@
 .*
 **/tsconfig.json
 **/webpack.config.js
-**/tslint.js
+**/tslint.json
 node_modules
