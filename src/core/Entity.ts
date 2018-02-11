@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 
 import Component from './Component';
 import IEntityContext from './common/IEntityContext';
+import ObjectHelper from '../utils/ObjectHelper';
 
 /**
  * nucleus entity
@@ -26,7 +27,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       props?: TProps,
       key?: string
   ) {
-      this._props = Object.assign({}, props) || <TProps>{};
+      this._props = ObjectHelper.deepCopy(props) || <TProps>{};
       this.key = key;
   }
 
@@ -146,8 +147,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
    */
   public updateProps(props: TProps): void {
     if (!this._isMounted || this.willUpdate(props)) {
-      const oldProps: TProps = Object.assign({}, this.props);
-      this._props = Object.assign(this.props, props);
+      const oldProps: TProps = ObjectHelper.deepCopy(this.props);
+      this._props = Object.assign(this.props, ObjectHelper.deepCopy(props));
 
       if (this._isMounted) {
         if (this.components) {

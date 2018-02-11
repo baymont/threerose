@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs';
 
 import Entity from './Entity';
+import ObjectHelper from '../utils/ObjectHelper';
 
 export interface IComponentContext {
     engine: BABYLON.Engine;
@@ -61,8 +62,8 @@ export default abstract class Component<TProps = {}> {
    * @param props The new properties
    */
   public updateProps(props: TProps): void {
-    const oldProps: TProps = Object.assign({}, this.props);
-    this._props = Object.assign(this.props, props);
+    const oldProps: TProps = Object.assign({}, ObjectHelper.deepCopy(this.props));
+    this._props = Object.assign(this.props, ObjectHelper.deepCopy(props));
     this.onUpdated(oldProps);
   }
 
