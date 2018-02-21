@@ -1,6 +1,6 @@
 {
   "name": "nucleus3d",
-  "version": "0.4.0-alpha.4",
+  "version": "0.4.0-alpha.5",
   "description": "A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/haroldma/nucleus3d#readme",
   "dependencies": {
-    "babylonjs": "^3.2.0-alpha7",
-    "babylonjs-loaders": "^3.2.0-alpha7"
+    "babylonjs": "^3.2.0-alpha10",
+    "babylonjs-loaders": "^3.2.0-alpha10"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.4.0",

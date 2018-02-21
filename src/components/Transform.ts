@@ -9,10 +9,17 @@ export interface ITransformProps {
     scaling?: Vector3;
 }
 
-export default class Transform extends Component {
+/**
+ * Supports having the properties on the entity or the component itself.
+ */
+export default class Transform extends Component<ITransformProps> {
     public didMount(): void {
         const props: ITransformProps = this.context.entity.props;
         this.onEntityWillUpdate(undefined, props);
+    }
+
+    public onUpdated(oldProps: ITransformProps): void {
+        this.onEntityWillUpdate(oldProps, this.props);
     }
 
     public onEntityWillUpdate(oldProps: ITransformProps, newProps: ITransformProps) : void {
