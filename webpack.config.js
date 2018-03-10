@@ -17,12 +17,6 @@ module.exports = {
       commonjs2: 'babylonjs',
       commonjs: 'babylonjs',
       amd: 'babylonjs'
-    },
-    lodash: {
-      root: '_',
-      commonjs2: 'lodash',
-      commonjs: 'lodash',
-      amd: 'lodash'
     }
   },
   devtool: 'source-map',

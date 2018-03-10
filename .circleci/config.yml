@@ -110,7 +110,7 @@ jobs:
 
       - run:
           name: Install dot-json package
-          command: npm install dot-json
+          command: npm install -g dot-json
 
       - run:
           name: Write version to package.json
