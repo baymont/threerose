@@ -1,5 +1,5 @@
 import * as BABYLON from 'babylonjs';
-import { assign, cloneDeep } from 'lodash';
+import ObjectHelper from '../utils/ObjectHelper';
 
 import IEntityContext from './common/IEntityContext';
 import Component from './Component';
@@ -63,7 +63,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     props?: TProps,
     key?: string
   ) {
-    this._props = cloneDeep(props) || {} as TProps;
+    this._props = ObjectHelper.cloneDeep(props) || {} as TProps;
     this._key = key;
   }
 
@@ -168,8 +168,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
    */
   public updateProps(props: TProps): void {
     if (!this._isMounted || this.willUpdate(props)) {
-      const oldProps: TProps = cloneDeep(this.props);
-      this._props = assign(this.props, cloneDeep(props));
+      const oldProps: TProps = ObjectHelper.cloneDeep(this.props);
+      this._props = Object.assign(this.props, ObjectHelper.cloneDeep(props));
 
       if (this._isMounted) {
         if (this.components) {
