@@ -18,6 +18,7 @@ whitelist: &whitelist
     - README.md
     - tsconfig.json
     - tslint.json
+    - webpack.config.js
 version: 2
 jobs:
   checkout:
