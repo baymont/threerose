@@ -1,8 +1,8 @@
 import * as BABYLON from 'babylonjs';
+import { assign, cloneDeep } from 'lodash';
 
-import Component from './Component';
 import IEntityContext from './common/IEntityContext';
-import ObjectHelper from '../utils/ObjectHelper';
+import Component from './Component';
 
 /**
  * nucleus entity
@@ -10,41 +10,61 @@ import ObjectHelper from '../utils/ObjectHelper';
  * @alpha
  */
 export default class Entity<TProps = {}, TParentContext = {}> {
-  public readonly children: Entity[] = [];
-  public readonly key: string;
+  private readonly _children: Entity[] = [];
+  private readonly _components: Component[] = [];
+  private readonly _key: string;
 
-  protected context: IEntityContext;
-  protected parentContext?: TParentContext;
-  protected readonly components: Component[] = [];
+  private _context: IEntityContext;
+  private _parentContext?: TParentContext;
 
   private _onBeforeRenderObservable: BABYLON.Observer<BABYLON.Scene>;
   private _isMounted: boolean;
-  private _node: BABYLON.Mesh;
+  private _node: BABYLON.AbstractMesh;
   private _props: TProps;
   private _parent?: Entity<{}>;
 
-  constructor(
-      props?: TProps,
-      key?: string
-  ) {
-      this._props = ObjectHelper.deepCopy(props) || <TProps>{};
-      this.key = key;
+  public get children(): Entity[] {
+    return this._children;
   }
 
-  public get node(): BABYLON.Mesh {
+  public get components(): Component[] {
+    return this._components;
+  }
+
+  public get key(): string {
+    return this._key;
+  }
+
+  public get node(): BABYLON.AbstractMesh {
     return this._node;
   }
 
   public get parent(): Entity<{}> {
-      return this._parent;
+    return this._parent;
   }
 
   public get props(): TProps {
-      return this._props;
+    return this._props;
+  }
+
+  protected get context(): IEntityContext {
+    return this._context;
+  }
+
+  protected get parentContext(): TParentContext {
+    return this._parentContext;
   }
 
   protected get isMounted(): boolean {
-      return this._isMounted;
+    return this._isMounted;
+  }
+
+  constructor(
+    props?: TProps,
+    key?: string
+  ) {
+    this._props = cloneDeep(props) || {} as TProps;
+    this._key = key;
   }
 
   /**
@@ -66,9 +86,9 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
     // unmount components
     if (this.components) {
-        this.components.forEach((component: Component) => {
-          this.removeComponent(component);
-        });
+      this.components.forEach((component: Component) => {
+        this.unmountComponent(component);
+      });
     }
 
     this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObservable);
@@ -85,12 +105,11 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   /**
-   * Unmounts and remounts the component and it's children.
+   * Unmounts and remounts the entity and it's children.
    */
   public remount(): void {
     if (!this._isMounted) {
-        console.log('Not mounted.');
-        return;
+      throw new Error('Not mounted.');
     }
 
     this.unmount();
@@ -99,7 +118,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   public mountChild<T extends Entity>(child: T): T {
     if (child._isMounted) {
-        throw new Error('Child already mounted.');
+      throw new Error('Child already mounted.');
     }
 
     this.children.push(child);
@@ -108,37 +127,39 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
     // Mount child
     if (this._isMounted) {
-        child.parentContext = this.getChildContext();
-        child._mount(this.context);
+      child._parentContext = this.getChildContext();
+      child._mount(this.context);
     }
 
     return child;
   }
 
-  public addComponent<T extends Component>(component: T): T {
-    this.addComponents([component]);
+  public mountComponent<T extends Component>(component: T): T {
+    this.mountComponents([component]);
     return component;
   }
 
-  public addComponents(components: Component[]): void {
-    components.forEach((component) => {
-        if (this.components.indexOf(component) === -1) {
-            this.components.push(component);
-            if (this._isMounted) {
-                this._mountComponent(component);
-            }
-        } else {
-          throw new Error('An instance of this component already exists.');
+  public mountComponents(components: Component[]): void {
+    components.forEach(component => {
+      if (this.components.indexOf(component) === -1) {
+        this.components.push(component);
+        if (this._isMounted) {
+          this._mountComponent(component);
         }
+      } else {
+        throw new Error('An instance of this component already mounted.');
+      }
     });
   }
 
-  public removeComponent(component: Component): Entity {
+  public unmountComponent<T extends Component>(component: T): T {
     const index: number = this.components.indexOf(component);
     this.components.splice(index, 1);
-    component.unmount();
-    component.isMounted = false;
-    return this;
+    (component as any)._isMounted = false; // tslint:disable-line:no-any
+    if (component.isEnabled) {
+      (component as any).willUnmount(); // tslint:disable-line:no-any
+    }
+    return component;
   }
 
   /**
@@ -147,13 +168,13 @@ export default class Entity<TProps = {}, TParentContext = {}> {
    */
   public updateProps(props: TProps): void {
     if (!this._isMounted || this.willUpdate(props)) {
-      const oldProps: TProps = ObjectHelper.deepCopy(this.props);
-      this._props = Object.assign(this.props, ObjectHelper.deepCopy(props));
+      const oldProps: TProps = cloneDeep(this.props);
+      this._props = assign(this.props, cloneDeep(props));
 
       if (this._isMounted) {
         if (this.components) {
-          this.components.forEach((component: Component) => {
-            component.onEntityWillUpdate(oldProps, this.props);
+          this.components.filter(component => component.isEnabled).forEach(component => {
+            (component as any).onEntityWillUpdate(oldProps); // tslint:disable-line:no-any
           });
         }
 
@@ -161,8 +182,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
         this.onUpdated(oldProps);
 
         if (this.components) {
-          this.components.forEach((component: Component) => {
-            component.onEntityUpdated();
+          this.components.filter(component => component.isEnabled).forEach(component => {
+            (component as any).onEntityUpdated(); // tslint:disable-line:no-any
           });
         }
         this._notifyChildren();
@@ -173,7 +194,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   /**
    * Mounts the entity with the returned Babylon.JS Node
    */
-  protected onMount(): BABYLON.Mesh {
+  protected onMount(): BABYLON.AbstractMesh {
     return new BABYLON.Mesh(this.key || 'Entity', this.context.scene);
   }
 
@@ -228,7 +249,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   private _notifyChildren(): void {
     this.children.forEach(child => {
-      child.parentContext = this.getChildContext();
+      child._parentContext = this.getChildContext();
       child.parentUpdated(this._isMounted);
     });
   }
@@ -238,30 +259,30 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       throw new Error('Entity already mounted');
     }
 
-    this.context = context;
+    this._context = context;
     this._node = this.onMount();
 
     // Set to parent
     if (!this._node.parent) {
-        if (parentNode) {
-            this._node.parent = parentNode;
-        } else if (this.parent) {
-            this._node.parent = this.parent._node;
-        }
+      if (parentNode) {
+        this._node.parent = parentNode;
+      } else if (this.parent) {
+        this._node.parent = this.parent._node;
+      }
     }
 
     this._isMounted = true;
 
     // Mount children
     this.children.forEach(child => {
-        child.parentContext = this.getChildContext();
-        child._mount(this.context);
+      child._parentContext = this.getChildContext();
+      child._mount(this.context);
     });
 
     // Mount components
     if (this.components) {
       this.components.forEach((component: Component) => {
-          this._mountComponent(component);
+        this._mountComponent(component);
       });
     }
 
@@ -270,20 +291,22 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   private _mountComponent(component: Component): void {
-    component.context = {
+    (component as any)._context = { // tslint:disable-line:no-any
       engine: this.context.engine,
-      scene: this.context.scene,
-      node: this._node,
-      entity: this
+      entity: this,
+      scene: this.context.scene
     };
-    component.didMount();
-    component.isMounted = true;
+    if (component.isEnabled) {
+      (component as any).didMount(); // tslint:disable-line:no-any
+    }
+    (component as any)._isMounted = true; // tslint:disable-line:no-any
   }
 
   private _onBeforeRender(): void {
     // go through components
     if (this.components) {
-        this.components.forEach(component => component.tick());
+      this.components.filter(component => component.isEnabled)
+        .forEach(component => (component as any).tick()); // tslint:disable-line:no-any
     }
 
     // tick the componenet

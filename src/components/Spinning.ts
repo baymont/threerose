@@ -10,8 +10,8 @@ export default class Spinning extends Component<ISpinningProps> {
         super(props);
     }
 
-    public tick() {
-        this.context.node.rotation.y +=
+    protected tick() {
+        this.context.entity.node.rotation.y +=
             (this.props.clockwise ? 1 : -1) * Math.abs(this.props.speed);
     }
 }

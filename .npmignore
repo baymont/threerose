@@ -1,5 +1,9 @@
 .*
+**/circle.yml
 **/tsconfig.json
 **/webpack.config.js
 **/tslint.json
-node_modules
+!dist
+coverage
+src
+test

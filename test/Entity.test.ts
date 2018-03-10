@@ -1,22 +1,22 @@
-/**
- * @copyright Microsoft Corporation. All rights reserved.
- */
-
 import * as BABYLON from 'babylonjs';
 
-import Entity from '../Entity';
-import SceneEntity from '../common/SceneEntity';
+import SceneEntity from '../src/core/common/SceneEntity';
+import Entity from '../src/core/Entity';
 
 describe('Entity class', () => {
   const engine: BABYLON.Engine = new BABYLON.NullEngine();
   const sceneEntity: SceneEntity = new SceneEntity();
+  let scene: BABYLON.Scene;
 
   beforeEach(() => {
-    sceneEntity.mount(engine);
+    scene = new BABYLON.Scene(engine);
+    sceneEntity.mount(engine, scene);
   });
 
   afterEach(() => {
     sceneEntity.unmount();
+    scene.dispose();
+    scene = undefined;
   });
 
   describe('Mounting behavior', () => {
@@ -36,7 +36,7 @@ describe('Entity class', () => {
     it('should dispose of a node if unmounted', () => {
       const entity: Entity = new Entity();
       sceneEntity.mountChild(entity);
-      const node: BABYLON.Mesh = entity.node;
+      const node: BABYLON.AbstractMesh = entity.node;
       entity.unmount();
       expect(node.isDisposed()).toBeTruthy();
     });
@@ -49,7 +49,7 @@ describe('Entity class', () => {
     it('should have a custom node if onMount overriden', () => {
       const customNode: BABYLON.Mesh = new BABYLON.Mesh('CustomNode');
       const entity: Entity = new Entity();
-      (<any>entity).onMount = () => { // tslint:disable-line:no-any
+      (entity as any).onMount = () => { // tslint:disable-line:no-any
         return customNode;
       };
       sceneEntity.mountChild(entity);
@@ -63,7 +63,6 @@ describe('Entity class', () => {
       public getChildContextCalled: boolean;
       public willUpdateCalled: boolean;
       public onUpdatedCalled: boolean;
-      public onChildrenUpdatedCalled: boolean;
       public parentUpdatedCalled: boolean;
       public willUnmountCalled: boolean;
 
@@ -90,10 +89,6 @@ describe('Entity class', () => {
 
       protected onUpdated(oldProps: {}): void {
         this.onUpdatedCalled = true;
-      }
-
-      protected onChildrenUpdated(): void {
-        this.onChildrenUpdatedCalled = true;
       }
 
       protected parentUpdated(isParentMounted: boolean): void {
@@ -137,7 +132,6 @@ describe('Entity class', () => {
     it('should call child/parent updated', () => {
       const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
       const fakeChildEntity: FakeEntity = fakeEntity.mountChild(new FakeEntity());
-      expect(fakeEntity.onChildrenUpdatedCalled).toBeTruthy();
       expect(fakeChildEntity.parentUpdatedCalled).toBeTruthy();
     });
 
