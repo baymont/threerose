@@ -1,14 +1,14 @@
 import * as BABYLON from 'babylonjs';
 
 import Entity from './Entity';
-import ObjectHelper from '../utils/ObjectHelper';
 
 export interface IComponentContext {
-    engine: BABYLON.Engine;
-    scene: BABYLON.Scene;
-    entity: Entity;
-    node: BABYLON.Mesh;
+  engine: BABYLON.Engine;
+  entity: Entity;
+  scene: BABYLON.Scene;
 }
+
+import { assign, cloneDeep } from 'lodash';
 
 /**
  * A mountable component for a nucleus entity
@@ -17,44 +17,42 @@ export interface IComponentContext {
  */
 export default abstract class Component<TProps = {}> {
   private _props: TProps;
-
-  public context: IComponentContext;
-  public isMounted: boolean;
-
-  public get props(): TProps {
-      return this._props;
-  }
+  private _isMounted: boolean;
+  private _isEnabled: boolean = true;
+  private _context: IComponentContext;
 
   constructor(props?: TProps) {
-    this._props = Object.assign({}, props) || <TProps>{};
+    this._props = cloneDeep(props) || {} as TProps;
   }
 
-  /**
-   * Called after being mounted to a component
-   */
-  public didMount(): void {
-    // EMPTY BLOCK
+  public get context(): IComponentContext {
+    return this._context;
   }
 
-  /**
-   * Called before an entity's props are updated
-   */
-  public onEntityWillUpdate(oldProps: {}, newProps: {}): void {
-    // EMPTY BLOCK
+  public get isEnabled(): boolean {
+    return this._isEnabled;
   }
 
-   /**
-   * Called after an entity's props are updated
-   */
-  public onEntityUpdated(): void {
-    // EMPTY BLOCK
+  public get isMounted(): boolean {
+    return this._isMounted;
   }
 
-  /**
-   * Called before render.
-   */
-  public tick(): void {
-    // EMPTY BLOCK
+  public get props(): TProps {
+    return this._props;
+  }
+
+  public enable(): void {
+    this._isEnabled = true;
+    if (this.isMounted) {
+      this.didMount();
+    }
+  }
+
+  public disable(): void {
+    this._isEnabled = false;
+    if (this.isMounted) {
+      this.willUnmount();
+    }
   }
 
   /**
@@ -62,16 +60,56 @@ export default abstract class Component<TProps = {}> {
    * @param props The new properties
    */
   public updateProps(props: TProps): void {
-    const oldProps: TProps = Object.assign({}, ObjectHelper.deepCopy(this.props));
-    this._props = Object.assign(this.props, ObjectHelper.deepCopy(props));
-    this.onUpdated(oldProps);
+    if (!this.isMounted || !this.isEnabled || this.willUpdate(props)) {
+      const oldProps: TProps = cloneDeep(this.props);
+      this._props = assign(this.props, cloneDeep(props));
+
+      if (this.isEnabled) {
+        this.onUpdated(oldProps);
+      }
+    }
   }
 
   /**
-   * Called when unmounting from component.
+   * Called after being mounted to a component
    */
-  public unmount(): void {
+  protected didMount(): void {
     // EMPTY BLOCK
+  }
+
+  /**
+   * Called before an entity's props are updated
+   */
+  protected onEntityWillUpdate(oldProps: any): void { // tslint:disable-line:no-any
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called after an entity's props are updated
+   */
+  protected onEntityUpdated(): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called before render.
+   */
+  protected tick(): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called before unmounting from entity.
+   */
+  protected willUnmount(): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called before update. False will reject the changes.
+   */
+  protected willUpdate(newProps: TProps): boolean {
+    return true;
   }
 
   /**

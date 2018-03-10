@@ -1,5 +1,3 @@
-//export * from './core/rsx';
-
 export * from './core';
 
 export * from './entities';

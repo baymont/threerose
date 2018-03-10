@@ -20,17 +20,10 @@ export default class SceneEntity extends Entity {
    * @param engine The BABYLON engine
    * @param scene An optional BABYLON scene to use instead of creating a new one.
    */
-  public mount(engine: BABYLON.Engine, scene?: BABYLON.Scene): void {
-    if (!scene) {
-      scene = new BABYLON.Scene(engine);
-      engine.runRenderLoop(() => {
-        scene.render();
-      });
-    }
-
-    (<any>this)._mount({ // tslint:disable-line no-any
-      engine: engine,
-      scene: scene,
+  public mount(engine: BABYLON.Engine, scene: BABYLON.Scene): void {
+    (this as any)._mount({ // tslint:disable-line no-any
+      engine,
+      scene,
       sceneEntity: this
     });
   }

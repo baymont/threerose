@@ -6,9 +6,18 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "clean": "shx rm -rf dist lib lib-esm",
-    "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
+    "build:ts": "tsc",
+    "build:es6": "tsc -m es6 --outDir lib-esm",
+    "build:prod": "webpack --mode=production --output-filename=nucleus3d.min.js",
+    "build:dev": "webpack --mode=development --output-filename=nucleus3d.js",
+    "build:npm": "npm run build:ts & npm run build:es6 && npm run build:dev & npm run build:prod",
+    "build": "npm run build:ts && npm run build:dev",
     "rebuild": "npm run clean && npm run build",
-    "start:dev": "http-server . -p 8989 -o http://127.0.0.1:8989/src/_www/ -c"
+    "rebuild:npm": "npm run clean && npm run build:npm",
+    "test": "jest",
+    "test:cover": "jest --coverage",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "lint": "tslint {src,test}/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -21,16 +30,35 @@
   },
   "homepage": "https://github.com/haroldma/nucleus3d#readme",
   "dependencies": {
-    "babylonjs": "^3.2.0-alpha10",
-    "babylonjs-loaders": "^3.2.0-alpha10"
+    "@types/lodash": "^4.14.104",
+    "babylonjs": "^3.2.0-alphaB",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^3.4.0",
-    "http-server": "^0.10.0",
+    "@types/jest": "^22.2.0",
+    "awesome-typescript-loader": "^4.0.1",
+    "coveralls": "^3.0.0",
+    "jest": "^22.4.2",
     "shx": "^0.2.2",
+    "ts-jest": "^22.4.1",
     "tslint": "^5.8.0",
     "tslint-loader": "^3.5.3",
     "typescript": "^2.6.1",
-    "webpack": "^3.8.1"
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
