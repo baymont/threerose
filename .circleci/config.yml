@@ -5,6 +5,7 @@ defaults: &defaults
 version: 2
 jobs:
   build:
+    <<: *defaults
     steps:
       - checkout
 
@@ -39,6 +40,7 @@ jobs:
           command: npm run build:npm
 
   publish:
+    <<: *defaults
     steps:
       - run:
           name: Write NPM Token to ~/.npmrc
