@@ -37,5 +37,5 @@ jobs:
 
       - run:
           name: Build code
-          command: npm run build:npm
+          command: npm run build:dev
 
