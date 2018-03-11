@@ -39,37 +39,3 @@ jobs:
           name: Build code
           command: npm run build:npm
 
-  publish:
-    <<: *defaults
-    steps:
-      - run:
-          name: Write NPM Token to ~/.npmrc
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-
-      - run:
-          name: Install dot-json package
-          command: sudo npm install -g dot-json
-
-      - run:
-          name: Write version to package.json
-          command: $(npm bin)/dot-json package.json version ${CIRCLE_TAG:1}
-
-      - run:
-          name: Publish to NPM
-          command: npm publish --access=public
-
-workflows:
-  version: 2
-  build:
-    jobs:
-      - build
-  publish:
-    jobs:
-      - build
-      - publish:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-          requires:
-            - build
-
