@@ -2,115 +2,51 @@ defaults: &defaults
   working_directory: ~/repo
   docker:
     - image: circleci/node:8.0
-
-whitelist: &whitelist
-  paths:
-    - .npmignore
-    - coverage/*
-    - dist/*
-    - lib/*
-    - lib-esm/*
-    - node_modules/*
-    - src/*
-    - test/*
-    - LICENSE
-    - package.json
-    - README.md
-    - tsconfig.json
-    - tslint.json
-    - webpack.config.js
 version: 2
 jobs:
-  checkout:
-    <<: *defaults
-
+  build:
     steps:
       - checkout
 
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          - v1-dependencies-
+            keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
 
       - run:
-          name: Install Dependencies
-          command: npm install
+            name: Install Dependencies
+            command: npm install
 
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - persist_to_workspace:
-          root: ~/repo
-          <<: *whitelist
-
-  lint:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/repo
-
       - run:
-          name: Lint TypeScript code
-          command: npm run lint
-
-  test:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/repo
+            name: Lint TypeScript code
+            command: npm run lint
 
       - run:
           name: Test TypeScript code
           command: npm run test:cover
 
-      - persist_to_workspace:
-          root: ~/repo
-          <<: *whitelist
-
-  coveralls:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/repo
-
       - run:
           name: Submit coverage report to Coveralls.io
           command: npm run coveralls
 
-  build:
-    <<: *defaults
-
-    steps:
-      - attach_workspace:
-          at: ~/repo
-
       - run:
-          name: Build code for npm
+          name: Build code
           command: npm run build:npm
 
-      - persist_to_workspace:
-          root: ~/repo
-          <<: *whitelist
-
-  deploy:
-    <<: *defaults
-
+  publish:
     steps:
-      - attach_workspace:
-          at: ~/repo
-
       - run:
           name: Write NPM Token to ~/.npmrc
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
 
       - run:
           name: Install dot-json package
-          command: npm install -g dot-json
+          command: sudo npm install -g dot-json
 
       - run:
           name: Write version to package.json
@@ -122,70 +58,13 @@ jobs:
 
 workflows:
   version: 2
-
-  build:
+  build-publish:
     jobs:
-      - checkout
-      - test:
-          requires:
-            - checkout
-      - lint:
-          requires:
-            - checkout
-      - coveralls:
-          requires:
-            - test
-      - build:
-          requires:
-            - test
-            - lint
-
-  release:
-    jobs:
-      - checkout:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-      - test:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-          requires:
-            - checkout
-      - lint:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-          requires:
-            - checkout
-      - coveralls:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-          requires:
-            - test
-      - build:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
-          requires:
-            - test
-            - lint
-      - deploy:
-          filters:
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-            branches:
-              ignore: /.*/
+      - build
+      - publish:
           requires:
             - build
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+
