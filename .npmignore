@@ -5,5 +5,4 @@
 **/tslint.json
 !dist
 coverage
-src
 test
