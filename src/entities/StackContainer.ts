@@ -22,7 +22,7 @@ export default class StackContainer extends Entity<IStackContainerProps> {
     this._onSizeChanged();
   }
 
-  protected onUpdated(): void {
+  protected onPropsUpdated(): void {
     this._onSizeChanged();
   }
 
@@ -30,7 +30,7 @@ export default class StackContainer extends Entity<IStackContainerProps> {
     this._onSizeChanged();
   }
 
-  protected tick(): void {
+  protected onUpdate(): void {
     try {
       const bounds = this.node.getHierarchyBoundingVectors(true);
       const newSize = bounds.max.subtract(bounds.min);

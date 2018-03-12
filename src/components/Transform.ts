@@ -18,11 +18,11 @@ export default class Transform extends Component<ITransformProps> {
     this._updateTransform(undefined, props);
   }
 
-  protected onUpdated(oldProps: ITransformProps): void {
+  protected onPropsUpdated(oldProps: ITransformProps): void {
     this._updateTransform(oldProps, this.props);
   }
 
-  protected onEntityWillUpdate(oldProps: ITransformProps): void {
+  protected onEntityWillPropsUpdate(oldProps: ITransformProps): void {
     this._updateTransform(oldProps, this.props);
   }
 

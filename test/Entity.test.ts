@@ -8,12 +8,18 @@ describe('Entity class', () => {
   const sceneEntity: SceneEntity = new SceneEntity();
   let scene: BABYLON.Scene;
 
+  const fakeRenderLoop = () => {
+    scene.onBeforeRenderObservable.notifyObservers(scene);
+  };
+
   beforeEach(() => {
     scene = new BABYLON.Scene(engine);
     sceneEntity.mount(engine, scene);
+    engine.runRenderLoop(fakeRenderLoop);
   });
 
   afterEach(() => {
+    engine.stopRenderLoop(fakeRenderLoop);
     sceneEntity.unmount();
     scene.dispose();
     scene = undefined;
@@ -62,6 +68,7 @@ describe('Entity class', () => {
       public didMountCalled: boolean;
       public getChildContextCalled: boolean;
       public willUpdateCalled: boolean;
+      public onUpdateCalled: boolean;
       public onUpdatedCalled: boolean;
       public parentUpdatedCalled: boolean;
       public willUnmountCalled: boolean;
@@ -82,13 +89,17 @@ describe('Entity class', () => {
         return undefined;
       }
 
-      protected willUpdate(newProps: {}): boolean {
+      protected willPropsUpdate(newProps: {}): boolean {
         this.willUpdateCalled = true;
         return this._shouldUpdate;
       }
 
-      protected onUpdated(oldProps: {}): void {
+      protected onPropsUpdated(oldProps: {}): void {
         this.onUpdatedCalled = true;
+      }
+
+      protected onUpdate(): void {
+        this.onUpdateCalled = true;
       }
 
       protected parentUpdated(isParentMounted: boolean): void {
@@ -115,6 +126,18 @@ describe('Entity class', () => {
       const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
       fakeEntity.updateProps({});
       expect(fakeEntity.willUpdateCalled).toBeTruthy();
+    });
+
+    it('should call onUpdate', done => {
+      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity(true));
+      const observable = scene.onBeforeRenderObservable.add(() => {
+        scene.onBeforeRenderObservable.remove(observable);
+        expect(fakeEntity.onUpdateCalled).toBeTruthy();
+        done();
+      });
+      setTimeout(() => {
+        done.fail('render loop never called.');
+      }, 500);
     });
 
     it('should call onUpdated', () => {
