@@ -31,7 +31,7 @@ describe('Component class', () => {
       this.onUpdatedCalled = true;
     }
 
-    protected onEntityWillPropsUpdate(oldProps: {}): void {
+    protected onEntityPropsWillUpdate(oldProps: {}): void {
       this.onEntityWillUpdateCalled = true;
     }
 

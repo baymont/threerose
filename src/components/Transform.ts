@@ -22,7 +22,7 @@ export default class Transform extends Component<ITransformProps> {
     this._updateTransform(oldProps, this.props);
   }
 
-  protected onEntityWillPropsUpdate(oldProps: ITransformProps): void {
+  protected onEntityPropsWillUpdate(oldProps: ITransformProps): void {
     this._updateTransform(oldProps, this.props);
   }
 

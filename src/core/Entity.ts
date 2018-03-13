@@ -3,6 +3,7 @@ import ObjectHelper from '../utils/ObjectHelper';
 
 import IEntityContext from './common/IEntityContext';
 import Component from './Component';
+import InternalComponentCollection from './InternalComponentCollection';
 
 /**
  * nucleus entity
@@ -11,7 +12,7 @@ import Component from './Component';
  */
 export default class Entity<TProps = {}, TParentContext = {}> {
   private readonly _children: Entity[] = [];
-  private readonly _components: Component[] = [];
+  private readonly _components: InternalComponentCollection = new InternalComponentCollection();
   private readonly _key: string;
 
   private _context: IEntityContext;
@@ -28,7 +29,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   public get components(): Component[] {
-    return this._components;
+    return this._components.array;
   }
 
   public get key(): string {
@@ -87,11 +88,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     });
 
     // unmount components
-    if (this.components) {
-      this.components.forEach((component: Component) => {
-        this.unmountComponent(component);
-      });
-    }
+    this._components.unmount();
 
     this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObservable);
     this._onBeforeRenderObservable = undefined;
@@ -144,24 +141,19 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   public mountComponents(components: Component[]): void {
     components.forEach(component => {
       if (this.components.indexOf(component) === -1) {
-        this.components.push(component);
-        if (this._isMounted) {
-          this._mountComponent(component);
-        }
+        this._components.mountComponent(component);
       } else {
-        throw new Error('An instance of this component already mounted.');
+        throw new Error('An instance of this component is already mounted.');
       }
     });
   }
 
-  public unmountComponent<T extends Component>(component: T): T {
+  public unmountComponent<T extends Component>(component: T): void {
     const index: number = this.components.indexOf(component);
-    this.components.splice(index, 1);
-    (component as any)._isMounted = false; // tslint:disable-line:no-any
-    if (component.isEnabled) {
-      (component as any).willUnmount(); // tslint:disable-line:no-any
+    if (index < 0) {
+      throw new Error('This component is not mounted to this entity.');
     }
-    return component;
+    this._components.unmountComponent(component);
   }
 
   /**
@@ -174,19 +166,13 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       this._props = Object.assign(this.props, ObjectHelper.cloneDeep(props));
 
       if (this._isMounted) {
-        if (this.components) {
-          this.components.filter(component => component.isEnabled).forEach(component => {
-            (component as any).onEntityWillPropsUpdate(oldProps); // tslint:disable-line:no-any
-          });
-        }
+        this._components.onEntityPropsWillUpdate(oldProps);
 
         // finally let the implemantation update itself
         this.onPropsUpdated(oldProps);
 
         if (this.components) {
-          this.components.filter(component => component.isEnabled).forEach(component => {
-            (component as any).onEntityPropsUpdated(); // tslint:disable-line:no-any
-          });
+          this._components.onEntityPropsUpdated();
         }
         this._notifyChildren();
       }
@@ -282,26 +268,10 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     });
 
     // Mount components
-    if (this.components) {
-      this.components.forEach((component: Component) => {
-        this._mountComponent(component);
-      });
-    }
+    this._components.mount(this, this.context.engine, this.context.scene);
 
     this.didMount();
     this._onBeforeRenderObservable = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender);
-  }
-
-  private _mountComponent(component: Component): void {
-    (component as any)._context = { // tslint:disable-line:no-any
-      engine: this.context.engine,
-      entity: this,
-      scene: this.context.scene
-    };
-    if (component.isEnabled) {
-      (component as any).didMount(); // tslint:disable-line:no-any
-    }
-    (component as any)._isMounted = true; // tslint:disable-line:no-any
   }
 
   private _onBeforeRender(): void {

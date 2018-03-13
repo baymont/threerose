@@ -79,7 +79,7 @@ export default abstract class Component<TProps = {}> {
   /**
    * Called before an entity's props are updated
    */
-  protected onEntityWillPropsUpdate(oldProps: any): void { // tslint:disable-line:no-any
+  protected onEntityPropsWillUpdate(oldProps: any): void { // tslint:disable-line:no-any
     // EMPTY BLOCK
   }
 
@@ -116,5 +116,26 @@ export default abstract class Component<TProps = {}> {
    */
   protected onPropsUpdated(oldProps: TProps): void {
     // EMPTY BLOCK
+  }
+
+  private _internalMount(context: IComponentContext): void {
+    if (this._isMounted) {
+      throw new Error('This component is already mounted.');
+    }
+    this._context = context;
+    if (this.isEnabled) {
+      this.didMount();
+    }
+    this._isMounted = true;
+  }
+
+  private _internalUnmount(): void {
+    if (!this._isMounted) {
+      throw new Error('This component is not mounted.');
+    }
+    this._isMounted = false;
+    if (this.isEnabled) {
+      this.willUnmount();
+    }
   }
 }
