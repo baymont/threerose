@@ -18,7 +18,7 @@ export default class ModelLoader extends Component<IModelLoaderProps> {
     );
   }
 
-  protected onUpdated(oldProps: IModelLoaderProps) {
+  protected onPropsUpdated(oldProps: IModelLoaderProps) {
     this.context.entity.node.getChildMeshes().forEach((mesh: BABYLON.AbstractMesh) => {
       mesh.dispose();
     });

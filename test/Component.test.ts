@@ -22,20 +22,20 @@ describe('Component class', () => {
       this.didMountCalled = true;
     }
 
-    protected willUpdate(oldProps: {}): boolean {
+    protected willPropsUpdate(oldProps: {}): boolean {
       this.willUpdateCalled = true;
       return true;
     }
 
-    protected onUpdated(): void {
+    protected onPropsUpdated(): void {
       this.onUpdatedCalled = true;
     }
 
-    protected onEntityWillUpdate(oldProps: {}): void {
+    protected onEntityWillPropsUpdate(oldProps: {}): void {
       this.onEntityWillUpdateCalled = true;
     }
 
-    protected onEntityUpdated(): void {
+    protected onEntityPropsUpdated(): void {
       this.onEntityUpdatedCalled = true;
     }
 

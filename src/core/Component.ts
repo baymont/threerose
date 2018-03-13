@@ -59,12 +59,12 @@ export default abstract class Component<TProps = {}> {
    * @param props The new properties
    */
   public updateProps(props: TProps): void {
-    if (!this.isMounted || !this.isEnabled || this.willUpdate(props)) {
+    if (!this.isMounted || !this.isEnabled || this.willPropsUpdate(props)) {
       const oldProps: TProps = ObjectHelper.cloneDeep(this.props);
       this._props = Object.assign(this.props, ObjectHelper.cloneDeep(props));
 
       if (this.isEnabled) {
-        this.onUpdated(oldProps);
+        this.onPropsUpdated(oldProps);
       }
     }
   }
@@ -79,21 +79,21 @@ export default abstract class Component<TProps = {}> {
   /**
    * Called before an entity's props are updated
    */
-  protected onEntityWillUpdate(oldProps: any): void { // tslint:disable-line:no-any
+  protected onEntityWillPropsUpdate(oldProps: any): void { // tslint:disable-line:no-any
     // EMPTY BLOCK
   }
 
   /**
    * Called after an entity's props are updated
    */
-  protected onEntityUpdated(): void {
+  protected onEntityPropsUpdated(): void {
     // EMPTY BLOCK
   }
 
   /**
    * Called before render.
    */
-  protected tick(): void {
+  protected onUpdate(): void {
     // EMPTY BLOCK
   }
 
@@ -107,14 +107,14 @@ export default abstract class Component<TProps = {}> {
   /**
    * Called before update. False will reject the changes.
    */
-  protected willUpdate(newProps: TProps): boolean {
+  protected willPropsUpdate(newProps: TProps): boolean {
     return true;
   }
 
   /**
    * Called after props updated.
    */
-  protected onUpdated(oldProps: TProps): void {
+  protected onPropsUpdated(oldProps: TProps): void {
     // EMPTY BLOCK
   }
 }

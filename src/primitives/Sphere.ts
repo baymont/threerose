@@ -22,7 +22,7 @@ export default class Sphere extends Entity<ISphereProps> {
         );
     }
 
-    protected onUpdated(): void {
+    protected onPropsUpdated(): void {
         throw new Error('Method not implemented.');
     }
 }

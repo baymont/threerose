@@ -19,7 +19,7 @@ export default class Box extends Entity<IBoxProps> {
         );
     }
 
-    protected onUpdated(): void {
+    protected onPropsUpdated(): void {
         throw new Error('Method not implemented.');
     }
 }

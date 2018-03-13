@@ -65,6 +65,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   ) {
     this._props = ObjectHelper.cloneDeep(props) || {} as TProps;
     this._key = key;
+
+    this._onBeforeRender = this._onBeforeRender.bind(this);
   }
 
   /**
@@ -167,23 +169,23 @@ export default class Entity<TProps = {}, TParentContext = {}> {
    * @param props The new properties
    */
   public updateProps(props: TProps): void {
-    if (!this._isMounted || this.willUpdate(props)) {
+    if (!this._isMounted || this.willPropsUpdate(props)) {
       const oldProps: TProps = ObjectHelper.cloneDeep(this.props);
       this._props = Object.assign(this.props, ObjectHelper.cloneDeep(props));
 
       if (this._isMounted) {
         if (this.components) {
           this.components.filter(component => component.isEnabled).forEach(component => {
-            (component as any).onEntityWillUpdate(oldProps); // tslint:disable-line:no-any
+            (component as any).onEntityWillPropsUpdate(oldProps); // tslint:disable-line:no-any
           });
         }
 
         // finally let the implemantation update itself
-        this.onUpdated(oldProps);
+        this.onPropsUpdated(oldProps);
 
         if (this.components) {
           this.components.filter(component => component.isEnabled).forEach(component => {
-            (component as any).onEntityUpdated(); // tslint:disable-line:no-any
+            (component as any).onEntityPropsUpdated(); // tslint:disable-line:no-any
           });
         }
         this._notifyChildren();
@@ -215,14 +217,14 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   /**
    * Called before update. False will reject the changes.
    */
-  protected willUpdate(newProps: TProps): boolean {
+  protected willPropsUpdate(newProps: TProps): boolean {
     return true;
   }
 
   /**
    * Called after props updated.
    */
-  protected onUpdated(oldProps: TProps): void {
+  protected onPropsUpdated(oldProps: TProps): void {
     // EMPTY BLOCK
   }
 
@@ -236,7 +238,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   /**
    * Called before render.
    */
-  protected tick(): void {
+  protected onUpdate(): void {
     // EMPTY BLOCK
   }
 
@@ -287,7 +289,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     }
 
     this.didMount();
-    this._onBeforeRenderObservable = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender.bind(this));
+    this._onBeforeRenderObservable = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender);
   }
 
   private _mountComponent(component: Component): void {
@@ -303,13 +305,21 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   private _onBeforeRender(): void {
-    // go through components
     if (this.components) {
       this.components.filter(component => component.isEnabled)
-        .forEach(component => (component as any).tick()); // tslint:disable-line:no-any
+        .forEach(component => {
+          this._tryExecute((component as any).onUpdate.bind(component)); // tslint:disable-line:no-any
+        });
     }
 
-    // tick the componenet
-    this.tick();
+    this._tryExecute(this.onUpdate.bind(this));
+  }
+
+  private _tryExecute(func: () => void): void {
+    try {
+      func();
+    } catch (e) {
+      console.log(e); // tslint:disable-line no-console
+    }
   }
 }

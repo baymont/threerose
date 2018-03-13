@@ -24,7 +24,7 @@ export default class Cylinder extends Entity<ICylinderProps> {
         );
     }
 
-    protected onUpdated(): void {
+    protected onPropsUpdated(): void {
         throw new Error('Method not implemented.');
     }
 }
