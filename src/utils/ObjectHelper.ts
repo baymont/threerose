@@ -22,6 +22,16 @@ export default class ObjectHelper {
       return copy;
     }
 
+    // Handle Sets
+    if (obj instanceof Set) {
+      return new Set(obj as any) as any;
+    }
+
+    // Handle Maps
+    if (obj instanceof Map) {
+      return new Map(obj as any) as any;
+    }
+
     // Handle Object
     if (obj instanceof Object) {
       copy = {} as any as T;

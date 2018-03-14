@@ -164,4 +164,23 @@ describe('Entity class', () => {
       expect(fakeEntity.willUnmountCalled).toBeTruthy();
     });
   });
+
+  describe('Misc', () => {
+    it('should deep copy properties', () => {
+      const props = {
+        test: {
+          a: 1,
+          b: {
+            c: new Set<number>([1, 2, 3])
+          }
+        }
+      };
+      const entity: Entity = new Entity(props);
+
+      expect(entity.props).toEqual(props);
+      props.test.a = 5;
+      props.test.b.c.delete(1);
+      expect(entity.props).not.toEqual(props);
+    });
+  });
 });
