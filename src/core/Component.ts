@@ -1,6 +1,6 @@
 import * as BABYLON from 'babylonjs';
+import cloneDeep = require('lodash/cloneDeep');
 
-import ObjectHelper from '../utils/ObjectHelper';
 import Entity from './Entity';
 
 export interface IComponentContext {
@@ -21,7 +21,7 @@ export default abstract class Component<TProps = {}> {
   private _context: IComponentContext;
 
   constructor(props?: TProps) {
-    this._props = ObjectHelper.cloneDeep(props) || {} as TProps;
+    this._props = cloneDeep(props) || {} as TProps;
   }
 
   public get context(): IComponentContext {
@@ -60,8 +60,8 @@ export default abstract class Component<TProps = {}> {
    */
   public updateProps(props: TProps): void {
     if (!this.isMounted || !this.isEnabled || this.willPropsUpdate(props)) {
-      const oldProps: TProps = ObjectHelper.cloneDeep(this.props);
-      this._props = Object.assign(this.props, ObjectHelper.cloneDeep(props));
+      const oldProps: TProps = cloneDeep(this.props);
+      this._props = Object.assign(cloneDeep(props), this.props);
 
       if (this.isEnabled) {
         this.onPropsUpdated(oldProps);
