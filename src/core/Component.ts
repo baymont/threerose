@@ -63,7 +63,7 @@ export default abstract class Component<TProps = {}> {
       const oldProps: TProps = cloneDeep(this.props);
       this._props = Object.assign(cloneDeep(props), this.props);
 
-      if (this.isEnabled) {
+      if (this.isEnabled && this.isMounted) {
         this.onPropsUpdated(oldProps);
       }
     }
