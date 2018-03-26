@@ -6,7 +6,17 @@ A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Com
 
 `npm install nucleus3d`
 
+## Docs
+
+Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go learn more in depth about the framework!
+
 ## Quick start
+
+**Entities** are things in the 3D world. They're merely placeholders for components.
+
+**Components** are modular chunks of data that can add appearance, behaviors and/or functionality to an entity.
+
+**Systems** provides global scope, services, and management to classes of components.
 
 ### Model loader
 

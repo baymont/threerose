@@ -1,6 +1,6 @@
 {
   "name": "nucleus3d",
-  "version": "0.4.6",
+  "version": "0.5.0",
   "description": "A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
