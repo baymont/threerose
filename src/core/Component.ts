@@ -41,6 +41,9 @@ export default abstract class Component<TProps = {}> {
   }
 
   public enable(): void {
+    if (this._isEnabled) {
+      return;
+    }
     this._isEnabled = true;
     if (this.isMounted) {
       this.didMount();
@@ -48,6 +51,9 @@ export default abstract class Component<TProps = {}> {
   }
 
   public disable(): void {
+    if (!this._isEnabled) {
+      return;
+    }
     this._isEnabled = false;
     if (this.isMounted) {
       this.willUnmount();
