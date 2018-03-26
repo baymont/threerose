@@ -15,16 +15,16 @@ export interface IComponentContext {
  * @alpha
  */
 export default abstract class Component<TProps = {}> {
+  private _isEnabled: boolean = true;
   private _props: TProps;
   private _isMounted: boolean;
-  private _isEnabled: boolean = true;
   private _context: IComponentContext;
 
   constructor(props?: TProps) {
     this._props = cloneDeep(props) || {} as TProps;
   }
 
-  public get context(): IComponentContext {
+  protected get context(): IComponentContext {
     return this._context;
   }
 
@@ -46,7 +46,7 @@ export default abstract class Component<TProps = {}> {
     }
     this._isEnabled = true;
     if (this.isMounted) {
-      this.didMount();
+      this.onEnabled();
     }
   }
 
@@ -56,7 +56,7 @@ export default abstract class Component<TProps = {}> {
     }
     this._isEnabled = false;
     if (this.isMounted) {
-      this.willUnmount();
+      this.onDisabled();
     }
   }
 
@@ -80,6 +80,24 @@ export default abstract class Component<TProps = {}> {
    */
   protected didMount(): void {
     // EMPTY BLOCK
+  }
+
+  /**
+   * Override to provide your custom enabling logic. Only called when mounted.
+   *
+   * The default implemantation calls didMount. (soft mount)
+   */
+  protected onEnabled(): void {
+    this.didMount();
+  }
+
+  /**
+   * Override to provide your custom disabling logic. Only called when mounted.
+   *
+   * The default implemantation calls willUnmount. (soft unmount)
+   */
+  protected onDisabled(): void {
+    this.willUnmount();
   }
 
   /**
