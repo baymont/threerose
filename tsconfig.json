@@ -10,9 +10,6 @@
       "es2015.collection",
       "es2015.promise"
     ],
-    "types": [
-      "babylonjs"
-    ],
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "noImplicitAny": true,
