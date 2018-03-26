@@ -10,7 +10,7 @@ A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Com
 
 Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go learn more in depth about the framework!
 
-## Quick start
+### The Basics
 
 **Entities** are things in the 3D world. They're merely placeholders for components.
 
@@ -18,7 +18,9 @@ Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go lear
 
 **Systems** provide global scope, services, and management to classes of components.
 
-### Model loader
+## Quick Start
+
+### The Model Loader
 
 ```
 // Create a scene entity and mount it with an engine
@@ -32,7 +34,7 @@ entity.addComponent(new ModelLoader('https://raw.githubusercontent.com/KhronosGr
 sceneEntity.mountChild(entity);
 ```
 
-### Create an entity class
+### Create an Entity Class
 
 ```
 class Sphere extends Entity {
