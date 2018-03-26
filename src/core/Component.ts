@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import cloneDeep = require('lodash/cloneDeep');
 
+import SceneEntity from './common/SceneEntity';
 import Entity from './Entity';
 import System from './System';
 
@@ -8,6 +9,7 @@ export interface IComponentContext {
   engine: BABYLON.Engine;
   entity: Entity;
   scene: BABYLON.Scene;
+  sceneEntity: SceneEntity;
 }
 
 /**

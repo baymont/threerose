@@ -11,7 +11,7 @@ export default class InternalComponentCollection {
   private _engine: BABYLON.Engine;
   private _scene: BABYLON.Scene;
   private _entity: Entity;
-  private _sceneEntity: IInternalSceneEntity;
+  private _sceneEntity: SceneEntity;
 
   private _internalArray: IInternalComponent[] = [];
 
@@ -33,10 +33,15 @@ export default class InternalComponentCollection {
       const context: IComponentContext = {
         engine: this._engine,
         entity: this._entity,
-        scene: this._scene
+        scene: this._scene,
+        sceneEntity: this._sceneEntity
       };
-      // tslint:disable-next-line:no-any
-      component._internalMount(context, this._sceneEntity._internalGetSystemFor(component as any));
+      // tslint:disable:no-any
+      component._internalMount(
+        context,
+        (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component as any)
+      );
+      // tslint:enable:no-any
     });
 
     this._isMounted = true;
@@ -48,9 +53,11 @@ export default class InternalComponentCollection {
       internalComponent._internalMount({
           engine: this._engine,
           entity: this._entity,
-          scene: this._scene
+          scene: this._scene,
+          sceneEntity: this._sceneEntity
         },
-        this._sceneEntity._internalGetSystemFor(component)
+        // tslint:disable-next-line:no-any
+        (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component)
       );
     }
     this._internalArray.push(internalComponent);
