@@ -16,7 +16,7 @@ Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go lear
 
 **Components** are modular chunks of data that can add appearance, behaviors and/or functionality to an entity.
 
-**Systems** provides global scope, services, and management to classes of components.
+**Systems** provide global scope, services, and management to classes of components.
 
 ### Model loader
 
