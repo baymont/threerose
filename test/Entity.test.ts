@@ -39,6 +39,12 @@ describe('Entity class', () => {
       expect(entity.node).toBeFalsy();
     });
 
+    it('should unmount on dispose of mesh', () => {
+      const entity: Entity = sceneEntity.mountChild(new Entity());
+      entity.node.dispose();
+      expect(entity.isMounted).toBeFalsy();
+    });
+
     it('should dispose of a node if unmounted', () => {
       const entity: Entity = new Entity();
       sceneEntity.mountChild(entity);
@@ -114,6 +120,12 @@ describe('Entity class', () => {
     it('should call didMount', () => {
       const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
       expect(fakeEntity.didMountCalled).toBeTruthy();
+    });
+
+    it('should return same on Entity.for', () => {
+      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
+      const forEntity: Entity = Entity.for(fakeEntity.node);
+      expect(fakeEntity).toBe(forEntity);
     });
 
     it('should call getChildContext', () => {

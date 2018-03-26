@@ -1,20 +1,17 @@
 import IEntityContext from './common/IEntityContext';
+import SceneEntity from './common/SceneEntity';
 import Component, { IComponentContext } from './Component';
 import Entity from './Entity';
-
-export interface IInternalComponent {
-  isEnabled: boolean;
-  _internalMount(context: IComponentContext): void;
-  _internalUnmount(): void;
-  onEntityPropsWillUpdate(oldProps: {}): void;
-  onEntityPropsUpdated(): void;
-}
+import IInternalComponent from './internals/IInternalComponent';
+import IInternalSceneEntity from './internals/IInternalSceneEntity';
+import System from './System';
 
 export default class InternalComponentCollection {
   private _isMounted: boolean;
   private _engine: BABYLON.Engine;
   private _scene: BABYLON.Scene;
   private _entity: Entity;
+  private _sceneEntity: IInternalSceneEntity;
 
   private _internalArray: IInternalComponent[] = [];
 
@@ -22,7 +19,7 @@ export default class InternalComponentCollection {
     return this._internalArray as any; // tslint:disable-line:no-any
   }
 
-  public mount(entity: Entity, engine: BABYLON.Engine, scene: BABYLON.Scene): void {
+  public mount(entity: Entity, engine: BABYLON.Engine, scene: BABYLON.Scene, sceneEntity: SceneEntity): void {
     if (this._isMounted) {
       return;
     }
@@ -30,6 +27,7 @@ export default class InternalComponentCollection {
     this._entity = entity;
     this._engine = engine;
     this._scene = scene;
+    this._sceneEntity = sceneEntity as any; // tslint:disable-line:no-any
 
     this._internalArray.forEach(component => {
       const context: IComponentContext = {
@@ -37,7 +35,8 @@ export default class InternalComponentCollection {
         entity: this._entity,
         scene: this._scene
       };
-      component._internalMount(context);
+      // tslint:disable-next-line:no-any
+      component._internalMount(context, this._sceneEntity._internalGetSystemFor(component as any));
     });
 
     this._isMounted = true;
@@ -47,10 +46,12 @@ export default class InternalComponentCollection {
     const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
     if (this._isMounted) {
       internalComponent._internalMount({
-        engine: this._engine,
-        entity: this._entity,
-        scene: this._scene
-      });
+          engine: this._engine,
+          entity: this._entity,
+          scene: this._scene
+        },
+        this._sceneEntity._internalGetSystemFor(component)
+      );
     }
     this._internalArray.push(internalComponent);
   }

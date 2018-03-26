@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 import cloneDeep = require('lodash/cloneDeep');
 
 import Entity from './Entity';
+import System from './System';
 
 export interface IComponentContext {
   engine: BABYLON.Engine;
@@ -14,11 +15,13 @@ export interface IComponentContext {
  *
  * @alpha
  */
-export default abstract class Component<TProps = {}> {
+// tslint:disable-next-line:no-any
+export default abstract class Component<TProps = {}, TSystem extends System = any> {
   private _isEnabled: boolean = true;
   private _props: TProps;
   private _isMounted: boolean;
   private _context: IComponentContext;
+  private _system: TSystem;
 
   constructor(props?: TProps) {
     this._props = cloneDeep(props) || {} as TProps;
@@ -38,6 +41,10 @@ export default abstract class Component<TProps = {}> {
 
   public get props(): TProps {
     return this._props;
+  }
+
+  public get system(): TSystem {
+    return this._system;
   }
 
   public enable(): void {
@@ -142,7 +149,7 @@ export default abstract class Component<TProps = {}> {
     // EMPTY BLOCK
   }
 
-  private _internalMount(context: IComponentContext): void {
+  private _internalMount(context: IComponentContext, system?: TSystem): void {
     if (this._isMounted) {
       throw new Error('This component is already mounted.');
     }
@@ -150,6 +157,7 @@ export default abstract class Component<TProps = {}> {
     if (this.isEnabled) {
       this.didMount();
     }
+    this._system = system;
     this._isMounted = true;
   }
 
@@ -157,6 +165,8 @@ export default abstract class Component<TProps = {}> {
     if (!this._isMounted) {
       throw new Error('This component is not mounted.');
     }
+    this._context  = undefined;
+    this._system = undefined;
     this._isMounted = false;
     if (this.isEnabled) {
       this.willUnmount();

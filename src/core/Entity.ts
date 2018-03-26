@@ -4,6 +4,7 @@ import cloneDeep = require('lodash/cloneDeep');
 import IEntityContext from './common/IEntityContext';
 import Component from './Component';
 import InternalComponentCollection from './InternalComponentCollection';
+import IInternalSceneEntity from './internals/IInternalSceneEntity';
 
 /**
  * nucleus entity
@@ -12,6 +13,10 @@ import InternalComponentCollection from './InternalComponentCollection';
  */
 export default class Entity<TProps = {}, TParentContext = {}> {
   public static for(node: BABYLON.AbstractMesh): Entity {
+    if (node.isDisposed()) {
+      throw new Error('This node has been disposed.');
+    }
+
     let entity: Entity = Entity.extract(node);
     if (entity) {
       return entity;
@@ -39,7 +44,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   private _context: IEntityContext;
   private _parentContext?: TParentContext;
 
-  private _onBeforeRenderObservable: BABYLON.Observer<BABYLON.Scene>;
+  private _onBeforeRenderObserver: BABYLON.Observer<BABYLON.Scene>;
+  private _onDisposeObserver: BABYLON.Observer<BABYLON.Node>;
   private _isMounted: boolean;
   private _node: BABYLON.AbstractMesh;
   private _props: TProps;
@@ -89,6 +95,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     this._key = key;
 
     this._onBeforeRender = this._onBeforeRender.bind(this);
+    this._onDispose = this._onDispose.bind(this);
   }
 
   /**
@@ -111,10 +118,15 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     // unmount components
     this._components.unmount();
 
-    this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObservable);
-    this._onBeforeRenderObservable = undefined;
+    this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
+    this.node.onDisposeObservable.remove(this._onDisposeObserver);
+    this._onBeforeRenderObserver = undefined;
+    this._onDisposeObserver = undefined;
 
-    this._node.dispose();
+    if (!this._node.isDisposed()) {
+      this._node.dispose();
+    }
+    Entity.set(this._node, undefined);
     this._node = undefined;
     this._isMounted = false;
 
@@ -122,6 +134,9 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       const index: number = this.parent.children.indexOf(this);
       this.parent.children.splice(index, 1);
     }
+
+    const internalScene: IInternalSceneEntity = this.context.sceneEntity as any; // tslint:disable-line:no-any
+    internalScene._unregisterEntity(this);
   }
 
   /**
@@ -154,6 +169,14 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     return child;
   }
 
+  public getComponent<T extends Component>(component: new() => T): T {
+    return this.components.find(c => c.constructor.name === component.name) as T;
+  }
+
+  public hasComponent<T extends Component>(component: new() => T): boolean {
+    return !!this.getComponent(component);
+  }
+
   public mountComponent<T extends Component>(component: T): T {
     this.mountComponents([component]);
     return component;
@@ -161,10 +184,10 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   public mountComponents(components: Component[]): void {
     components.forEach(component => {
-      if (this.components.indexOf(component) === -1) {
-        this._components.mountComponent(component);
-      } else {
+      if (this.components.find(c => c.constructor.name === component.constructor.name)) {
         throw new Error('An instance of this component is already mounted.');
+      } else {
+        this._components.mountComponent(component);
       }
     });
   }
@@ -270,6 +293,9 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
     this._context = context;
     this._node = this.onMount();
+    if (!Entity.extract(this.node)) {
+      Entity.set(this.node, this);
+    }
 
     // Set to parent
     if (!this._node.parent) {
@@ -289,10 +315,14 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     });
 
     // Mount components
-    this._components.mount(this, this.context.engine, this.context.scene);
+    this._components.mount(this, this.context.engine, this.context.scene, this.context.sceneEntity);
 
     this.didMount();
-    this._onBeforeRenderObservable = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender);
+    this._onBeforeRenderObserver = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender);
+    this._onDisposeObserver = this.node.onDisposeObservable.add(this._onDispose);
+
+    const internalScene: IInternalSceneEntity = context.sceneEntity as any; // tslint:disable-line:no-any
+    internalScene._registerEntity(this);
   }
 
   private _onBeforeRender(): void {
@@ -304,6 +334,12 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     }
 
     this._tryExecute(this.onUpdate.bind(this));
+  }
+
+  private _onDispose(): void {
+    if (this.isMounted) {
+      this.unmount();
+    }
   }
 
   private _tryExecute(func: () => void): void {
