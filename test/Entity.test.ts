@@ -166,6 +166,25 @@ describe('Entity class', () => {
   });
 
   describe('Misc', () => {
+    it('should return new entity using Entity.for', () => {
+      const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
+      const newEntity: Entity = Entity.for(mesh);
+      sceneEntity.mountChild(newEntity);
+
+      expect(newEntity).toBeTruthy();
+      expect(newEntity.node).toBe(mesh);
+    });
+
+    it('should return same entity on second call to Entity.for', () => {
+      const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
+      const newEntity: Entity = Entity.for(mesh);
+      sceneEntity.mountChild(newEntity);
+
+      const secondCall: Entity = Entity.for(mesh);
+
+      expect(newEntity).toBe(secondCall);
+    });
+
     it('should deep copy properties', () => {
       const props = {
         test: {

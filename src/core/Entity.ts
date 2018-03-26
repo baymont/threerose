@@ -11,6 +11,27 @@ import InternalComponentCollection from './InternalComponentCollection';
  * @alpha
  */
 export default class Entity<TProps = {}, TParentContext = {}> {
+  public static for(node: BABYLON.AbstractMesh): Entity {
+    let entity: Entity = Entity.extract(node);
+    if (entity) {
+      return entity;
+    }
+    entity = new Entity();
+    entity.onMount = () => {
+      return node;
+    };
+    Entity.set(node, entity);
+    return entity;
+  }
+
+  private static extract(node: BABYLON.AbstractMesh) {
+    return (node as any).__entity__; // tslint:disable-line:no-any
+  }
+
+  private static set(node: BABYLON.AbstractMesh, entity: Entity) {
+    (node as any).__entity__ = entity; // tslint:disable-line:no-any
+  }
+
   private readonly _children: Entity[] = [];
   private readonly _components: InternalComponentCollection = new InternalComponentCollection();
   private readonly _key: string;
@@ -23,6 +44,14 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   private _node: BABYLON.AbstractMesh;
   private _props: TProps;
   private _parent?: Entity<{}>;
+
+  protected get context(): IEntityContext {
+    return this._context;
+  }
+
+  protected get parentContext(): TParentContext {
+    return this._parentContext;
+  }
 
   public get children(): Entity[] {
     return this._children;
@@ -48,15 +77,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     return this._props;
   }
 
-  protected get context(): IEntityContext {
-    return this._context;
-  }
-
-  protected get parentContext(): TParentContext {
-    return this._parentContext;
-  }
-
-  protected get isMounted(): boolean {
+  public get isMounted(): boolean {
     return this._isMounted;
   }
 
