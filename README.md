@@ -20,6 +20,10 @@ Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go lear
 
 ## Quick Start
 
+## The Baskeball Demo
+
+[Make a simple bouncing basketball using Nucleus3D](https://stackblitz.com/edit/nucleus-basketball?embed=1&file=app.ts).
+
 ### The Model Loader
 
 ```
@@ -32,27 +36,4 @@ entity.addComponent(new ModelLoader('https://raw.githubusercontent.com/KhronosGr
 
 // Mount the entity
 sceneEntity.mountChild(entity);
-```
-
-### Create an Entity Class
-
-```
-class Sphere extends Entity {
-   protected onMount(): BABYLON.Mesh {
-    return BABYLON.MeshBuilder.CreateSphere(
-      this.key,
-      this.props,
-      this.context.scene
-    );
-  }
-}
-```
-Mount the entity class
-
-```
-const sceneEntity = new SceneEntity();
-
-sceneEntity.mountChild(new Sphere());
-
-sceneEntity.mount(new BABYLON.Engine());
 ```
