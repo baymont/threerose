@@ -1,16 +1,10 @@
 import * as BABYLON from 'babylonjs';
 import cloneDeep = require('lodash/cloneDeep');
 
+import INucleusContext from './common/INucleusContext';
 import SceneEntity from './common/SceneEntity';
 import Entity from './Entity';
 import System from './System';
-
-export interface IComponentContext {
-  engine: BABYLON.Engine;
-  entity: Entity;
-  scene: BABYLON.Scene;
-  sceneEntity: SceneEntity;
-}
 
 /**
  * A mountable component for a nucleus entity
@@ -22,15 +16,20 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   private _isEnabled: boolean = true;
   private _props: TProps;
   private _isMounted: boolean;
-  private _context: IComponentContext;
+  private _context: INucleusContext;
   private _system: TSystem;
+  private _entity: Entity;
 
   constructor(props?: TProps) {
     this._props = cloneDeep(props) || {} as TProps;
   }
 
-  protected get context(): IComponentContext {
+  public get context(): INucleusContext {
     return this._context;
+  }
+
+  public get entity(): Entity {
+    return this._entity;
   }
 
   public get isEnabled(): boolean {
@@ -82,6 +81,14 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
         this.onPropsUpdated(oldProps);
       }
     }
+  }
+
+  /**
+   * Parents the passed node to this component's entity node
+   * @param node the node
+   */
+  protected setParent(node: BABYLON.Node): void {
+    node.parent = this.entity.node;
   }
 
   /**
@@ -151,11 +158,12 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     // EMPTY BLOCK
   }
 
-  private _internalMount(context: IComponentContext, system?: TSystem): void {
+  private _internalMount(entity: Entity, system?: TSystem): void {
     if (this._isMounted) {
       throw new Error('This component is already mounted.');
     }
-    this._context = context;
+    this._entity = entity;
+    this._context = entity.context;
     if (this.isEnabled) {
       this.didMount();
     }

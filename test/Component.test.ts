@@ -1,7 +1,8 @@
 import * as BABYLON from 'babylonjs';
 
+import INucleusContext from '../src/core/common/INucleusContext';
 import SceneEntity from '../src/core/common/SceneEntity';
-import Component, { IComponentContext } from '../src/core/Component';
+import Component from '../src/core/Component';
 import Entity from '../src/core/Entity';
 
 describe('Component class', () => {
@@ -59,12 +60,12 @@ describe('Component class', () => {
   describe('Mounting behavior', () => {
     it('should have a valid context if mounted', () => {
       const fakeComponent: FakeComponent = emptyEntity.mountComponent(new FakeComponent());
-      const context: IComponentContext = (fakeComponent as any).context; // tslint:disable-line:no-any
+      const context: INucleusContext = fakeComponent.context;
       expect(context).toBeTruthy();
-      expect(context.entity.node).toBeTruthy();
       expect(context.engine).toBeTruthy();
       expect(context.scene).toBeTruthy();
-      expect(context.entity).toBe(emptyEntity);
+      expect(fakeComponent.entity.node).toBeTruthy();
+      expect(fakeComponent.entity).toBe(emptyEntity);
     });
 
     it('should be unmounted if removed', () => {

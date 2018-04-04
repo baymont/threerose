@@ -8,21 +8,29 @@ export interface IModelLoaderProps {
 }
 
 export default class ModelLoader extends Component<IModelLoaderProps> {
+  private _root: BABYLON.Node;
+
   protected didMount(): void {
+    this._root = new BABYLON.Node('root', this.context.scene);
+    this.setParent(this._root);
+
     this.loadModel(this.props.url).then(
       (meshes: BABYLON.AbstractMesh[]) => {
         meshes.forEach(mesh => {
-          mesh.parent = this.context.entity.node;
+          mesh.parent = this._root;
         });
       }
     );
   }
 
   protected onPropsUpdated(oldProps: IModelLoaderProps) {
-    this.context.entity.node.getChildMeshes().forEach((mesh: BABYLON.AbstractMesh) => {
-      mesh.dispose();
-    });
+    this._root.dispose();
     this.didMount();
+  }
+
+  protected willUnmount(): void {
+    this._root.dispose();
+    this._root = undefined;
   }
 
   private loadModel(modelUrl: string): Promise<BABYLON.AbstractMesh[]> {

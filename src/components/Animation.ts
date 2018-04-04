@@ -98,10 +98,10 @@ export default class Animation extends Component {
 
     animation.setKeys(this._frames);
 
-    this.context.entity.node.animations.push(animation);
+    this.entity.node.animations.push(animation);
 
     this.context.scene.beginAnimation(
-      this.context.entity.node,
+      this.entity.node,
       this._from,
       this._to,
       this._loop,

@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import cloneDeep = require('lodash/cloneDeep');
 
-import IEntityContext from './common/IEntityContext';
+import INucleusContext from './common/INucleusContext';
 import Component from './Component';
 import InternalComponentCollection from './InternalComponentCollection';
 import IInternalSceneEntity from './internals/IInternalSceneEntity';
@@ -41,7 +41,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   private readonly _components: InternalComponentCollection = new InternalComponentCollection();
   private readonly _key: string;
 
-  private _context: IEntityContext;
+  private _context: INucleusContext;
   private _parentContext?: TParentContext;
 
   private _onBeforeRenderObserver: BABYLON.Observer<BABYLON.Scene>;
@@ -51,12 +51,12 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   private _props: TProps;
   private _parent?: Entity<{}>;
 
-  protected get context(): IEntityContext {
-    return this._context;
-  }
-
   protected get parentContext(): TParentContext {
     return this._parentContext;
+  }
+
+  public get context(): INucleusContext {
+    return this._context;
   }
 
   public get children(): Entity[] {
@@ -169,11 +169,13 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     return child;
   }
 
-  public getComponent<T extends Component>(component: new() => T): T {
+  // tslint:disable-next-line:no-any
+  public getComponent<T extends Component>(component: new(...args: any[]) => T): T {
     return this.components.find(c => c.constructor.name === component.name) as T;
   }
 
-  public hasComponent<T extends Component>(component: new() => T): boolean {
+  // tslint:disable-next-line:no-any
+  public hasComponent<T extends Component>(component: new(...args: any[]) => T): boolean {
     return !!this.getComponent(component);
   }
 
@@ -286,7 +288,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     });
   }
 
-  private _mount(context: IEntityContext, parentNode?: BABYLON.Mesh): void {
+  private _mount(context: INucleusContext, parentNode?: BABYLON.Mesh): void {
     if (this._isMounted) {
       throw new Error('Entity already mounted');
     }

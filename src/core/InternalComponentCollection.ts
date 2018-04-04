@@ -1,6 +1,6 @@
-import IEntityContext from './common/IEntityContext';
+import INucleusContext from './common/INucleusContext';
 import SceneEntity from './common/SceneEntity';
-import Component, { IComponentContext } from './Component';
+import Component from './Component';
 import Entity from './Entity';
 import IInternalComponent from './internals/IInternalComponent';
 import IInternalSceneEntity from './internals/IInternalSceneEntity';
@@ -30,18 +30,11 @@ export default class InternalComponentCollection {
     this._sceneEntity = sceneEntity as any; // tslint:disable-line:no-any
 
     this._internalArray.forEach(component => {
-      const context: IComponentContext = {
-        engine: this._engine,
-        entity: this._entity,
-        scene: this._scene,
-        sceneEntity: this._sceneEntity
-      };
-      // tslint:disable:no-any
       component._internalMount(
-        context,
+        this._entity,
+        // tslint:disable-next-line:no-any
         (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component as any)
       );
-      // tslint:enable:no-any
     });
 
     this._isMounted = true;
@@ -50,12 +43,8 @@ export default class InternalComponentCollection {
   public mountComponent(component: Component): void {
     const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
     if (this._isMounted) {
-      internalComponent._internalMount({
-          engine: this._engine,
-          entity: this._entity,
-          scene: this._scene,
-          sceneEntity: this._sceneEntity
-        },
+      internalComponent._internalMount(
+        this._entity,
         // tslint:disable-next-line:no-any
         (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component)
       );

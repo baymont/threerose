@@ -21,6 +21,10 @@ export default abstract class System<TProps = {}> {
     return this._context;
   }
 
+  public get isInitialized(): boolean {
+    return this._isInitialized;
+  }
+
   public get props(): TProps {
     return this._props;
   }
