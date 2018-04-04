@@ -45,6 +45,15 @@ describe('Entity class', () => {
       expect(entity.isMounted).toBeFalsy();
     });
 
+    it('should call willUnmount before dispose of mesh', done => {
+      const entity: Entity = sceneEntity.mountChild(new Entity());
+      (entity as any).willUnmount = () => { // tslint:disable-line:no-any
+        expect(entity.node.isDisposed()).toBeFalsy();
+        done();
+      };
+      entity.node.dispose();
+    });
+
     it('should dispose of a node if unmounted', () => {
       const entity: Entity = new Entity();
       sceneEntity.mountChild(entity);

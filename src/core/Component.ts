@@ -164,22 +164,25 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     }
     this._entity = entity;
     this._context = entity.context;
+    this._system = system;
+    this._isMounted = true;
+
     if (this.isEnabled) {
       this.didMount();
     }
-    this._system = system;
-    this._isMounted = true;
   }
 
   private _internalUnmount(): void {
     if (!this._isMounted) {
       throw new Error('This component is not mounted.');
     }
-    this._context  = undefined;
-    this._system = undefined;
-    this._isMounted = false;
+
     if (this.isEnabled) {
       this.willUnmount();
     }
+
+    this._context  = undefined;
+    this._system = undefined;
+    this._isMounted = false;
   }
 }

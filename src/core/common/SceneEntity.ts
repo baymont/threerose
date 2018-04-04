@@ -9,7 +9,7 @@ import System from '../System';
  */
 export default class SceneEntity extends Entity {
   private _mountedEntities: Entity[] = [];
-  private _systems: Map<string, System> = new Map<string, System>();
+  private _systems: Map<new() => Component, System> = new Map<new() => Component, System>();
 
   constructor() {
     super({}, 'Scene');
@@ -41,6 +41,11 @@ export default class SceneEntity extends Entity {
       scene,
       sceneEntity: this
     });
+  }
+
+  // tslint:disable-next-line:no-any
+  public getSystem<T extends Component>(component: new(...args: any[]) => T): System {
+    return this._systems.get(component);
   }
 
   public registerSystems(systems: System[]): void {
@@ -88,7 +93,7 @@ export default class SceneEntity extends Entity {
   }
 
   private _internalGetSystemFor(component: Component): System {
-    return this._systems.get(component.constructor.name);
+    return this._systems.get(component.constructor as new() => Component);
   }
 
   private _initializeSystems(): void {

@@ -128,11 +128,16 @@ describe('Component class', () => {
   });
 
   describe('Misc', () => {
-    it('should return new entity using Entity.for', () => {
+    it('should retrive component by type', () => {
       const fakeComponent: FakeComponent = emptyEntity.mountComponent(new FakeComponent());
 
       expect(emptyEntity.hasComponent(FakeComponent)).toBeTruthy();
       expect(emptyEntity.getComponent(FakeComponent)).toBe(fakeComponent);
+    });
+
+    it('should throw if component type already mounted', () => {
+      emptyEntity.mountComponent(new FakeComponent());
+      expect(() => emptyEntity.mountComponent(new FakeComponent({x: 3}))).toThrow();
     });
   });
 });

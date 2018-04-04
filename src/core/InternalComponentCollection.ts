@@ -13,10 +13,21 @@ export default class InternalComponentCollection {
   private _entity: Entity;
   private _sceneEntity: SceneEntity;
 
-  private _internalArray: IInternalComponent[] = [];
+  // tslint:disable-next-line:ban-types
+  private _internalMap: Map<Function, IInternalComponent>
+    = new Map<() => void, IInternalComponent>();
+
+  // tslint:disable-next-line:ban-types
+  public get map(): Map<Function, Component> {
+    return this._internalMap as any; // tslint:disable-line:no-any
+  }
 
   public get array(): Component[] {
-    return this._internalArray as any; // tslint:disable-line:no-any
+    const arr: Component[] = [];
+    this._internalMap.forEach(component => {
+      arr.push(component as any); // tslint:disable-line:no-any
+    });
+    return arr;
   }
 
   public mount(entity: Entity, engine: BABYLON.Engine, scene: BABYLON.Scene, sceneEntity: SceneEntity): void {
@@ -29,7 +40,7 @@ export default class InternalComponentCollection {
     this._scene = scene;
     this._sceneEntity = sceneEntity as any; // tslint:disable-line:no-any
 
-    this._internalArray.forEach(component => {
+    this._internalMap.forEach(component => {
       component._internalMount(
         this._entity,
         // tslint:disable-next-line:no-any
@@ -49,34 +60,37 @@ export default class InternalComponentCollection {
         (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component)
       );
     }
-    this._internalArray.push(internalComponent);
+    this._internalMap.set(component.constructor, internalComponent);
   }
 
   public onEntityPropsWillUpdate(oldProps: {}): void {
-    this._internalArray.filter(component => component.isEnabled).forEach(component => {
-      component.onEntityPropsWillUpdate(oldProps);
+    this._internalMap.forEach(component => {
+      if (component.isEnabled) {
+        component.onEntityPropsWillUpdate(oldProps);
+      }
     });
   }
 
   public onEntityPropsUpdated(): void {
-    this._internalArray.filter(component => component.isEnabled).forEach(component => {
-      component.onEntityPropsUpdated();
+    this._internalMap.forEach(component => {
+      if (component.isEnabled) {
+        component.onEntityPropsUpdated();
+      }
     });
   }
 
   public unmountComponent(component: Component): void {
     const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
 
-    const index: number = this._internalArray.indexOf(internalComponent);
-    this._internalArray.splice(index, 1);
+    this._internalMap.delete(component.constructor);
     internalComponent._internalUnmount();
   }
 
   public unmount(): void {
-    this._internalArray.forEach(component => {
+    this._internalMap.forEach(component => {
       component._internalUnmount();
     });
-    this._internalArray.splice(0);
+    this._internalMap.clear();
     this._entity = undefined;
     this._engine = undefined;
     this._scene = undefined;

@@ -45,11 +45,12 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   private _parentContext?: TParentContext;
 
   private _onBeforeRenderObserver: BABYLON.Observer<BABYLON.Scene>;
-  private _onDisposeObserver: BABYLON.Observer<BABYLON.Node>;
   private _isMounted: boolean;
   private _node: BABYLON.AbstractMesh;
   private _props: TProps;
   private _parent?: Entity<{}>;
+
+  private _originalDispose: () => void;
 
   protected get parentContext(): TParentContext {
     return this._parentContext;
@@ -95,7 +96,6 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     this._key = key;
 
     this._onBeforeRender = this._onBeforeRender.bind(this);
-    this._onDispose = this._onDispose.bind(this);
   }
 
   /**
@@ -119,10 +119,9 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     this._components.unmount();
 
     this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
-    this.node.onDisposeObservable.remove(this._onDisposeObserver);
     this._onBeforeRenderObserver = undefined;
-    this._onDisposeObserver = undefined;
 
+    this.node.dispose = this._originalDispose;
     if (!this._node.isDisposed()) {
       this._node.dispose();
     }
@@ -171,7 +170,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   // tslint:disable-next-line:no-any
   public getComponent<T extends Component>(component: new(...args: any[]) => T): T {
-    return this.components.find(c => c.constructor.name === component.name) as T;
+    return this._components.map.get(component) as T;
   }
 
   // tslint:disable-next-line:no-any
@@ -186,8 +185,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   public mountComponents(components: Component[]): void {
     components.forEach(component => {
-      if (this.components.find(c => c.constructor.name === component.constructor.name)) {
-        throw new Error('An instance of this component is already mounted.');
+      if (this._components.map.has(component.constructor)) {
+        throw new Error('A component of this type is already mounted. Type: ' + component.constructor.name);
       } else {
         this._components.mountComponent(component);
       }
@@ -321,27 +320,35 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
     this.didMount();
     this._onBeforeRenderObserver = this.context.scene.onBeforeRenderObservable.add(this._onBeforeRender);
-    this._onDisposeObserver = this.node.onDisposeObservable.add(this._onDispose);
+
+    // override dispose, we want to trigger willUnmount before disposing.
+    this._originalDispose = this.node.dispose;
+    this.node.dispose = this._overrideDispose.bind(this);
 
     const internalScene: IInternalSceneEntity = context.sceneEntity as any; // tslint:disable-line:no-any
     internalScene._registerEntity(this);
   }
 
+  private _overrideDispose(): void {
+    if (this.isMounted) {
+      this.unmount();
+    } else {
+      this.node.dispose = this._originalDispose;
+      this.node.dispose.call(this.node, arguments);
+    }
+  }
+
   private _onBeforeRender(): void {
     if (this.components) {
-      this.components.filter(component => component.isEnabled)
+      this._components.map
         .forEach(component => {
-          this._tryExecute((component as any).onUpdate.bind(component)); // tslint:disable-line:no-any
+          if (component.isEnabled) {
+            this._tryExecute((component as any).onUpdate.bind(component)); // tslint:disable-line:no-any
+          }
         });
     }
 
     this._tryExecute(this.onUpdate.bind(this));
-  }
-
-  private _onDispose(): void {
-    if (this.isMounted) {
-      this.unmount();
-    }
   }
 
   private _tryExecute(func: () => void): void {

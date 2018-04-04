@@ -7,13 +7,14 @@ export interface ISystemContext {
 }
 
 export default abstract class System<TProps = {}> {
-  private _componentType: string;
+  private _componentType: new() => Component;
   private _props: TProps;
   private _context: ISystemContext;
   private _isInitialized: boolean;
 
-  constructor(componentType: new() => Component) {
-    this._componentType = componentType.name;
+  // tslint:disable-next-line:no-any
+  constructor(componentType: new(...args: any[]) => Component) {
+    this._componentType = componentType;
     this.onUpdate = this.onUpdate.bind(this);
   }
 
@@ -29,7 +30,7 @@ export default abstract class System<TProps = {}> {
     return this._props;
   }
 
-  public get componentType(): string {
+  public get componentType(): new() => Component {
     return this._componentType;
   }
 
