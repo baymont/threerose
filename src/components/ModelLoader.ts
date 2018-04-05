@@ -8,11 +8,11 @@ export interface IModelLoaderProps {
 }
 
 export default class ModelLoader extends Component<IModelLoaderProps> {
-  private _root: BABYLON.Node;
+  private _root: BABYLON.Mesh;
 
   protected didMount(): void {
-    this._root = new BABYLON.Node('root', this.context.scene);
-    this.setParent(this._root);
+    this._root = new BABYLON.Mesh('root', this.context.scene);
+    this.mountMesh(this._root);
 
     this.loadModel(this.props.url).then(
       (meshes: BABYLON.AbstractMesh[]) => {

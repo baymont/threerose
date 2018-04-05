@@ -41,7 +41,7 @@ export default abstract class System<TProps = {}> {
   public updateProps(props: TProps): void {
     if (!this._isInitialized || this.willPropsUpdate(props)) {
       const oldProps: TProps = cloneDeep(this.props);
-      this._props = Object.assign(cloneDeep(props), this.props);
+      this._props = Object.assign(this.props, cloneDeep(props));
 
       if (this._isInitialized) {
         this.onPropsUpdated(oldProps);

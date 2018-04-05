@@ -8,6 +8,28 @@ import System from '../System';
  * Represents the root of any nucleus tree
  */
 export default class SceneEntity extends Entity {
+  public static from(scene: BABYLON.Scene): SceneEntity {
+    if (scene.isDisposed) {
+      throw new Error('This scene has been disposed.');
+    }
+
+    let entity: SceneEntity = SceneEntity.extractFrom(scene);
+    if (entity) {
+      return entity;
+    }
+    entity = new SceneEntity();
+    entity.mount(scene.getEngine(), scene);
+    return entity;
+  }
+
+  private static extractFrom(scene: BABYLON.Scene) {
+    return (scene as any).__entity__; // tslint:disable-line:no-any
+  }
+
+  private static setTo(scene: BABYLON.Scene, entity: Entity) {
+    (scene as any).__entity__ = entity; // tslint:disable-line:no-any
+  }
+
   private _mountedEntities: Entity[] = [];
   private _systems: Map<new() => Component, System> = new Map<new() => Component, System>();
 
@@ -36,6 +58,10 @@ export default class SceneEntity extends Entity {
    * @param scene An optional BABYLON scene to use instead of creating a new one.
    */
   public mount(engine: BABYLON.Engine, scene: BABYLON.Scene): void {
+    if (SceneEntity.extractFrom(scene)) {
+      throw new Error('The passed scene has an associated entity. Use SceneEntity.from(scene).');
+    }
+    SceneEntity.setTo(scene, this);
     (this as any)._mount({ // tslint:disable-line no-any
       engine,
       scene,

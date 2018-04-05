@@ -19,6 +19,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   private _context: INucleusContext;
   private _system: TSystem;
   private _entity: Entity;
+  private _nodes: BABYLON.Node[] = [];
 
   constructor(props?: TProps) {
     this._props = cloneDeep(props) || {} as TProps;
@@ -75,7 +76,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   public updateProps(props: TProps): void {
     if (!this.isMounted || !this.isEnabled || this.willPropsUpdate(props)) {
       const oldProps: TProps = cloneDeep(this.props);
-      this._props = Object.assign(cloneDeep(props), this.props);
+      this._props = Object.assign(this.props, cloneDeep(props));
 
       if (this.isEnabled && this.isMounted) {
         this.onPropsUpdated(oldProps);
@@ -84,11 +85,24 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   }
 
   /**
-   * Parents the passed node to this component's entity node
-   * @param node the node
+   * Adds the node to 'this.nodes` and parents it to the entity's node.
+   * Automatically disposes of it after unmounting the component.
+   * @param mesh the node
    */
-  protected setParent(node: BABYLON.Node): void {
+  protected addNode(node: BABYLON.Node): void {
     node.parent = this.entity.node;
+    this._nodes.push(node);
+  }
+
+  /**
+   * Adds the node to 'this.nodes` and parents it to the entity's node.
+   * Automatically disposes of it after unmounting the component.
+   * @param mesh the node
+   * @returns the entity for the mesh
+   */
+  protected mountMesh(mesh: BABYLON.AbstractMesh): Entity {
+    this.addNode(mesh);
+    return Entity.for(mesh);
   }
 
   /**
@@ -181,6 +195,13 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
       this.willUnmount();
     }
 
+    this._nodes.forEach(node => {
+      if (!node.isDisposed()) {
+        node.dispose();
+      }
+    });
+
+    this._nodes.length = 0;
     this._context  = undefined;
     this._system = undefined;
     this._isMounted = false;

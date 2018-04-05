@@ -26,10 +26,17 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       return node;
     };
     Entity.set(node, entity);
+
+    // auto mount all the way up
+    if (node.parent instanceof BABYLON.AbstractMesh) {
+      const parentEntity = Entity.for(node.parent);
+      parentEntity.mountChild(entity);
+    }
+
     return entity;
   }
 
-  private static extract(node: BABYLON.AbstractMesh) {
+  private static extract(node: BABYLON.AbstractMesh): Entity {
     return (node as any).__entity__; // tslint:disable-line:no-any
   }
 
@@ -121,11 +128,12 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
     this._onBeforeRenderObserver = undefined;
 
+    Entity.set(this._node, undefined);
+
     this.node.dispose = this._originalDispose;
     if (!this._node.isDisposed()) {
       this._node.dispose();
     }
-    Entity.set(this._node, undefined);
     this._node = undefined;
     this._isMounted = false;
 
@@ -208,7 +216,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   public updateProps(props: TProps): void {
     if (!this._isMounted || this.willPropsUpdate(props)) {
       const oldProps: TProps = cloneDeep(this.props);
-      this._props = Object.assign(cloneDeep(props), this.props);
+      this._props = Object.assign(this.props, cloneDeep(props));
 
       if (this._isMounted) {
         this._components.onEntityPropsWillUpdate(oldProps);

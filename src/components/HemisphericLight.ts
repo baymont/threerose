@@ -11,6 +11,6 @@ export default class HemisphericLight extends Component {
       this.context.scene
     );
 
-    this.setParent(light);
+    this.addNode(light);
   }
 }
