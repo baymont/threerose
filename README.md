@@ -9,7 +9,7 @@
   <a href="https://github.com/haroldma/nucleus3d/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
-   <a href="ttps://coveralls.io/github/haroldma/nucleus3d?branch=master">
+   <a href="https://coveralls.io/github/haroldma/nucleus3d?branch=master">
     <img src="https://img.shields.io/coveralls/haroldma/nucleus3d/master.svg?style=flat" alt="Coverage Status">
   </a>
   <a href="https://npmjs.org/package/nucleus3d">
