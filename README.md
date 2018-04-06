@@ -1,10 +1,26 @@
-# nucleus3d (alpha)
+<p align="center"><a href="https://aframe.io" target="_blank"><img width="150" alt="A-Frame" src="https://i.imgur.com/FFnsniP.png"></a></p>
 
-A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.
+<h1 align="center"> Nucleus</h1>
 
-## Set Up
+<p align="center">
+  <a href="https://circleci.com/gh/haroldma/nucleus3d">
+    <img src="https://circleci.com/gh/haroldma/nucleus3d.svg?style=shield&circle-token=:circle-token" alt="Build Status">
+  </a>
+  <a href="https://github.com/haroldma/nucleus3d/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+  </a>
+   <a href="https://coveralls.io/github/haroldma/nucleus3d?branch=master">
+    <img src="https://img.shields.io/coveralls/haroldma/nucleus3d/master.svg?style=flat" alt="Coverage Status">
+  </a>
+  <a href="https://npmjs.org/package/nucleus3d">
+    <img src="https://img.shields.io/npm/dt/nucleus3d.svg?style=flat-square" alt="Downloads">
+  </a>
+  <a href="https://npmjs.org/package/nucleus3d">
+    <img src="https://img.shields.io/npm/v/nucleus3d.svg?style=flat-square" alt="Version">
+  </a>
+</p>
 
-`npm install nucleus3d`
+<p align="center">The web framework for Mixed-Reality. Powered by Babylon.JS. TypeScript first.</p>
 
 ## Docs
 
@@ -24,17 +40,3 @@ Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go lear
 
 [Make a simple bouncing basketball using Nucleus3D](https://stackblitz.com/edit/nucleus-basketball?embed=1&file=app.ts).
 ![](https://i.imgur.com/KKR4B73.png)
-
-### The Model Loader
-
-```
-// Create a scene entity and mount it with an engine
-const sceneEntity = new SceneEntity();
-sceneEntity.mount(new BABYLON.Engine());
-
-const entity = new Entity();
-entity.addComponent(new ModelLoader('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf'));
-
-// Mount the entity
-sceneEntity.mountChild(entity);
-```
