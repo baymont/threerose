@@ -152,7 +152,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   /**
-   * Unmount the entity and it's children.
+   * Unmount the entity and its children.
    */
   public unmount(): void {
     if (!this._isMounted) {
