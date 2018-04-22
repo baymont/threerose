@@ -20,6 +20,7 @@ export default abstract class System<TProps = {}> {
    */
   // tslint:disable-next-line:no-any
   constructor(componentType: new(...args: any[]) => Component) {
+    this._props = {} as TProps;
     this._componentType = componentType;
     this.onUpdate = this.onUpdate.bind(this);
   }
