@@ -164,7 +164,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   }
 
   /**
-   * Called after being mounted to a component.
+   * Called after being mounted to an entity.
    */
   protected didMount(): void {
     // EMPTY BLOCK
