@@ -7,9 +7,8 @@ import Entity from './Entity';
 import System from './System';
 
 /**
- * A mountable component for a nucleus entity
- *
- * @alpha
+ * Modular chunks of data that can add appearance, behaviors and/or functionality to an entity.
+ * @public
  */
 // tslint:disable-next-line:no-any
 export default abstract class Component<TProps = {}, TSystem extends System = any> {
@@ -21,34 +20,79 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   private _entity: Entity;
   private _nodes: BABYLON.Node[] = [];
 
+  /**
+   * Constructs the component.
+   * @param props - the props
+   */
   constructor(props?: TProps) {
     this._props = cloneDeep(props) || {} as TProps;
   }
 
+  /**
+   * Gets the context.
+   */
   public get context(): INucleusContext {
+    if (!this.isMounted) {
+      this._throwNotMounted();
+    }
     return this._context;
   }
 
+  /**
+   * Gets the entity.
+   */
   public get entity(): Entity {
+    if (!this.isMounted) {
+      this._throwNotMounted();
+    }
     return this._entity;
   }
 
+  /**
+   * Gets whether the component is enabled.
+   */
   public get isEnabled(): boolean {
     return this._isEnabled;
   }
 
+  /**
+   * Gets whether the component is mounted.
+   */
   public get isMounted(): boolean {
     return this._isMounted;
   }
 
+  /**
+   * Gets all associated nodes with this component.
+   */
+  public get nodes(): ReadonlyArray<BABYLON.Node> {
+    if (!this.isMounted) {
+      this._throwNotMounted();
+    }
+    return this._nodes;
+  }
+
+  /**
+   * Gets the properties.
+   */
   public get props(): TProps {
     return this._props;
   }
 
-  public get system(): TSystem {
+  /**
+   * Gets the associated system for the component class.
+   */
+  public get system(): TSystem | undefined {
+    if (!this.isMounted) {
+      this._throwNotMounted();
+    }
     return this._system;
   }
 
+  /**
+   * Enable the component.
+   * @remarks Does nothing if already enabled.
+   */
   public enable(): void {
     if (this._isEnabled) {
       return;
@@ -59,6 +103,10 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     }
   }
 
+  /**
+   * Disable the component.
+   * @remarks Does nothing if already disabled.
+   */
   public disable(): void {
     if (!this._isEnabled) {
       return;
@@ -70,8 +118,8 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   }
 
   /**
-   * Update properties
-   * @param props The new properties
+   * Update properties.
+   * @param props - The new properties
    */
   public updateProps(props: TProps): void {
     if (!this.isMounted || !this.isEnabled || this.willPropsUpdate(props)) {
@@ -87,17 +135,27 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * Adds the node to 'this.nodes` and parents it to the entity's node.
    * Automatically disposes of it after unmounting the component.
-   * @param mesh the node
+   * @param mesh - the node
    */
-  protected addNode(node: BABYLON.Node): void {
+  protected addNode<T extends BABYLON.Node>(node: T): T {
     node.parent = this.entity.node;
     this._nodes.push(node);
+    return node;
+  }
+
+  /**
+   * Removes and disposes the node from `this.nodes`.
+   * @param mesh - the node
+   */
+  protected disposeNode<T extends BABYLON.Node>(node: T): void {
+    this._nodes.splice(this._nodes.indexOf(node), 1);
+    node.dispose();
   }
 
   /**
    * Adds the node to 'this.nodes` and parents it to the entity's node.
    * Automatically disposes of it after unmounting the component.
-   * @param mesh the node
+   * @param mesh - the node
    * @returns the entity for the mesh
    */
   protected mountMesh(mesh: BABYLON.AbstractMesh): Entity {
@@ -106,7 +164,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   }
 
   /**
-   * Called after being mounted to a component
+   * Called after being mounted to a component.
    */
   protected didMount(): void {
     // EMPTY BLOCK
@@ -114,7 +172,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
 
   /**
    * Override to provide your custom enabling logic. Only called when mounted.
-   *
+   * @remarks
    * The default implemantation calls didMount. (soft mount)
    */
   protected onEnabled(): void {
@@ -123,7 +181,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
 
   /**
    * Override to provide your custom disabling logic. Only called when mounted.
-   *
+   * @remarks
    * The default implemantation calls willUnmount. (soft unmount)
    */
   protected onDisabled(): void {
@@ -132,6 +190,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
 
   /**
    * Called before an entity's props are updated
+   * @deprecated Components should rely on their own props.
    */
   protected onEntityPropsWillUpdate(oldProps: any): void { // tslint:disable-line:no-any
     // EMPTY BLOCK
@@ -139,6 +198,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
 
   /**
    * Called after an entity's props are updated
+   * @deprecated Components should rely on their own props.
    */
   protected onEntityPropsUpdated(): void {
     // EMPTY BLOCK
@@ -172,6 +232,9 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     // EMPTY BLOCK
   }
 
+  /**
+   * @internal
+   */
   private _internalMount(entity: Entity, system?: TSystem): void {
     if (this._isMounted) {
       throw new Error('This component is already mounted.');
@@ -186,6 +249,9 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     }
   }
 
+  /**
+   * @internal
+   */
   private _internalUnmount(): void {
     if (!this._isMounted) {
       throw new Error('This component is not mounted.');
@@ -205,5 +271,9 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     this._context  = undefined;
     this._system = undefined;
     this._isMounted = false;
+  }
+
+  private _throwNotMounted(): never {
+    throw new Error('Component has not been mounted.');
   }
 }

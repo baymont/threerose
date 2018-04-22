@@ -3,6 +3,9 @@ import * as BABYLON from 'babylonjs';
 import Vector3 from '../core/common/Vector3';
 import Component from '../core/Component';
 
+/**
+ * @beta
+ */
 export interface ITransformProps {
   rotation?: Vector3;
   position?: Vector3;
@@ -10,7 +13,8 @@ export interface ITransformProps {
 }
 
 /**
- * Supports having the properties on the entity or the component itself.
+ * Basic transform component.
+ * @beta
  */
 export default class Transform extends Component<ITransformProps> {
   protected didMount(): void {

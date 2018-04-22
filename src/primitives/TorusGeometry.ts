@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface ITorusGeometryProps {
   diameter?: number;
   thickness?: number;
@@ -13,6 +16,7 @@ export interface ITorusGeometryProps {
 
 /**
  * Torus geometry for an entity.
+ * @public
  */
 export default class TorusGeometry extends Component<ITorusGeometryProps> {
   protected didMount(): void {

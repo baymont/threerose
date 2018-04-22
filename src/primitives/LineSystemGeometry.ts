@@ -3,6 +3,9 @@ import Color4 from '../core/common/Color4';
 import Vector3 from '../core/common/Vector3';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface ILineSystemGeometryProps {
   lines: Vector3[][];
   colors?: Color4[][];
@@ -10,6 +13,7 @@ export interface ILineSystemGeometryProps {
 
 /**
  * Line system geometry for an entity.
+ * @public
  */
 export default class LineSystemGeometry extends Component<ILineSystemGeometryProps> {
   protected didMount(): void {

@@ -6,6 +6,9 @@ import Vector3 from '../core/common/Vector3';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IRibbonGeometryProps {
   pathArray: Vector3[][];
   closeArray?: boolean;
@@ -21,6 +24,7 @@ export interface IRibbonGeometryProps {
 
 /**
  * Ribbon geometry for an entity.
+ * @public
  */
 export default class RibbonGeometry extends Component<IRibbonGeometryProps> {
   protected didMount(): void {

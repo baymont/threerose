@@ -1,7 +1,8 @@
 import Component from '../core/Component';
 
 /**
- * nucleus3d hemispheric light
+ * A hemispheric light.
+ * @beta
  */
 export default class HemisphericLight extends Component {
   protected didMount(): void {

@@ -3,6 +3,9 @@ import Color4 from '../core/common/Color4';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IPolyhedronGeometryProps {
   type?: number;
   size?: number;
@@ -20,6 +23,7 @@ export interface IPolyhedronGeometryProps {
 
 /**
  * Polyhedron geometry for an entity.
+ * @public
  */
 export default class PolyhedronGeometry extends Component<IPolyhedronGeometryProps> {
   protected didMount(): void {

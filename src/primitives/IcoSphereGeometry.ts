@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IIcoSphereGeometryProps {
   radius?: number;
   radiusX?: number;
@@ -16,6 +19,7 @@ export interface IIcoSphereGeometryProps {
 
 /**
  * Ico sphere geometry for an entity.
+ * @public
  */
 export default class IcoSphereGeometry extends Component<IIcoSphereGeometryProps> {
   protected didMount(): void {

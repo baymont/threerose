@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IDiscGeometryProps {
   radius?: number;
   tessellation?: number;
@@ -13,6 +16,7 @@ export interface IDiscGeometryProps {
 
 /**
  * Disc geometry for an entity.
+ * @public
  */
 export default class DiscGeometry extends Component<IDiscGeometryProps> {
   protected didMount(): void {

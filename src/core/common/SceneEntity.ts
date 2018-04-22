@@ -1,3 +1,5 @@
+import cloneDeep = require('lodash/cloneDeep');
+
 import Component from '../Component';
 import Entity from '../Entity';
 import IInternalComponent from '../internals/IInternalComponent';
@@ -5,7 +7,8 @@ import IInternalSystem from '../internals/IInternalSystem';
 import System from '../System';
 
 /**
- * Represents the root of any nucleus tree
+ * Represents the root of any nucleus tree.
+ * @public
  */
 export default class SceneEntity extends Entity {
   public static from(scene: BABYLON.Scene): SceneEntity {
@@ -38,12 +41,18 @@ export default class SceneEntity extends Entity {
   }
 
   /**
-   * The rendering canvas
+   * Gets the rendering canvas.
    */
   public get canvas(): HTMLCanvasElement {
+    if (!this.isMounted) {
+      this._throwSceneNotMounted();
+    }
     return this.context.engine.getRenderingCanvas();
   }
 
+  /**
+   * Gets all registered systems.
+   */
   public get systems(): System[] {
     const systems: System[] = [];
     this._systems.forEach(system => {
@@ -54,8 +63,8 @@ export default class SceneEntity extends Entity {
 
   /**
    * Mounts the scene.
-   * @param engine The BABYLON engine
-   * @param scene An optional BABYLON scene to use instead of creating a new one.
+   * @param engine - The BABYLON engine
+   * @param scene - The BABYLON scene
    */
   public mount(engine: BABYLON.Engine, scene: BABYLON.Scene): void {
     if (SceneEntity.extractFrom(scene)) {
@@ -69,15 +78,27 @@ export default class SceneEntity extends Entity {
     });
   }
 
+  /**
+   * Gets a system by component type.
+   * @param component - the component type
+   */
   // tslint:disable-next-line:no-any
   public getSystem<T extends Component>(component: new(...args: any[]) => T): System {
     return this._systems.get(component);
   }
 
+  /**
+   * Register an array of systems.
+   * @param systems - the systems
+   */
   public registerSystems(systems: System[]): void {
     systems.forEach(system => this.registerSystem(system));
   }
 
+  /**
+   * Register a system.
+   * @param system - the system
+   */
   public registerSystem<TSystem extends System>(system: TSystem): TSystem {
     if (this._systems.has(system.componentType)) {
       throw new Error('System already registered for this component type.');
@@ -92,6 +113,10 @@ export default class SceneEntity extends Entity {
     return system;
   }
 
+  /**
+   * Unregister a system.
+   * @param system - the system
+   */
   public unregisterSystem<TSystem extends System>(system: TSystem): void {
     if (!this._systems.has(system.componentType)) {
       throw new Error('System not registered for this component type.');
@@ -104,10 +129,11 @@ export default class SceneEntity extends Entity {
     }
   }
 
-  protected willUnmount(): void {
+  public unmount(): void {
     this._systems.forEach(system => {
       this._disposeSystem(system);
     });
+    super.unmount();
   }
 
   private _registerEntity(entity: Entity): void {
@@ -116,10 +142,6 @@ export default class SceneEntity extends Entity {
 
   private _unregisterEntity(entity: Entity): void {
     this._mountedEntities.splice(this._mountedEntities.indexOf(entity), 1);
-  }
-
-  private _internalGetSystemFor(component: Component): System {
-    return this._systems.get(component.constructor as new() => Component);
   }
 
   private _initializeSystems(): void {
@@ -136,7 +158,7 @@ export default class SceneEntity extends Entity {
 
   private _initializeSystem(system: System): void {
     const internalSystem: IInternalSystem = system as any; // tslint:disable-line:no-any
-    internalSystem._internalInit(this.context.engine, this.context.scene);
+    internalSystem._internalInit(cloneDeep(this.context));
 
     this.context.scene.onBeforeRenderObservable.add(internalSystem.onUpdate);
 
@@ -147,5 +169,9 @@ export default class SceneEntity extends Entity {
         internalComponent._system = system;
       });
     });
+  }
+
+  private _throwSceneNotMounted(): never {
+    throw new Error('Scene entity has not been mounted.');
   }
 }

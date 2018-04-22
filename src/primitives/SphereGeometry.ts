@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface ISphereGeometryProps {
   segments?: number;
   diameter?: number;
@@ -17,6 +20,7 @@ export interface ISphereGeometryProps {
 
 /**
  * Sphere geometry for an entity.
+ * @public
  */
 export default class SphereGeometry extends Component<ISphereGeometryProps> {
   protected didMount(): void {

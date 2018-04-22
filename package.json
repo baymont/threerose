@@ -28,6 +28,7 @@
     "url": "https://github.com/haroldma/nucleus3d/issues"
   },
   "homepage": "https://github.com/haroldma/nucleus3d#readme",
+  "tsdoc": { "tsdocFlavor": "AEDoc" },
   "dependencies": {
     "@types/lodash": "^4.14.105",
     "babylonjs": "^3.2.0-alphaB",

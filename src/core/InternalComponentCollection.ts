@@ -43,8 +43,7 @@ export default class InternalComponentCollection {
     this._internalMap.forEach(component => {
       component._internalMount(
         this._entity,
-        // tslint:disable-next-line:no-any
-        (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component as any)
+        this._sceneEntity.getSystem(component.constructor as new() => Component)
       );
     });
 
@@ -57,7 +56,7 @@ export default class InternalComponentCollection {
       internalComponent._internalMount(
         this._entity,
         // tslint:disable-next-line:no-any
-        (this._sceneEntity as any as IInternalSceneEntity)._internalGetSystemFor(component)
+        this._sceneEntity.getSystem(component.constructor as new() => Component)
       );
     }
     this._internalMap.set(component.constructor, internalComponent);

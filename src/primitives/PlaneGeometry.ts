@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IPlaneGeometryProps {
   size?: number;
   width?: number;
@@ -13,6 +16,7 @@ export interface IPlaneGeometryProps {
 
 /**
  * Plane geometry for an entity.
+ * @public
  */
 export default class PlaneGeometry extends Component<IPlaneGeometryProps> {
   protected didMount(): void {

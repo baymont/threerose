@@ -3,6 +3,9 @@ import Color4 from '../core/common/Color4';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface ICylinderGeometryProps {
   height?: number;
   diameterTop?: number;
@@ -22,6 +25,7 @@ export interface ICylinderGeometryProps {
 
 /**
  * Cylinder geometry for an entity.
+ * @public
  */
 export default class CylinderGeometry extends Component<ICylinderGeometryProps> {
   protected didMount(): void {

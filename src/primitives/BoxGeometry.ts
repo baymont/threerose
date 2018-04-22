@@ -3,6 +3,9 @@ import Color4 from '../core/common/Color4';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IBoxGeometryProps {
   size?: number;
   width?: number;
@@ -17,6 +20,7 @@ export interface IBoxGeometryProps {
 
 /**
  * Box geometry for an entity.
+ * @public
  */
 export default class BoxGeometry extends Component<IBoxGeometryProps> {
   protected didMount(): void {

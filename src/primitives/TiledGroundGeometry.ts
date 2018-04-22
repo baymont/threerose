@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface ITiledGroundGeometryProps {
   xmin: number;
   zmin: number;
@@ -19,6 +22,7 @@ export interface ITiledGroundGeometryProps {
 
 /**
  * Tiled ground geometry for an entity.
+ * @public
  */
 export default class TiledGroundGeometry extends Component<ITiledGroundGeometryProps> {
   protected didMount(): void {

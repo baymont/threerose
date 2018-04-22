@@ -7,11 +7,17 @@ import InternalComponentCollection from './InternalComponentCollection';
 import IInternalSceneEntity from './internals/IInternalSceneEntity';
 
 /**
- * nucleus entity
- *
- * @alpha
+ * A thing in the 3D world. The mounting point for components.
+ * @public
  */
 export default class Entity<TProps = {}, TParentContext = {}> {
+  /**
+   * Gets the entity for the node.
+   * @param node - the node
+   * @returns the releated entity; creates a new one if none
+   * @remarks
+   * If the parent node's entity has been instantiated; this one will be mounted to it.
+   */
   public static for(node: BABYLON.AbstractMesh): Entity {
     if (node.isDisposed()) {
       throw new Error('This node has been disposed.');
@@ -59,42 +65,82 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   private _originalDispose: () => void;
 
+  /**
+   * Gets the context passed down by the entity's parent.
+   */
   protected get parentContext(): TParentContext {
     return this._parentContext;
   }
 
+  /**
+   * Gets the context.
+   */
   public get context(): INucleusContext {
+    if (!this.isMounted) {
+      this._throwNotMounted();
+    }
     return this._context;
   }
 
+  /**
+   * Get the children.
+   */
   public get children(): Entity[] {
     return this._children;
   }
 
+  /**
+   * Gets all the mounted components.
+   */
   public get components(): Component[] {
     return this._components.array;
   }
 
+  /**
+   * Gets the key identifying this entity.
+   * @remarks
+   * Used as the name for a new mesh when creating an empty entity.
+   */
   public get key(): string {
     return this._key;
   }
 
+  /**
+   * Gets the node.
+   */
   public get node(): BABYLON.AbstractMesh {
+    if (!this.isMounted) {
+      this._throwNotMounted();
+    }
     return this._node;
   }
 
+  /**
+   * Gets the parent.
+   */
   public get parent(): Entity<{}> {
     return this._parent;
   }
 
+  /**
+   * Gets the properties.
+   */
   public get props(): TProps {
     return this._props;
   }
 
+  /**
+   * Gets whether the entity is mounted.
+   */
   public get isMounted(): boolean {
     return this._isMounted;
   }
 
+  /**
+   * Constructs the entity.
+   * @param props - the props
+   * @param key - the identifying key
+   */
   constructor(
     props?: TProps,
     key?: string
@@ -122,7 +168,6 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       }
     });
 
-    // unmount components
     this._components.unmount();
 
     this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
@@ -147,17 +192,9 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   /**
-   * Unmounts and remounts the entity and it's children.
+   * Mounts a child entity.
+   * @param child - the child entity
    */
-  public remount(): void {
-    if (!this._isMounted) {
-      throw new Error('Not mounted.');
-    }
-
-    this.unmount();
-    this._mount(this.context);
-  }
-
   public mountChild<T extends Entity>(child: T): T {
     if (child._isMounted) {
       throw new Error('Child already mounted.');
@@ -176,21 +213,39 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     return child;
   }
 
+  /**
+   * Gets component by type.
+   * @param component - the component type
+   */
   // tslint:disable-next-line:no-any
   public getComponent<T extends Component>(component: new(...args: any[]) => T): T {
     return this._components.map.get(component) as T;
   }
 
+  /**
+   * Check if component is mounted.
+   * @param component - the component type
+   */
   // tslint:disable-next-line:no-any
   public hasComponent<T extends Component>(component: new(...args: any[]) => T): boolean {
     return !!this.getComponent(component);
   }
 
+  /**
+   * Mounts a component.
+   * @param component - the component
+   * @remarks Throws if a component of same type is already mounted.
+   */
   public mountComponent<T extends Component>(component: T): T {
     this.mountComponents([component]);
     return component;
   }
 
+  /**
+   * Mounts an array of components.
+   * @param component - the components
+   * @remarks Throws if a component of same type is already mounted.
+   */
   public mountComponents(components: Component[]): void {
     components.forEach(component => {
       if (this._components.map.has(component.constructor)) {
@@ -201,6 +256,10 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     });
   }
 
+  /**
+   * Unmounts the component.
+   * @param component - the component
+   */
   public unmountComponent<T extends Component>(component: T): void {
     const index: number = this.components.indexOf(component);
     if (index < 0) {
@@ -210,8 +269,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   /**
-   * Update properties
-   * @param props The new properties
+   * Update properties.
+   * @param props - The new properties
    */
   public updateProps(props: TProps): void {
     if (!this._isMounted || this.willPropsUpdate(props)) {
@@ -233,7 +292,8 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   }
 
   /**
-   * Mounts the entity with the returned Babylon.JS Node
+   * Mounts the entity with the returned mesh.
+   * @remarks The default implementation creates an empty mesh.
    */
   protected onMount(): BABYLON.AbstractMesh {
     return new BABYLON.Mesh(this.key || 'Entity', this.context.scene);
@@ -365,5 +425,9 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     } catch (e) {
       console.log(e); // tslint:disable-line no-console
     }
+  }
+
+  private _throwNotMounted(): never {
+    throw new Error('Entity has not been mounted.');
   }
 }

@@ -1,6 +1,9 @@
 import * as BABYLON from 'babylonjs';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IGroundGeometryProps {
   width?: number;
   height?: number;
@@ -11,6 +14,7 @@ export interface IGroundGeometryProps {
 
 /**
  * Ground geometry for an entity.
+ * @public
  */
 export default class GroundGeometry extends Component<IGroundGeometryProps> {
   protected didMount(): void {

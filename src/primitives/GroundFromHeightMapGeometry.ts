@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Color3 from '../core/common/Color3';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IGroundFromHeightMapGeometryProps {
   width: number;
   height: number;
@@ -16,6 +19,7 @@ export interface IGroundFromHeightMapGeometryProps {
 
 /**
  * Ground from height map geometry for an entity.
+ * @public
  */
 export default class GroundFromHeightMapGeometry extends Component<IGroundFromHeightMapGeometryProps> {
   protected didMount(): void {

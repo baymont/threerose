@@ -2,6 +2,9 @@ import * as BABYLON from 'babylonjs';
 import Vector3 from '../core/common/Vector3';
 import Component from '../core/Component';
 
+/**
+ * @public
+ */
 export interface IDashedLinesGeometryProps {
   points: Vector3[];
   dashSize?: number;
@@ -11,6 +14,7 @@ export interface IDashedLinesGeometryProps {
 
 /**
  * Dashed lines geometry for an entity.
+ * @public
  */
 export default class DashedLinesGeometry extends Component<IDashedLinesGeometryProps> {
   protected didMount(): void {

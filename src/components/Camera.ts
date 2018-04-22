@@ -2,7 +2,8 @@ import SceneEntity from '../core/common/SceneEntity';
 import Component from '../core/Component';
 
 /**
- * nucleus3d camera
+ * A universal camera.
+ * @beta
  */
 export default class Camera extends Component {
   protected _camera: BABYLON.UniversalCamera;

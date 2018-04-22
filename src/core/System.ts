@@ -1,42 +1,64 @@
 import cloneDeep = require('lodash/cloneDeep');
+
+import INucleusContext from './common/INucleusContext';
 import Component from './Component';
 
-export interface ISystemContext {
-  engine: BABYLON.Engine;
-  scene: BABYLON.Scene;
-}
-
+/**
+ * Provide global scope, services, and management to classes of components.
+ * @public
+ */
 export default abstract class System<TProps = {}> {
-  private _componentType: new() => Component;
+  // tslint:disable-next-line:no-any
+  private _componentType: new(...args: any[]) => Component;
   private _props: TProps;
-  private _context: ISystemContext;
+  private _context: INucleusContext;
   private _isInitialized: boolean;
 
+  /**
+   * Constructs the system.
+   * @param componentType - the component type to associate with the system
+   */
   // tslint:disable-next-line:no-any
   constructor(componentType: new(...args: any[]) => Component) {
     this._componentType = componentType;
     this.onUpdate = this.onUpdate.bind(this);
   }
 
-  protected get context(): ISystemContext {
+  /**
+   * Gets the context.
+   */
+  protected get context(): INucleusContext {
+    if (!this.isInitialized) {
+      this._throwNotInitialized();
+    }
     return this._context;
   }
 
+  /**
+   * Gets whether the system has been initialized.
+   */
   public get isInitialized(): boolean {
     return this._isInitialized;
   }
 
+  /**
+   * Gets the properties.
+   */
   public get props(): TProps {
     return this._props;
   }
 
-  public get componentType(): new() => Component {
+  /**
+   * Gets the associated component type.
+   */
+  // tslint:disable-next-line:no-any
+  public get componentType(): new(...args: any[]) => Component {
     return this._componentType;
   }
 
   /**
-   * Update properties
-   * @param props The new properties
+   * Update properties.
+   * @param props - The new properties
    */
   public updateProps(props: TProps): void {
     if (!this._isInitialized || this.willPropsUpdate(props)) {
@@ -84,18 +106,25 @@ export default abstract class System<TProps = {}> {
     // EMPTY BLOCK
   }
 
-  private _internalInit(engine: BABYLON.Engine, scene: BABYLON.Scene): void {
-    this._context = {
-      engine,
-      scene
-    };
+  /**
+   * @internal
+   */
+  private _internalInit(context: INucleusContext): void {
+    this._context = context;
     this.onInit();
     this._isInitialized = true;
   }
 
+  /**
+   * @internal
+   */
   private _internalDispose(): void {
     this._context = undefined;
     this.onDispose();
     this._isInitialized = false;
+  }
+
+  private _throwNotInitialized(): never {
+    throw new Error('System has not been initialized.');
   }
 }
