@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/haroldma/nucleus3d">
-    <img src="https://circleci.com/gh/haroldma/nucleus3d.svg?style=shield&circle-token=:circle-token" alt="Build Status">
+    <img src="https://circleci.com/gh/haroldma/nucleus3d.svg?style=shield&circle-token=a0f5a3b08d3417cc54003078d2f4c5b51c6c513c" alt="Build Status">
   </a>
   <a href="https://github.com/haroldma/nucleus3d/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
