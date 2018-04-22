@@ -36,7 +36,7 @@ describe('Entity class', () => {
       const entity: Entity = new Entity();
       sceneEntity.mountChild(entity);
       entity.unmount();
-      expect(entity.node).toBeFalsy();
+      expect(() => entity.node).toThrow();
     });
 
     it('should unmount on dispose of mesh', () => {

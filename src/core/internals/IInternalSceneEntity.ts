@@ -3,6 +3,6 @@ import Entity from '../Entity';
 import System from '../System';
 
 export default interface IInternalSceneEntity {
-  _registerEntity(entity: Entity): void;
-  _unregisterEntity(entity: Entity): void;
+  _internalRegisterEntity(entity: Entity): void;
+  _internalUnregisterEntity(entity: Entity): void;
 }

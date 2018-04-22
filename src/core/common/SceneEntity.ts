@@ -136,11 +136,17 @@ export default class SceneEntity extends Entity {
     super.unmount();
   }
 
-  private _registerEntity(entity: Entity): void {
+  /**
+   * @internal
+   */
+  private _internalRegisterEntity(entity: Entity): void {
     this._mountedEntities.push(entity);
   }
 
-  private _unregisterEntity(entity: Entity): void {
+  /**
+   * @internal
+   */
+  private _internalUnregisterEntity(entity: Entity): void {
     this._mountedEntities.splice(this._mountedEntities.indexOf(entity), 1);
   }
 
@@ -165,8 +171,10 @@ export default class SceneEntity extends Entity {
     // intiailize any mounted entities
     this._mountedEntities.forEach(entity => {
       entity.components.forEach(component => {
-        const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
-        internalComponent._system = system;
+        if (component.constructor === system.componentType) {
+          const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
+          internalComponent._system = system;
+        }
       });
     });
   }

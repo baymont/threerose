@@ -179,16 +179,18 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     if (!this._node.isDisposed()) {
       this._node.dispose();
     }
+
+    const internalScene: IInternalSceneEntity = this.context.sceneEntity as any; // tslint:disable-line:no-any
+    internalScene._internalUnregisterEntity(this);
+
     this._node = undefined;
+    this._context = undefined;
     this._isMounted = false;
 
     if (this.parent) {
       const index: number = this.parent.children.indexOf(this);
       this.parent.children.splice(index, 1);
     }
-
-    const internalScene: IInternalSceneEntity = this.context.sceneEntity as any; // tslint:disable-line:no-any
-    internalScene._unregisterEntity(this);
   }
 
   /**
@@ -361,6 +363,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     }
 
     this._context = context;
+    this._isMounted = true;
     this._node = this.onMount();
     if (!Entity.extract(this.node)) {
       Entity.set(this.node, this);
@@ -374,8 +377,6 @@ export default class Entity<TProps = {}, TParentContext = {}> {
         this._node.parent = this.parent._node;
       }
     }
-
-    this._isMounted = true;
 
     // Mount children
     this.children.forEach(child => {
@@ -394,7 +395,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
     this.node.dispose = this._overrideDispose.bind(this);
 
     const internalScene: IInternalSceneEntity = context.sceneEntity as any; // tslint:disable-line:no-any
-    internalScene._registerEntity(this);
+    internalScene._internalRegisterEntity(this);
   }
 
   private _overrideDispose(): void {

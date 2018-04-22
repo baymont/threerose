@@ -28,7 +28,9 @@
     "url": "https://github.com/haroldma/nucleus3d/issues"
   },
   "homepage": "https://github.com/haroldma/nucleus3d#readme",
-  "tsdoc": { "tsdocFlavor": "AEDoc" },
+  "tsdoc": {
+    "tsdocFlavor": "AEDoc"
+  },
   "dependencies": {
     "@types/lodash": "^4.14.105",
     "babylonjs": "^3.2.0-alphaB",
@@ -38,6 +40,7 @@
     "@types/jest": "^22.2.0",
     "awesome-typescript-loader": "^4.0.1",
     "coveralls": "^3.0.0",
+    "hard-source-webpack-plugin": "^0.6.4",
     "jest": "^22.4.2",
     "shx": "^0.2.2",
     "ts-jest": "^22.4.1",

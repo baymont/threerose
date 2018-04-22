@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 module.exports = {
   resolve: {
@@ -20,6 +20,9 @@ module.exports = {
     }
   },
   devtool: 'source-map',
+  plugins: [
+    new HardSourceWebpackPlugin()
+  ],
   module: {
     rules: [
       {
