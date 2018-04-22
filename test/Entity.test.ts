@@ -39,6 +39,21 @@ describe('Entity class', () => {
       expect(entity.node).toBeFalsy();
     });
 
+    it('should unmount on dispose of mesh', () => {
+      const entity: Entity = sceneEntity.mountChild(new Entity());
+      entity.node.dispose();
+      expect(entity.isMounted).toBeFalsy();
+    });
+
+    it('should call willUnmount before dispose of mesh', done => {
+      const entity: Entity = sceneEntity.mountChild(new Entity());
+      (entity as any).willUnmount = () => { // tslint:disable-line:no-any
+        expect(entity.node.isDisposed()).toBeFalsy();
+        done();
+      };
+      entity.node.dispose();
+    });
+
     it('should dispose of a node if unmounted', () => {
       const entity: Entity = new Entity();
       sceneEntity.mountChild(entity);
@@ -116,6 +131,12 @@ describe('Entity class', () => {
       expect(fakeEntity.didMountCalled).toBeTruthy();
     });
 
+    it('should return same on Entity.for', () => {
+      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
+      const forEntity: Entity = Entity.for(fakeEntity.node);
+      expect(fakeEntity).toBe(forEntity);
+    });
+
     it('should call getChildContext', () => {
       const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
       fakeEntity.mountChild(new FakeEntity());
@@ -166,6 +187,25 @@ describe('Entity class', () => {
   });
 
   describe('Misc', () => {
+    it('should return new entity using Entity.for', () => {
+      const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
+      const newEntity: Entity = Entity.for(mesh);
+      sceneEntity.mountChild(newEntity);
+
+      expect(newEntity).toBeTruthy();
+      expect(newEntity.node).toBe(mesh);
+    });
+
+    it('should return same entity on second call to Entity.for', () => {
+      const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
+      const newEntity: Entity = Entity.for(mesh);
+      sceneEntity.mountChild(newEntity);
+
+      const secondCall: Entity = Entity.for(mesh);
+
+      expect(newEntity).toBe(secondCall);
+    });
+
     it('should deep copy properties', () => {
       const props = {
         test: {

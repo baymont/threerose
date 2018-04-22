@@ -11,7 +11,7 @@ export default class Spinning extends Component<ISpinningProps> {
     }
 
     protected onUpdate() {
-        this.context.entity.node.rotation.y +=
+        this.entity.node.rotation.y +=
             (this.props.clockwise ? 1 : -1) * Math.abs(this.props.speed);
     }
 }

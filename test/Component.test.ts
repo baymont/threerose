@@ -1,5 +1,6 @@
 import * as BABYLON from 'babylonjs';
 
+import INucleusContext from '../src/core/common/INucleusContext';
 import SceneEntity from '../src/core/common/SceneEntity';
 import Component from '../src/core/Component';
 import Entity from '../src/core/Entity';
@@ -59,11 +60,12 @@ describe('Component class', () => {
   describe('Mounting behavior', () => {
     it('should have a valid context if mounted', () => {
       const fakeComponent: FakeComponent = emptyEntity.mountComponent(new FakeComponent());
-      expect(fakeComponent.context).toBeTruthy();
-      expect(fakeComponent.context.entity.node).toBeTruthy();
-      expect(fakeComponent.context.engine).toBeTruthy();
-      expect(fakeComponent.context.scene).toBeTruthy();
-      expect(fakeComponent.context.entity).toBe(emptyEntity);
+      const context: INucleusContext = fakeComponent.context;
+      expect(context).toBeTruthy();
+      expect(context.engine).toBeTruthy();
+      expect(context.scene).toBeTruthy();
+      expect(fakeComponent.entity.node).toBeTruthy();
+      expect(fakeComponent.entity).toBe(emptyEntity);
     });
 
     it('should be unmounted if removed', () => {
@@ -122,6 +124,20 @@ describe('Component class', () => {
       const fakeComponent: FakeComponent = emptyEntity.mountComponent(new FakeComponent());
       emptyEntity.unmountComponent(fakeComponent);
       expect(fakeComponent.willUnmountCalled).toBeTruthy();
+    });
+  });
+
+  describe('Misc', () => {
+    it('should retrive component by type', () => {
+      const fakeComponent: FakeComponent = emptyEntity.mountComponent(new FakeComponent());
+
+      expect(emptyEntity.hasComponent(FakeComponent)).toBeTruthy();
+      expect(emptyEntity.getComponent(FakeComponent)).toBe(fakeComponent);
+    });
+
+    it('should throw if component type already mounted', () => {
+      emptyEntity.mountComponent(new FakeComponent());
+      expect(() => emptyEntity.mountComponent(new FakeComponent({x: 3}))).toThrow();
     });
   });
 });

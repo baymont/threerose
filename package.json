@@ -1,16 +1,15 @@
 {
   "name": "nucleus3d",
-  "version": "0.4.5",
+  "version": "0.5.2",
   "description": "A 3d framework for web devs. Powered by Babylon.JS. TypeScript first. Entity-Component architecture.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "shx rm -rf dist lib lib-esm",
+    "clean": "shx rm -rf dist lib",
     "build:ts": "tsc",
-    "build:es6": "tsc -m es6 --outDir lib-esm",
     "build:prod": "webpack --mode=production --output-filename=nucleus3d.min.js",
     "build:dev": "webpack --mode=development --output-filename=nucleus3d.js",
-    "build:npm": "npm run build:ts & npm run build:es6 & npm run build:dev & npm run build:prod",
+    "build:npm": "npm run build:ts & npm run build:dev & npm run build:prod",
     "build": "npm run build:ts & npm run build:dev",
     "rebuild": "npm run clean & npm run build",
     "rebuild:npm": "npm run clean & npm run build:npm",
@@ -30,7 +29,9 @@
   },
   "homepage": "https://github.com/haroldma/nucleus3d#readme",
   "dependencies": {
-    "babylonjs": "^3.2.0-alphaB"
+    "@types/lodash": "^4.14.105",
+    "babylonjs": "^3.2.0-alphaB",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
     "@types/jest": "^22.2.0",
