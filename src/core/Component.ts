@@ -146,10 +146,11 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * Removes and disposes the node from `this.nodes`.
    * @param mesh - the node
+   * @param disposeMaterialAndTextures - if true, disposes of materials and textures
    */
-  protected disposeNode<T extends BABYLON.Node>(node: T): void {
+  protected disposeNode<T extends BABYLON.Node>(node: T, disposeMaterialAndTextures: boolean = false): void {
     this._nodes.splice(this._nodes.indexOf(node), 1);
-    node.dispose();
+    node.dispose(false, disposeMaterialAndTextures);
   }
 
   /**

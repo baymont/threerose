@@ -153,18 +153,21 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   /**
    * Unmount the entity and its children.
+   * @param disposeMaterialAndTextures - if true, disposes of materials and textures
    */
-  public unmount(): void {
+  public unmount(disposeMaterialAndTextures: boolean = false): void {
     if (!this._isMounted) {
       throw new Error('Entity not mounted');
     }
+
+    this.node.dispose = this._originalDispose;
 
     this.willUnmount();
 
     // Unmount all children first.
     this.children.forEach((child: Entity) => {
       if (child.isMounted) {
-        child.unmount();
+        child.unmount(disposeMaterialAndTextures);
       }
     });
 
@@ -175,9 +178,11 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
     Entity.set(this._node, undefined);
 
-    this.node.dispose = this._originalDispose;
     if (!this._node.isDisposed()) {
-      this._node.dispose();
+      this._node.dispose(
+        false, // doNotRecurse
+        disposeMaterialAndTextures
+      );
     }
 
     const internalScene: IInternalSceneEntity = this.context.sceneEntity as any; // tslint:disable-line:no-any
