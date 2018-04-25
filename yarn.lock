@@ -929,11 +929,9 @@ babylon@^7.0.0-beta.30:
   version "7.0.0-beta.42"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.42.tgz#67cfabcd4f3ec82999d29031ccdea89d0ba99657"
 
-babylonjs@^3.2.0-alphaB:
-  version "3.2.0-beta.1"
-  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-3.2.0-beta.1.tgz#2b91e78722669f8c253f02271f478d24fcce9f4c"
-  dependencies:
-    cannon "0.6.2"
+babylonjs@^3.2.0-rc.2:
+  version "3.2.0-rc.2"
+  resolved "https://onedrive.pkgs.visualstudio.com/_packaging/odsp-npm/npm/registry/babylonjs/-/babylonjs-3.2.0-rc.2.tgz#868fb7da257a2ea99d844ef03756e769bb255750"
 
 balanced-match@^1.0.0:
   version "1.0.0"
@@ -1184,10 +1182,6 @@ camelcase@^1.0.2:
 camelcase@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
-
-cannon@0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/cannon/-/cannon-0.6.2.tgz#1e7bc72dd5841982f3c104c2bc578bfa4fb1c572"
 
 caseless@~0.12.0:
   version "0.12.0"
