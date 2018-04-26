@@ -405,7 +405,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
 
   private _overrideDispose(): void {
     if (this.isMounted) {
-      this.unmount();
+      this.unmount(arguments[1]);
     } else {
       this.node.dispose = this._originalDispose;
       this.node.dispose.call(this.node, arguments);
