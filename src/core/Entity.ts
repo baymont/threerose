@@ -235,13 +235,13 @@ export default class Entity<TProps = {}, TParentContext = {}> {
    */
   // tslint:disable-next-line:no-any
   public hasComponent<T extends Component>(component: new(...args: any[]) => T): boolean {
-    return !!this.getComponent(component);
+    return Boolean(this.getComponent(component));
   }
 
   /**
    * Mounts a component.
    * @param component - the component
-   * @remarks Throws if a component of same type is already mounted.
+   * @remarks Throws if a component of the same type is already mounted.
    */
   public mountComponent<T extends Component>(component: T): T {
     this.mountComponents([component]);
@@ -251,7 +251,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   /**
    * Mounts an array of components.
    * @param component - the components
-   * @remarks Throws if a component of same type is already mounted.
+   * @remarks Throws if a component of the same type is already mounted.
    */
   public mountComponents(components: Component[]): void {
     components.forEach(component => {

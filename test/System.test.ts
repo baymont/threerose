@@ -1,9 +1,10 @@
 import * as BABYLON from 'babylonjs';
 
+import INucleusContext from '../src/core/common/INucleusContext';
 import SceneEntity from '../src/core/common/SceneEntity';
 import Component from '../src/core/Component';
 import Entity from '../src/core/Entity';
-import System, { ISystemContext } from '../src/core/System';
+import System from '../src/core/System';
 
 describe('Component class', () => {
   const engine: BABYLON.Engine = new BABYLON.NullEngine();
@@ -61,7 +62,7 @@ describe('Component class', () => {
   describe('Lifecycle', () => {
     it('should have a valid context if registered', () => {
       const fakeSystem: FakeSystem = sceneEntity.registerSystem(new FakeSystem());
-      const context: ISystemContext = (fakeSystem as any).context; // tslint:disable-line:no-any
+      const context: INucleusContext = (fakeSystem as any).context; // tslint:disable-line:no-any
       expect(context).toBeTruthy();
       expect(context.engine).toBeTruthy();
       expect(context.scene).toBeTruthy();
