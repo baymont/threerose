@@ -253,7 +253,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * @internal
    */
-  private _internalUnmount(): void {
+  private _internalUnmount(disposeMaterialAndTextures: boolean): void {
     if (!this._isMounted) {
       throw new Error('This component is not mounted.');
     }
@@ -264,7 +264,10 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
 
     this._nodes.forEach(node => {
       if (!node.isDisposed()) {
-        node.dispose();
+        node.dispose(
+          false, // doNotRecurse
+          disposeMaterialAndTextures
+        );
       }
     });
 

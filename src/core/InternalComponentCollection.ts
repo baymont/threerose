@@ -78,16 +78,16 @@ export default class InternalComponentCollection {
     });
   }
 
-  public unmountComponent(component: Component): void {
+  public unmountComponent(component: Component, disposeMaterialAndTextures: boolean): void {
     const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
 
     this._internalMap.delete(component.constructor);
-    internalComponent._internalUnmount();
+    internalComponent._internalUnmount(disposeMaterialAndTextures);
   }
 
-  public unmount(): void {
+  public unmount(disposeMaterialAndTextures: boolean): void {
     this._internalMap.forEach(component => {
-      component._internalUnmount();
+      component._internalUnmount(disposeMaterialAndTextures);
     });
     this._internalMap.clear();
     this._entity = undefined;

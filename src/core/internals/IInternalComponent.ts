@@ -6,7 +6,7 @@ export default interface IInternalComponent {
   _system: System;
   isEnabled: boolean;
   _internalMount(entity: Entity, system?: System): void;
-  _internalUnmount(): void;
+  _internalUnmount(disposeMaterialAndTextures: boolean): void;
   onEntityPropsWillUpdate(oldProps: {}): void;
   onEntityPropsUpdated(): void;
 }

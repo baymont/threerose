@@ -155,7 +155,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
    * Unmount the entity and its children.
    * @param disposeMaterialAndTextures - if true, disposes of materials and textures
    */
-  public unmount(disposeMaterialAndTextures: boolean = false): void {
+  public unmount(disposeMaterialAndTextures: boolean = true): void {
     if (!this._isMounted) {
       throw new Error('Entity not mounted');
     }
@@ -171,7 +171,7 @@ export default class Entity<TProps = {}, TParentContext = {}> {
       }
     });
 
-    this._components.unmount();
+    this._components.unmount(disposeMaterialAndTextures);
 
     this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
     this._onBeforeRenderObserver = undefined;
@@ -266,13 +266,14 @@ export default class Entity<TProps = {}, TParentContext = {}> {
   /**
    * Unmounts the component.
    * @param component - the component
+   * @param disposeMaterialAndTextures - if true, disposes of materials and textures
    */
-  public unmountComponent<T extends Component>(component: T): void {
+  public unmountComponent<T extends Component>(component: T, disposeMaterialAndTextures: boolean = true): void {
     const index: number = this.components.indexOf(component);
     if (index < 0) {
       throw new Error('This component is not mounted to this entity.');
     }
-    this._components.unmountComponent(component);
+    this._components.unmountComponent(component, disposeMaterialAndTextures);
   }
 
   /**
