@@ -2,7 +2,6 @@ import * as BABYLON from 'babylonjs';
 import cloneDeep = require('lodash/cloneDeep');
 
 import INucleusContext from './common/INucleusContext';
-import SceneEntity from './common/SceneEntity';
 import Entity from './Entity';
 import System from './System';
 
@@ -15,8 +14,8 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   private _isEnabled: boolean = true;
   private _props: TProps;
   private _isMounted: boolean;
-  private _context: INucleusContext;
-  private _system: TSystem;
+  private _context?: INucleusContext;
+  private _system?: TSystem;
   private _entity: Entity;
   private _nodes: BABYLON.Node[] = [];
 
@@ -35,7 +34,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     if (!this.isMounted) {
       this._throwNotMounted();
     }
-    return this._context;
+    return this._context!;
   }
 
   /**
@@ -133,7 +132,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   }
 
   /**
-   * Adds the node to 'this.nodes` and parents it to the entity's node.
+   * Adds the node to 'this.nodes' and parents it to the entity's node.
    * Automatically disposes of it after unmounting the component.
    * @param mesh - the node
    */
@@ -148,7 +147,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
    * @param mesh - the node
    * @param disposeMaterialAndTextures - if true, disposes of materials and textures
    */
-  protected disposeNode<T extends BABYLON.Node>(node: T, disposeMaterialAndTextures: boolean = false): void {
+  protected disposeNode<T extends BABYLON.Node>(node: T, disposeMaterialAndTextures: boolean = true): void {
     this._nodes.splice(this._nodes.indexOf(node), 1);
     node.dispose(false, disposeMaterialAndTextures);
   }
@@ -236,6 +235,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * @internal
    */
+  // tslint:disable-next-line:no-unused-variable
   private _internalMount(entity: Entity, system?: TSystem): void {
     if (this._isMounted) {
       throw new Error('This component is already mounted.');
@@ -253,6 +253,7 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * @internal
    */
+  // tslint:disable-next-line:no-unused-variable
   private _internalUnmount(disposeMaterialAndTextures: boolean): void {
     if (!this._isMounted) {
       throw new Error('This component is not mounted.');

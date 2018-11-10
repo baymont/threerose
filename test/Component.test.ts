@@ -47,14 +47,13 @@ describe('Component class', () => {
 
   beforeEach(() => {
     scene = new BABYLON.Scene(engine);
-    sceneEntity.mountChild(emptyEntity);
     sceneEntity.mount(engine, scene);
+    sceneEntity.mountChild(emptyEntity);
   });
 
   afterEach(() => {
     sceneEntity.unmount();
     scene.dispose();
-    scene = undefined;
   });
 
   describe('Mounting behavior', () => {

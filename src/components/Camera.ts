@@ -6,10 +6,10 @@ import Component from '../core/Component';
  * @beta
  */
 export default class Camera extends Component {
-  protected _camera: BABYLON.UniversalCamera;
+  protected _camera?: BABYLON.UniversalCamera;
 
-  public get id(): string {
-    return this._camera.id;
+  public get id(): string | undefined {
+    return this._camera ? this._camera.id : undefined;
   }
 
   protected didMount(): void {
@@ -28,11 +28,11 @@ export default class Camera extends Component {
 
     this._camera.parent = this.context.sceneEntity.node;
 
-    this.context.scene.setActiveCameraByID(this.id);
+    this.context.scene.setActiveCameraByID(this.id!);
   }
 
   protected willUnmount(): void {
-    this._camera.dispose();
+    this._camera!.dispose();
     this._camera = undefined;
   }
 }

@@ -6,7 +6,7 @@ import Component from '../src/core/Component';
 import Entity from '../src/core/Entity';
 import System from '../src/core/System';
 
-describe('Component class', () => {
+describe('System class', () => {
   const engine: BABYLON.Engine = new BABYLON.NullEngine();
   const sceneEntity: SceneEntity = new SceneEntity();
   const emptyEntity: Entity = new Entity();
@@ -46,8 +46,8 @@ describe('Component class', () => {
 
   beforeEach(() => {
     scene = new BABYLON.Scene(engine);
-    sceneEntity.mountChild(emptyEntity);
     sceneEntity.mount(engine, scene);
+    sceneEntity.mountChild(emptyEntity);
   });
 
   afterEach(() => {
@@ -56,7 +56,6 @@ describe('Component class', () => {
     });
     sceneEntity.unmount();
     scene.dispose();
-    scene = undefined;
   });
 
   describe('Lifecycle', () => {

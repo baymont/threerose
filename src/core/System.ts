@@ -11,7 +11,7 @@ export default abstract class System<TProps = {}> {
   // tslint:disable-next-line:no-any
   private _componentType: new(...args: any[]) => Component;
   private _props: TProps;
-  private _context: INucleusContext;
+  private _context?: INucleusContext;
   private _isInitialized: boolean;
 
   /**
@@ -32,7 +32,7 @@ export default abstract class System<TProps = {}> {
     if (!this.isInitialized) {
       this._throwNotInitialized();
     }
-    return this._context;
+    return this._context!;
   }
 
   /**
@@ -110,15 +110,17 @@ export default abstract class System<TProps = {}> {
   /**
    * @internal
    */
+  // tslint:disable-next-line:no-unused-variable
   private _internalInit(context: INucleusContext): void {
     this._context = context;
-    this.onInit();
     this._isInitialized = true;
+    this.onInit();
   }
 
   /**
    * @internal
    */
+  // tslint:disable-next-line:no-unused-variable
   private _internalDispose(): void {
     this._context = undefined;
     this.onDispose();

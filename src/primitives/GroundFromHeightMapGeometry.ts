@@ -15,6 +15,7 @@ export interface IGroundFromHeightMapGeometryProps {
   buffer: Uint8Array;
   bufferWidth: number;
   bufferHeight: number;
+  alphaFilter: number;
 }
 
 /**

@@ -8,7 +8,7 @@ describe('Entity class', () => {
   const sceneEntity: SceneEntity = new SceneEntity();
   let scene: BABYLON.Scene;
 
-  const fakeRenderLoop = () => {
+  const fakeRenderLoop: () => void = () => {
     scene.onBeforeRenderObservable.notifyObservers(scene);
   };
 
@@ -22,7 +22,6 @@ describe('Entity class', () => {
     engine.stopRenderLoop(fakeRenderLoop);
     sceneEntity.unmount();
     scene.dispose();
-    scene = undefined;
   });
 
   describe('Mounting behavior', () => {
@@ -85,21 +84,20 @@ describe('Entity class', () => {
       public willUpdateCalled: boolean;
       public onUpdateCalled: boolean;
       public onUpdatedCalled: boolean;
-      public parentUpdatedCalled: boolean;
       public willUnmountCalled: boolean;
 
       private _shouldUpdate: boolean;
 
       constructor(shouldNotUpdate?: boolean) {
         super();
-        this._shouldUpdate = shouldNotUpdate;
+        this._shouldUpdate = shouldNotUpdate || false;
       }
 
       protected didMount(): void {
         this.didMountCalled = true;
       }
 
-      protected getChildContext(): {} {
+      protected getChildContext(): {} | undefined {
         this.getChildContextCalled = true;
         return undefined;
       }
@@ -115,10 +113,6 @@ describe('Entity class', () => {
 
       protected onUpdate(): void {
         this.onUpdateCalled = true;
-      }
-
-      protected parentUpdated(isParentMounted: boolean): void {
-        this.parentUpdatedCalled = true;
       }
 
       protected willUnmount(): void {
@@ -151,11 +145,11 @@ describe('Entity class', () => {
 
     it('should call onUpdate', done => {
       const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity(true));
-      const observable = scene.onBeforeRenderObservable.add(() => {
+      const observable: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
         scene.onBeforeRenderObservable.remove(observable);
         expect(fakeEntity.onUpdateCalled).toBeTruthy();
         done();
-      });
+      })!;
       setTimeout(() => {
         done.fail('render loop never called.');
       }, 500);
@@ -173,12 +167,6 @@ describe('Entity class', () => {
       expect(fakeEntity.onUpdatedCalled).toBeFalsy();
     });
 
-    it('should call child/parent updated', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
-      const fakeChildEntity: FakeEntity = fakeEntity.mountChild(new FakeEntity());
-      expect(fakeChildEntity.parentUpdatedCalled).toBeTruthy();
-    });
-
     it('should call willUnmount', () => {
       const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
       fakeEntity.unmount();
@@ -190,7 +178,6 @@ describe('Entity class', () => {
     it('should return new entity using Entity.for', () => {
       const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
       const newEntity: Entity = Entity.for(mesh);
-      sceneEntity.mountChild(newEntity);
 
       expect(newEntity).toBeTruthy();
       expect(newEntity.node).toBe(mesh);
@@ -199,15 +186,13 @@ describe('Entity class', () => {
     it('should return same entity on second call to Entity.for', () => {
       const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
       const newEntity: Entity = Entity.for(mesh);
-      sceneEntity.mountChild(newEntity);
-
       const secondCall: Entity = Entity.for(mesh);
 
       expect(newEntity).toBe(secondCall);
     });
 
     it('should deep copy properties', () => {
-      const props = {
+      const props: any = { // tslint:disable-line:no-any
         test: {
           a: 1,
           b: {

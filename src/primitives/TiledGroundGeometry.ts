@@ -1,5 +1,4 @@
 import * as BABYLON from 'babylonjs';
-import Vector4 from '../core/common/Vector4';
 import Component from '../core/Component';
 
 /**

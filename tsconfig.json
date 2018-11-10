@@ -12,10 +12,15 @@
     ],
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
-    "noImplicitAny": true,
     "jsx": "react",
     "declaration": true,
-    "outDir": "lib"
+    "outDir": "lib",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
   "files": [
     "./src/index.ts"

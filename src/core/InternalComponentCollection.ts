@@ -1,17 +1,12 @@
-import INucleusContext from './common/INucleusContext';
 import SceneEntity from './common/SceneEntity';
 import Component from './Component';
 import Entity from './Entity';
 import IInternalComponent from './internals/IInternalComponent';
-import IInternalSceneEntity from './internals/IInternalSceneEntity';
-import System from './System';
 
 export default class InternalComponentCollection {
   private _isMounted: boolean;
-  private _engine: BABYLON.Engine;
-  private _scene: BABYLON.Scene;
-  private _entity: Entity;
-  private _sceneEntity: SceneEntity;
+  private _entity?: Entity;
+  private _sceneEntity?: SceneEntity;
 
   // tslint:disable-next-line:ban-types
   private _internalMap: Map<Function, IInternalComponent>
@@ -30,33 +25,32 @@ export default class InternalComponentCollection {
     return arr;
   }
 
-  public mount(entity: Entity, engine: BABYLON.Engine, scene: BABYLON.Scene, sceneEntity: SceneEntity): void {
+  public mount(entity: Entity, sceneEntity: SceneEntity): void {
     if (this._isMounted) {
       return;
     }
 
     this._entity = entity;
-    this._engine = engine;
-    this._scene = scene;
     this._sceneEntity = sceneEntity as any; // tslint:disable-line:no-any
 
-    this._internalMap.forEach(component => {
+    this._isMounted = true;
+
+    // Loop through array in cases where a component, mounted before the entity was mounted, mounts another component.
+    (this.array as any as IInternalComponent[]).forEach(component => { // tslint:disable-line:no-any
       component._internalMount(
-        this._entity,
-        this._sceneEntity.getSystem(component.constructor as new() => Component)
+        entity,
+        sceneEntity.getSystem(component.constructor as new() => Component)
       );
     });
-
-    this._isMounted = true;
   }
 
   public mountComponent(component: Component): void {
     const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
     if (this._isMounted) {
       internalComponent._internalMount(
-        this._entity,
+        this._entity!,
         // tslint:disable-next-line:no-any
-        this._sceneEntity.getSystem(component.constructor as new() => Component)
+        this._sceneEntity!.getSystem(component.constructor as new() => Component)
       );
     }
     this._internalMap.set(component.constructor, internalComponent);
@@ -91,8 +85,6 @@ export default class InternalComponentCollection {
     });
     this._internalMap.clear();
     this._entity = undefined;
-    this._engine = undefined;
-    this._scene = undefined;
     this._isMounted = false;
   }
 }

@@ -1,4 +1,4 @@
-import cloneDeep = require('lodash/cloneDeep');
+import clone = require('lodash/clone');
 
 import Component from '../Component';
 import Entity from '../Entity';
@@ -16,7 +16,7 @@ export default class SceneEntity extends Entity {
       throw new Error('This scene has been disposed.');
     }
 
-    let entity: SceneEntity = SceneEntity.extractFrom(scene);
+    let entity: SceneEntity = SceneEntity.extractFrom(scene) as SceneEntity;
     if (entity) {
       return entity;
     }
@@ -25,11 +25,11 @@ export default class SceneEntity extends Entity {
     return entity;
   }
 
-  private static extractFrom(scene: BABYLON.Scene) {
+  private static extractFrom(scene: BABYLON.Scene): Entity {
     return (scene as any).__entity__; // tslint:disable-line:no-any
   }
 
-  private static setTo(scene: BABYLON.Scene, entity: Entity) {
+  private static setTo(scene: BABYLON.Scene, entity: Entity): void {
     (scene as any).__entity__ = entity; // tslint:disable-line:no-any
   }
 
@@ -47,7 +47,7 @@ export default class SceneEntity extends Entity {
     if (!this.isMounted) {
       this._throwSceneNotMounted();
     }
-    return this.context.engine.getRenderingCanvas();
+    return this.context.engine.getRenderingCanvas()!;
   }
 
   /**
@@ -83,7 +83,7 @@ export default class SceneEntity extends Entity {
    * @param component - the component type
    */
   // tslint:disable-next-line:no-any
-  public getSystem<T extends Component>(component: new(...args: any[]) => T): System {
+  public getSystem<T extends Component>(component: new(...args: any[]) => T): System | undefined {
     return this._systems.get(component);
   }
 
@@ -136,9 +136,14 @@ export default class SceneEntity extends Entity {
     super.unmount();
   }
 
+  protected didMount(): void {
+    this._initializeSystems();
+  }
+
   /**
    * @internal
    */
+  // tslint:disable-next-line:no-unused-variable
   private _internalRegisterEntity(entity: Entity): void {
     this._mountedEntities.push(entity);
   }
@@ -146,6 +151,7 @@ export default class SceneEntity extends Entity {
   /**
    * @internal
    */
+  // tslint:disable-next-line:no-unused-variable
   private _internalUnregisterEntity(entity: Entity): void {
     this._mountedEntities.splice(this._mountedEntities.indexOf(entity), 1);
   }
@@ -164,7 +170,7 @@ export default class SceneEntity extends Entity {
 
   private _initializeSystem(system: System): void {
     const internalSystem: IInternalSystem = system as any; // tslint:disable-line:no-any
-    internalSystem._internalInit(cloneDeep(this.context));
+    internalSystem._internalInit(clone(this.context));
 
     this.context.scene.onBeforeRenderObservable.add(internalSystem.onUpdate);
 
