@@ -1,6 +1,6 @@
-export { default as Entity } from './Entity';
+export { default as Entity, MountingPoint } from './Entity';
 export { default as Component } from './Component';
-export { default as SceneEntity } from './common/SceneEntity';
+export { default as SystemRegistrar } from './common/SystemRegistrar';
 export { default as System } from './System';
 export { default as INucleusContext } from './common/INucleusContext';
 export { default as Color3 } from './common/Color3';

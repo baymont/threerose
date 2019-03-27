@@ -1,4 +1,4 @@
-import SceneEntity from '../core/common/SceneEntity';
+import * as BABYLON from 'babylonjs';
 import Component from '../core/Component';
 
 /**
@@ -13,9 +13,6 @@ export default class Camera extends Component {
   }
 
   protected didMount(): void {
-    if (this.entity !== this.context.sceneEntity) {
-      throw new Error('Camera needs to be mounted to a scene entity.');
-    }
     this._camera = new BABYLON.UniversalCamera(
       'freeCamera',
       new BABYLON.Vector3(0, 5, -10),
@@ -24,9 +21,9 @@ export default class Camera extends Component {
     this._camera.setTarget(BABYLON.Vector3.Zero());
 
     // Attach the camera to the canvas, this allows us to give input to the camera
-    this._camera.attachControl(this.context.sceneEntity.canvas, false);
+    this._camera.attachControl(this.context.engine.getRenderingCanvas()!, false);
 
-    this._camera.parent = this.context.sceneEntity.node;
+    this._camera.parent = this.entity.node;
 
     this.context.scene.setActiveCameraByID(this.id!);
   }

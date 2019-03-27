@@ -1,6 +1,6 @@
-import * as BABYLON from 'babylonjs';
+import { Engine, Scene } from 'babylonjs';
 
-import SceneEntity from './SceneEntity';
+import SystemRegistrar from './SystemRegistrar';
 
 /**
  * The Nucleus context.
@@ -10,13 +10,13 @@ export default interface INucleusContext {
   /**
    * The engine
    */
-  readonly engine: BABYLON.Engine;
+  readonly engine: Engine;
   /**
    * The scene
    */
-  readonly scene: BABYLON.Scene;
+  readonly scene: Scene;
   /**
-   * The scene entity.
+   * The system registrar.
    */
-  readonly sceneEntity: SceneEntity;
+  readonly systemRegistrar: SystemRegistrar;
 }

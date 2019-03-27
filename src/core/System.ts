@@ -22,7 +22,7 @@ export default abstract class System<TProps = {}> {
   constructor(componentType: new(...args: any[]) => Component) {
     this._props = {} as TProps;
     this._componentType = componentType;
-    this.onUpdate = this.onUpdate.bind(this);
+    this.onBeforeRender = this.onBeforeRender.bind(this);
   }
 
   /**
@@ -82,7 +82,7 @@ export default abstract class System<TProps = {}> {
   /**
    * Called before render.
    */
-  protected onUpdate(): void {
+  protected onBeforeRender(): void {
     // EMPTY BLOCK
   }
 

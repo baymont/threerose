@@ -1,53 +1,39 @@
-import clone = require('lodash/clone');
+import { Scene, Observer } from 'babylonjs';
 
 import Component from '../Component';
 import Entity from '../Entity';
 import IInternalComponent from '../internals/IInternalComponent';
 import IInternalSystem from '../internals/IInternalSystem';
 import System from '../System';
+import NucleusHelper from './NucleusHelper';
 
 /**
- * Represents the root of any nucleus tree.
+ * The registrar for Systems in a scene.
  * @public
  */
-export default class SceneEntity extends Entity {
-  public static from(scene: BABYLON.Scene): SceneEntity {
+export default class SystemRegistrar {
+  private _instatiatedEntites: Entity[] = [];
+  private _systems: Map<new() => Component, System> = new Map<new() => Component, System>();
+  private _scene: Scene;
+  private _onDisposeToken: Observer<Scene>;
+
+  public static for(scene: Scene): SystemRegistrar {
     if (scene.isDisposed) {
       throw new Error('This scene has been disposed.');
     }
 
-    let entity: SceneEntity = SceneEntity.extractFrom(scene) as SceneEntity;
-    if (entity) {
-      return entity;
-    }
-    entity = new SceneEntity();
-    entity.mount(scene.getEngine(), scene);
-    return entity;
+    return NucleusHelper.getContextFor(scene).systemRegistrar;
   }
 
-  private static extractFrom(scene: BABYLON.Scene): Entity {
-    return (scene as any).__entity__; // tslint:disable-line:no-any
+  constructor(scene: Scene) {
+    this._scene = scene;
+    this._onDisposeToken = scene.onDisposeObservable.addOnce(() => {
+      this.dispose();
+    })!;
   }
 
-  private static setTo(scene: BABYLON.Scene, entity: Entity): void {
-    (scene as any).__entity__ = entity; // tslint:disable-line:no-any
-  }
-
-  private _mountedEntities: Entity[] = [];
-  private _systems: Map<new() => Component, System> = new Map<new() => Component, System>();
-
-  constructor() {
-    super({}, 'Scene');
-  }
-
-  /**
-   * Gets the rendering canvas.
-   */
-  public get canvas(): HTMLCanvasElement {
-    if (!this.isMounted) {
-      this._throwSceneNotMounted();
-    }
-    return this.context.engine.getRenderingCanvas()!;
+   public get isDisposed(): boolean {
+    return this._scene.isDisposed;
   }
 
   /**
@@ -59,23 +45,6 @@ export default class SceneEntity extends Entity {
       systems.push(system);
     });
     return systems;
-  }
-
-  /**
-   * Mounts the scene.
-   * @param engine - The BABYLON engine
-   * @param scene - The BABYLON scene
-   */
-  public mount(engine: BABYLON.Engine, scene: BABYLON.Scene): void {
-    if (SceneEntity.extractFrom(scene)) {
-      throw new Error('The passed scene has an associated entity. Use SceneEntity.from(scene).');
-    }
-    SceneEntity.setTo(scene, this);
-    (this as any)._mount({ // tslint:disable-line no-any
-      engine,
-      scene,
-      sceneEntity: this
-    });
   }
 
   /**
@@ -100,16 +69,12 @@ export default class SceneEntity extends Entity {
    * @param system - the system
    */
   public registerSystem<TSystem extends System>(system: TSystem): TSystem {
+    this._throwIfSceneDisposed();
     if (this._systems.has(system.componentType)) {
       throw new Error('System already registered for this component type.');
     }
-
     this._systems.set(system.componentType, system);
-
-    if (this.isMounted) {
-      this._initializeSystem(system);
-    }
-
+    this._initializeSystem(system);
     return system;
   }
 
@@ -118,26 +83,24 @@ export default class SceneEntity extends Entity {
    * @param system - the system
    */
   public unregisterSystem<TSystem extends System>(system: TSystem): void {
+    this._throwIfSceneDisposed();
     if (!this._systems.has(system.componentType)) {
       throw new Error('System not registered for this component type.');
     }
 
     this._systems.delete(system.componentType);
-
-    if (this.isMounted) {
-      this._disposeSystem(system);
-    }
+    this._disposeSystem(system);
   }
 
-  public unmount(): void {
+  public dispose(): void {
     this._systems.forEach(system => {
       this._disposeSystem(system);
     });
-    super.unmount();
-  }
-
-  protected didMount(): void {
-    this._initializeSystems();
+    this._systems.clear();
+    if (!this._scene.isDisposed) {
+      this._scene.onDisposeObservable.remove(this._onDisposeToken);
+      this._scene.dispose();
+    }
   }
 
   /**
@@ -145,7 +108,7 @@ export default class SceneEntity extends Entity {
    */
   // tslint:disable-next-line:no-unused-variable
   private _internalRegisterEntity(entity: Entity): void {
-    this._mountedEntities.push(entity);
+    this._instatiatedEntites.push(entity);
   }
 
   /**
@@ -153,29 +116,23 @@ export default class SceneEntity extends Entity {
    */
   // tslint:disable-next-line:no-unused-variable
   private _internalUnregisterEntity(entity: Entity): void {
-    this._mountedEntities.splice(this._mountedEntities.indexOf(entity), 1);
-  }
-
-  private _initializeSystems(): void {
-    this._systems.forEach(system => {
-      this._initializeSystem(system);
-    });
+    this._instatiatedEntites.splice(this._instatiatedEntites.indexOf(entity), 1);
   }
 
   private _disposeSystem(system: System): void {
     const internalSystem: IInternalSystem = system as any; // tslint:disable-line:no-any
-    this.context.scene.onBeforeRenderObservable.removeCallback(internalSystem.onUpdate);
+    this._scene.onBeforeRenderObservable.removeCallback(internalSystem.onBeforeRender);
     internalSystem._internalDispose();
   }
 
   private _initializeSystem(system: System): void {
     const internalSystem: IInternalSystem = system as any; // tslint:disable-line:no-any
-    internalSystem._internalInit(clone(this.context));
+    internalSystem._internalInit(NucleusHelper.getContextFor(this._scene));
 
-    this.context.scene.onBeforeRenderObservable.add(internalSystem.onUpdate);
+    this._scene.onBeforeRenderObservable.add(internalSystem.onBeforeRender);
 
     // intiailize any mounted entities
-    this._mountedEntities.forEach(entity => {
+    this._instatiatedEntites.forEach(entity => {
       entity.components.forEach(component => {
         if (component.constructor === system.componentType) {
           const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
@@ -185,7 +142,9 @@ export default class SceneEntity extends Entity {
     });
   }
 
-  private _throwSceneNotMounted(): never {
-    throw new Error('Scene entity has not been mounted.');
+  private _throwIfSceneDisposed(): never | void {
+    if (this.isDisposed) {
+      throw new Error('The scene for this Nucleus instance has been disposed.');
+    }
   }
 }
