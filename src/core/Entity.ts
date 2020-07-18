@@ -1,5 +1,5 @@
 import { Observer, Scene, TransformNode, Tools } from 'babylonjs';
-import cloneDeep = require('lodash/cloneDeep');
+import cloneDeep from 'lodash/cloneDeep';
 
 import INucleusContext from './common/INucleusContext';
 import Component from './Component';

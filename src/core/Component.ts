@@ -1,6 +1,6 @@
 import { TransformNode, Node } from 'babylonjs';
-import clone = require('lodash/clone');
-import cloneDeep = require('lodash/cloneDeep');
+import clone from 'lodash/clone';
+import cloneDeep from 'lodash/cloneDeep';
 
 import INucleusContext from './common/INucleusContext';
 import Entity from './Entity';
