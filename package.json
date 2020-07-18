@@ -34,7 +34,8 @@
   "dependencies": {
     "@types/lodash": "^4.14.157",
     "babylonjs": "^4.1.0",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.19",
+    "loglevel": "^1.6.8"
   },
   "devDependencies": {
     "@types/jest": "^26.0.4",

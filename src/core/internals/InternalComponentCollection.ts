@@ -1,9 +1,9 @@
 import { TransformNode } from 'babylonjs';
 
-import SystemRegistrar from './common/SystemRegistrar';
-import Component from './Component';
-import Entity from './Entity';
-import IInternalComponent from './internals/IInternalComponent';
+import SystemRegistrar from '../common/SystemRegistrar';
+import Component from '../Component';
+import Entity from '../Entity';
+import IInternalComponent from '../internals/IInternalComponent';
 
 export default class InternalComponentCollection<TNode extends TransformNode> {
   private _isMounted: boolean;
@@ -55,22 +55,6 @@ export default class InternalComponentCollection<TNode extends TransformNode> {
         this._systemRegistrar!.getSystem(component.constructor as new() => Component)
       );
     }
-  }
-
-  public onEntityPropsWillUpdate(oldProps: {}): void {
-    this._internalMap.forEach(component => {
-      if (component.isEnabled) {
-        component.onEntityPropsWillUpdate(oldProps);
-      }
-    });
-  }
-
-  public onEntityPropsUpdated(): void {
-    this._internalMap.forEach(component => {
-      if (component.isEnabled) {
-        component.onEntityPropsUpdated();
-      }
-    });
   }
 
   public unmountComponent(component: Component, disposeMaterialAndTextures: boolean): void {

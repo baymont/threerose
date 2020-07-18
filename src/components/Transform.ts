@@ -1,6 +1,5 @@
-import * as BABYLON from 'babylonjs';
+import { Vector3, Tools } from 'babylonjs';
 
-import Vector3 from '../core/common/Vector3';
 import Component from '../core/Component';
 
 /**
@@ -33,21 +32,21 @@ export default class Transform extends Component<ITransformProps> {
   private _updateTransform(oldProps: ITransformProps | undefined, newProps: ITransformProps): void {
     if (newProps) {
       if ((oldProps && oldProps.rotation !== newProps.rotation) || (!oldProps && newProps.rotation)) {
-        this.entity.node.rotation = new BABYLON.Vector3(
-          BABYLON.Tools.ToRadians(newProps.rotation!.x || 0),
-          BABYLON.Tools.ToRadians(newProps.rotation!.y || 0),
-          BABYLON.Tools.ToRadians(newProps.rotation!.z || 0)
+        this.entity.node.rotation = new Vector3(
+          Tools.ToRadians(newProps.rotation!.x || 0),
+          Tools.ToRadians(newProps.rotation!.y || 0),
+          Tools.ToRadians(newProps.rotation!.z || 0)
         );
       }
       if ((oldProps && oldProps.position !== newProps.position) || (!oldProps && newProps.position)) {
-        this.entity.node.position = new BABYLON.Vector3(
+        this.entity.node.position = new Vector3(
           newProps.position!.x || 0,
           newProps.position!.y || 0,
           newProps.position!.z || 0
         );
       }
       if ((oldProps && oldProps.scaling !== newProps.scaling) || (!oldProps && newProps.scaling)) {
-        this.entity.node.scaling = new BABYLON.Vector3(
+        this.entity.node.scaling = new Vector3(
           newProps.scaling!.x || 0,
           newProps.scaling!.y || 0,
           newProps.scaling!.z || 0

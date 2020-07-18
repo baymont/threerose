@@ -1,18 +1,18 @@
-import * as BABYLON from 'babylonjs';
+import { TransformNode, NullEngine, Engine, Scene } from 'babylonjs';
 
+import SystemRegistrar from '../src/core/common/SystemRegistrar';
+import System from '../src/core/System';
 import INucleusContext from '../src/core/common/INucleusContext';
-import SceneEntity from '../src/core/common/SceneEntity';
 import Component from '../src/core/Component';
 import Entity from '../src/core/Entity';
-import System from '../src/core/System';
 
-describe('System class', () => {
-  const engine: BABYLON.Engine = new BABYLON.NullEngine();
-  const sceneEntity: SceneEntity = new SceneEntity();
-  const emptyEntity: Entity = new Entity();
-  let scene: BABYLON.Scene;
+describe('Component class', () => {
+  const engine: Engine = new NullEngine();
+  let systemRegistrar: SystemRegistrar;
+  let emptyEntity: Entity;
+  let scene: Scene;
 
-  class FakeComponent extends Component<{}, FakeSystem> {
+  class FakeComponent extends Component<{}, TransformNode, FakeSystem> {
   }
 
   // tslint:disable-next-line
@@ -20,7 +20,7 @@ describe('System class', () => {
     public didMountCalled: boolean;
     public willUpdateCalled: boolean;
     public onUpdatedCalled: boolean;
-    public onUpdateCalled: boolean;
+    public onBeforeRenderCalled: boolean;
 
     constructor() {
       super(FakeComponent);
@@ -39,28 +39,24 @@ describe('System class', () => {
       this.onUpdatedCalled = true;
     }
 
-    protected onUpdate(): void {
-      this.onUpdateCalled = true;
+    protected onBeforeRender(): void {
+      this.onBeforeRenderCalled = true;
     }
   }
 
   beforeEach(() => {
-    scene = new BABYLON.Scene(engine);
-    sceneEntity.mount(engine, scene);
-    sceneEntity.mountChild(emptyEntity);
+    scene = new Scene(engine);
+    systemRegistrar = SystemRegistrar.for(scene);
+    emptyEntity = new Entity(scene);
   });
 
   afterEach(() => {
-    sceneEntity.systems.forEach(system => {
-      sceneEntity.unregisterSystem(system);
-    });
-    sceneEntity.unmount();
     scene.dispose();
   });
 
   describe('Lifecycle', () => {
     it('should have a valid context if registered', () => {
-      const fakeSystem: FakeSystem = sceneEntity.registerSystem(new FakeSystem());
+      const fakeSystem: FakeSystem = systemRegistrar.registerSystem(new FakeSystem());
       const context: INucleusContext = (fakeSystem as any).context; // tslint:disable-line:no-any
       expect(context).toBeTruthy();
       expect(context.engine).toBeTruthy();
@@ -68,13 +64,13 @@ describe('System class', () => {
     });
 
     it('should be present in related component', () => {
-      const fakeSystem: FakeSystem = sceneEntity.registerSystem(new FakeSystem());
-      const fakeComponent: FakeComponent = emptyEntity.mountComponent(new FakeComponent());
+      const fakeSystem: FakeSystem = systemRegistrar.registerSystem(new FakeSystem());
+      const fakeComponent: FakeComponent = new FakeComponent().mountTo(emptyEntity);
       expect(fakeComponent.system).toBe(fakeSystem);
     });
 
     it('should call update', () => {
-      const fakeSystem: FakeSystem = sceneEntity.registerSystem(new FakeSystem());
+      const fakeSystem: FakeSystem = systemRegistrar.registerSystem(new FakeSystem());
       fakeSystem.updateProps({});
       expect(fakeSystem.willUpdateCalled).toBeTruthy();
       expect(fakeSystem.onUpdatedCalled).toBeTruthy();

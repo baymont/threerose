@@ -1,9 +1,10 @@
-import { Observer, Scene, TransformNode } from 'babylonjs';
+import { Observer, Scene, TransformNode, Tools } from 'babylonjs';
 import cloneDeep =  require('lodash/cloneDeep');
+import { getLogger, Logger } from 'loglevel';
 
 import INucleusContext from './common/INucleusContext';
 import Component from './Component';
-import InternalComponentCollection from './InternalComponentCollection';
+import InternalComponentCollection from './internals/InternalComponentCollection';
 import IInternalSystemRegistrar from './internals/IInternalSystemRegistrar';
 import NucleusHelper from './common/NucleusHelper';
 
@@ -11,7 +12,18 @@ import NucleusHelper from './common/NucleusHelper';
  * Typings for a class of type T.
  */
 export type ClassType<T> = new(...args: any[]) => T; // tslint:disable-line:no-any
-export type MountingPoint<TNode extends TransformNode = TransformNode> = TNode | Scene | Entity;
+
+export interface IMountingPointWithName<TNode extends TransformNode = TransformNode> {
+  mountingPoint: MountingPoint<TNode>;
+  nodeName: string;
+}
+
+export type MountingPoint<TNode extends TransformNode = TransformNode>
+  // We need this conditional since the constructor makes a transform node if you pass a scene or entity.
+  // But if TNode is extending TransformNode, there's no way to know and create the appropriate type.
+  = TransformNode extends TNode
+     ? TNode | Scene | Entity | INucleusContext
+     : TNode;
 
 /**
  * A thing in the 3D world. The mounting point for components.
@@ -22,6 +34,9 @@ export default class Entity<
   TProps = {}
 > {
   private readonly _components: InternalComponentCollection<TNode> = new InternalComponentCollection<TNode>();
+
+  // Using double underscore to avoid conflicts with derived classes
+  private __logger: Logger = getLogger('Nucleus'); // tslint:disable-line:variable-name
 
   private _context?: INucleusContext;
 
@@ -47,6 +62,9 @@ export default class Entity<
    * If the parent node's entity has been instantiated; this one will be mounted to it.
    */
   public static for<TNode extends TransformNode = TransformNode>(node: TNode): Entity<TNode> {
+    if (!node) {
+      throw new Error('Node can\'t be undefined');
+    }
     if (node.isDisposed()) {
       throw new Error('This node has been disposed.');
     }
@@ -56,16 +74,18 @@ export default class Entity<
       return entity;
     }
 
-    return new Entity(node);
+    return new Entity(node as MountingPoint<TNode>);
   }
 
+  // tslint:disable: no-any
   private static extract<TNode extends TransformNode>(node: TNode): Entity<TNode> {
-    return (node as any).__entity__; // tslint:disable-line:no-any
+    return (node as any).__entity__;
   }
 
-  private static set(node: TransformNode, entity: Entity | undefined): void {
-    (node as any).__entity__ = entity; // tslint:disable-line:no-any
+  private static set(node: TransformNode, entity: Entity<any> | undefined): void {
+    (node as any).__entity__ = entity;
   }
+  // tslint:enable: no-any
 
   /**
    * Gets the context.
@@ -123,33 +143,36 @@ export default class Entity<
    * @remarks When using a scene or Entity as a mounting point, the returned Entity will default to a TransformNode.
    */
   constructor(
-    mountingPoint: MountingPoint<TNode>,
+    mountingPoint: MountingPoint<TNode> | IMountingPointWithName<TNode>,
     props?: TProps
   ) {
-    if (mountingPoint instanceof TransformNode ? mountingPoint.isDisposed() : mountingPoint.isDisposed) {
+    if (this._isMountingPointDisposed(mountingPoint)) {
       throw new Error('Mounting point has been disposed.');
     }
 
-    let context: INucleusContext;
-    if (mountingPoint instanceof Entity) {
-      context = mountingPoint.context;
-    } else {
-      context = NucleusHelper.getContextFor(mountingPoint);
-    }
+    const actualMountingPoint: MountingPoint<TNode>
+      = (mountingPoint as IMountingPointWithName<TNode>).mountingPoint
+        ? (mountingPoint as IMountingPointWithName<TNode>).mountingPoint
+        : mountingPoint as MountingPoint<TNode>;
+
+    const context: INucleusContext = NucleusHelper.getContextFor(actualMountingPoint);
 
     let node: TNode;
-    if (mountingPoint instanceof TransformNode) {
-      if (Entity.extract(mountingPoint)) {
+    if (actualMountingPoint instanceof TransformNode) {
+      if (Entity.extract(actualMountingPoint as any)) { // tslint:disable-line: no-any
         throw new Error('Node already has an Entity. Instead use Entity.for(node)');
       }
-      node = mountingPoint;
+      node = actualMountingPoint as TNode;
     } else {
-      const scene: Scene = mountingPoint instanceof Scene ? mountingPoint : mountingPoint.context.scene;
+      const nodeName: keyof IMountingPointWithName = 'nodeName';
       // Default to transform node
-      node = new TransformNode('Entity', scene) as any; // tslint:disable-line:no-any
+      node = new TransformNode(
+        (mountingPoint as any)[nodeName] || 'Entity', // tslint:disable-line: no-any
+        context.scene
+      ) as any; // tslint:disable-line:no-any
 
-      if (mountingPoint instanceof Entity) {
-        node.parent = mountingPoint.node;
+      if (actualMountingPoint instanceof Entity) {
+        node.parent = actualMountingPoint.node;
       }
     }
 
@@ -177,23 +200,25 @@ export default class Entity<
    * @param disposeMaterialAndTextures - (default: true) if true, disposes of materials and textures
    */
   public dispose(disposeMaterialAndTextures: boolean = true): void {
-    if (this.isDisposed) {
+    if (this.isDisposed || !this._node) {
       return;
     }
 
-    this.node.dispose = this._originalDispose;
+    // capture the context, since the getter throws if node is disposed
+    const context: INucleusContext = this.context;
 
+    this._node.dispose = this._originalDispose;
     this.onDispose();
 
     this._components.unmount(disposeMaterialAndTextures);
 
     if (this._onBeforeRenderObserver) {
-      this.context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
+      context.scene.onBeforeRenderObservable.remove(this._onBeforeRenderObserver);
       this._onBeforeRenderObserver = undefined;
     }
 
     const internalRegistrar: IInternalSystemRegistrar
-      = this.context.systemRegistrar as any; // tslint:disable-line:no-any
+      = context.systemRegistrar as any; // tslint:disable-line:no-any
     internalRegistrar._internalUnregisterEntity(this);
 
     Entity.set(this._node!, undefined);
@@ -278,14 +303,15 @@ export default class Entity<
     let hasComponent: boolean = false;
     if (component instanceof Component) {
       componentInstance = component;
-      hasComponent = component.entity === this;
+      hasComponent = (component as Component<any, any>).entity === this; // tslint:disable-line: no-any
     } else {
       componentInstance = this.getComponent(component);
       hasComponent = !!componentInstance;
     }
 
     if (!hasComponent) {
-      throw new Error('This component is not mounted to this entity.');
+      const isType: boolean = !(component instanceof Component);
+      throw new Error('This component is not mounted to this entity: ' + Tools.GetClassName(component, isType));
     }
 
     this._components.unmountComponent(componentInstance, disposeMaterialAndTextures);
@@ -300,15 +326,7 @@ export default class Entity<
     if (this.willPropsUpdate(props)) {
       const oldProps: TProps = cloneDeep(this.props);
       this._props = Object.assign(this.props, cloneDeep(props));
-
-      this._components.onEntityPropsWillUpdate(oldProps);
-
-      // finally let the implemantation update itself
       this.onPropsUpdated(oldProps);
-
-      if (this.components) {
-        this._components.onEntityPropsUpdated();
-      }
     }
   }
 
@@ -368,7 +386,7 @@ export default class Entity<
   // tslint:disable-next-line:no-unused-variable
   private _mountComponent<T extends Component>(component: T): T {
     if (this._components.map.has(component.constructor)) {
-      throw new Error('A component of this type is already mounted. Type: ' + component.constructor.name);
+      throw new Error('A component of this type is already mounted. Type: ' + Tools.GetClassName(component));
     } else {
       this._components.mountComponent(component);
     }
@@ -379,7 +397,7 @@ export default class Entity<
     try {
       func();
     } catch (e) {
-      console.log(e);
+      this.__logger.error(e);
     }
   }
 
@@ -387,5 +405,17 @@ export default class Entity<
     if (this.isDisposed) {
       throw new Error('The Entity\'s node has been disposed.');
     }
+  }
+
+  private _isMountingPointDisposed(mountingPoint: MountingPoint<TNode> | IMountingPointWithName<TNode>): boolean {
+    if (mountingPoint instanceof TransformNode) {
+      return mountingPoint.isDisposed();
+    } else if ((mountingPoint as INucleusContext).scene) {
+      return (mountingPoint as INucleusContext).scene.isDisposed;
+    } else if ((mountingPoint as IMountingPointWithName<TNode>).mountingPoint) {
+      return this._isMountingPointDisposed((mountingPoint as IMountingPointWithName<TNode>).mountingPoint);
+    }
+
+    return (mountingPoint as { isDisposed: boolean }).isDisposed;
   }
 }

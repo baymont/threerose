@@ -1,105 +1,98 @@
-import * as BABYLON from 'babylonjs';
+import { Engine, Scene, NullEngine, Mesh, TransformNode, AbstractMesh, Observer } from 'babylonjs';
 
-import SceneEntity from '../src/core/common/SceneEntity';
-import Entity from '../src/core/Entity';
+import Entity, { MountingPoint } from '../src/core/Entity';
 
 describe('Entity class', () => {
-  const engine: BABYLON.Engine = new BABYLON.NullEngine();
-  const sceneEntity: SceneEntity = new SceneEntity();
-  let scene: BABYLON.Scene;
+  const engine: Engine = new NullEngine();
+  let scene: Scene;
 
   const fakeRenderLoop: () => void = () => {
     scene.onBeforeRenderObservable.notifyObservers(scene);
   };
 
   beforeEach(() => {
-    scene = new BABYLON.Scene(engine);
-    sceneEntity.mount(engine, scene);
+    scene = new Scene(engine);
     engine.runRenderLoop(fakeRenderLoop);
   });
 
   afterEach(() => {
     engine.stopRenderLoop(fakeRenderLoop);
-    sceneEntity.unmount();
     scene.dispose();
   });
 
   describe('Mounting behavior', () => {
-    it('should have a node if mounted', () => {
-      const entity: Entity = new Entity();
-      sceneEntity.mountChild(entity);
+    it('should have a node when constructed', () => {
+      const entity: Entity = new Entity(scene);
       expect(entity.node).toBeTruthy();
     });
 
-    it('should not have a node if unmounted', () => {
-      const entity: Entity = new Entity();
-      sceneEntity.mountChild(entity);
-      entity.unmount();
+    it('should have a node with specified name', () => {
+      const nodeName: string = 'HoneyGarlic';
+      const entity: Entity = new Entity({ mountingPoint: scene, nodeName });
+      expect(entity.node.name).toBe(nodeName);
+    });
+
+    it('should have a node with specified name when using parent', () => {
+      const parent: Entity = new Entity(scene);
+      const nodeName: string = 'HoneyGarlic';
+      const entity: Entity = new Entity({ mountingPoint: parent, nodeName });
+      expect(entity.node.name).toBe(nodeName);
+    });
+
+    it('should have the same mesh when constructed', () => {
+      const mesh: AbstractMesh = new AbstractMesh('Test', scene);
+      const entity: Entity<AbstractMesh> = new Entity(mesh);
+      expect(entity.node).toBe(mesh);
+    });
+
+    it('should not have a node if disposed', () => {
+      const entity: Entity = new Entity(scene);
+      entity.dispose();
       expect(() => entity.node).toThrow();
     });
 
-    it('should unmount on dispose of mesh', () => {
-      const entity: Entity = sceneEntity.mountChild(new Entity());
+    it('should dispose Entity on dispose of mesh', () => {
+      const entity: Entity = new Entity(scene);
       entity.node.dispose();
-      expect(entity.isMounted).toBeFalsy();
+      expect(entity.isDisposed).toBeTruthy();
     });
 
-    it('should call willUnmount before dispose of mesh', done => {
-      const entity: Entity = sceneEntity.mountChild(new Entity());
-      (entity as any).willUnmount = () => { // tslint:disable-line:no-any
+    it('should call onDispose before dispose of mesh', done => {
+      const entity: Entity = new Entity(scene);
+      (entity as any).onDispose = () => { // tslint:disable-line:no-any
+        // node shouldn't be dispose yet
         expect(entity.node.isDisposed()).toBeFalsy();
         done();
       };
       entity.node.dispose();
     });
 
-    it('should dispose of a node if unmounted', () => {
-      const entity: Entity = new Entity();
-      sceneEntity.mountChild(entity);
-      const node: BABYLON.AbstractMesh = entity.node;
-      entity.unmount();
+    it('should dispose of a node when disposing', () => {
+      const entity: Entity = new Entity(scene);
+      const node: TransformNode = entity.node;
+      entity.dispose();
       expect(node.isDisposed()).toBeTruthy();
     });
 
-    it('should throw on unmount if not mounted', () => {
-      const entity: Entity = new Entity();
-      expect(entity.unmount).toThrow();
-    });
-
-    it('should have a custom node if onMount overriden', () => {
-      const customNode: BABYLON.Mesh = new BABYLON.Mesh('CustomNode');
-      const entity: Entity = new Entity();
-      (entity as any).onMount = () => { // tslint:disable-line:no-any
-        return customNode;
-      };
-      sceneEntity.mountChild(entity);
-      expect(entity.node).toBe(customNode);
+    it('should throw if node disposed', () => {
+      const node: TransformNode = new TransformNode('dloraH', scene);
+      node.dispose();
+      expect(() =>  new Entity(node)).toThrow();
     });
   });
 
   describe('Lifecycle', () => {
     class FakeEntity extends Entity {
-      public didMountCalled: boolean;
-      public getChildContextCalled: boolean;
       public willUpdateCalled: boolean;
-      public onUpdateCalled: boolean;
+      public onBeforeRenderCalled: boolean;
       public onUpdatedCalled: boolean;
-      public willUnmountCalled: boolean;
+      public onDisposedCalled: boolean;
 
       private _shouldUpdate: boolean;
 
-      constructor(shouldNotUpdate?: boolean) {
-        super();
+      constructor(mountingPoint: MountingPoint, shouldNotUpdate?: boolean) {
+        super(mountingPoint);
         this._shouldUpdate = shouldNotUpdate || false;
-      }
-
-      protected didMount(): void {
-        this.didMountCalled = true;
-      }
-
-      protected getChildContext(): {} | undefined {
-        this.getChildContextCalled = true;
-        return undefined;
       }
 
       protected willPropsUpdate(newProps: {}): boolean {
@@ -111,43 +104,31 @@ describe('Entity class', () => {
         this.onUpdatedCalled = true;
       }
 
-      protected onUpdate(): void {
-        this.onUpdateCalled = true;
+      protected onBeforeRender(): void {
+        this.onBeforeRenderCalled = true;
       }
 
-      protected willUnmount(): void {
-        this.willUnmountCalled = true;
+      protected onDispose(): void {
+        this.onDisposedCalled = true;
       }
     }
 
-    it('should call didMount', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
-      expect(fakeEntity.didMountCalled).toBeTruthy();
-    });
-
     it('should return same on Entity.for', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
+      const fakeEntity: FakeEntity = new FakeEntity(scene);
       const forEntity: Entity = Entity.for(fakeEntity.node);
       expect(fakeEntity).toBe(forEntity);
     });
 
-    it('should call getChildContext', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
-      fakeEntity.mountChild(new FakeEntity());
-      expect(fakeEntity.getChildContextCalled).toBeTruthy();
-    });
-
     it('should call willUpdate', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
+      const fakeEntity: FakeEntity = new FakeEntity(scene);
       fakeEntity.updateProps({});
       expect(fakeEntity.willUpdateCalled).toBeTruthy();
     });
 
-    it('should call onUpdate', done => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity(true));
-      const observable: BABYLON.Observer<BABYLON.Scene> = scene.onBeforeRenderObservable.add(() => {
-        scene.onBeforeRenderObservable.remove(observable);
-        expect(fakeEntity.onUpdateCalled).toBeTruthy();
+    it('should call onBeforeRender', done => {
+      const fakeEntity: FakeEntity = new FakeEntity(scene);
+      const observable: Observer<Scene> = scene.onBeforeRenderObservable.addOnce(() => {
+        expect(fakeEntity.onBeforeRenderCalled).toBeTruthy();
         done();
       })!;
       setTimeout(() => {
@@ -156,37 +137,37 @@ describe('Entity class', () => {
     });
 
     it('should call onUpdated', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity(true));
+      const fakeEntity: FakeEntity = new FakeEntity(scene, true);
       fakeEntity.updateProps({});
       expect(fakeEntity.onUpdatedCalled).toBeTruthy();
     });
 
     it('should not call onUpdated', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
+      const fakeEntity: FakeEntity = new FakeEntity(scene);
       fakeEntity.updateProps({});
       expect(fakeEntity.onUpdatedCalled).toBeFalsy();
     });
 
-    it('should call willUnmount', () => {
-      const fakeEntity: FakeEntity = sceneEntity.mountChild(new FakeEntity());
-      fakeEntity.unmount();
-      expect(fakeEntity.willUnmountCalled).toBeTruthy();
+    it('should call onDispose', () => {
+      const fakeEntity: FakeEntity = new FakeEntity(scene);
+      fakeEntity.dispose();
+      expect(fakeEntity.onDisposedCalled).toBeTruthy();
     });
   });
 
   describe('Misc', () => {
     it('should return new entity using Entity.for', () => {
-      const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
-      const newEntity: Entity = Entity.for(mesh);
+      const mesh: Mesh = new Mesh('Mesh', scene);
+      const newEntity: Entity<Mesh> = Entity.for(mesh);
 
       expect(newEntity).toBeTruthy();
       expect(newEntity.node).toBe(mesh);
     });
 
     it('should return same entity on second call to Entity.for', () => {
-      const mesh: BABYLON.Mesh = new BABYLON.Mesh('Mesh', scene);
-      const newEntity: Entity = Entity.for(mesh);
-      const secondCall: Entity = Entity.for(mesh);
+      const mesh: Mesh = new Mesh('Mesh', scene);
+      const newEntity: Entity<Mesh> = Entity.for(mesh);
+      const secondCall: Entity<Mesh> = Entity.for(mesh);
 
       expect(newEntity).toBe(secondCall);
     });
@@ -200,7 +181,7 @@ describe('Entity class', () => {
           }
         }
       };
-      const entity: Entity = new Entity(props);
+      const entity: Entity = new Entity(scene, props);
 
       expect(entity.props).toEqual(props);
       props.test.a = 5;

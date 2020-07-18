@@ -7,6 +7,8 @@ import IInternalSystem from '../internals/IInternalSystem';
 import System from '../System';
 import NucleusHelper from './NucleusHelper';
 
+type SystemOf<TComponent> = TComponent extends Component<infer _TProps, infer _TNode, infer TSystem> ? TSystem : never;
+
 /**
  * The registrar for Systems in a scene.
  * @public
@@ -51,10 +53,11 @@ export default class SystemRegistrar {
    * Gets a system by component type.
    * @param component - the component type
    */
-  // tslint:disable-next-line:no-any
-  public getSystem<T extends Component>(component: new(...args: any[]) => T): System | undefined {
-    return this._systems.get(component);
+  // tslint:disable:no-any
+  public getSystem<T extends Component>(component: new(...args: any[]) => T): SystemOf<T> | undefined {
+    return this._systems.get(component) as any;
   }
+  // tslint:enable:no-any
 
   /**
    * Register an array of systems.

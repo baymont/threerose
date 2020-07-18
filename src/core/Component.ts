@@ -1,10 +1,11 @@
 import { TransformNode, Node } from 'babylonjs';
-import clone = require('lodash/clone');
-import cloneDeep = require('lodash/cloneDeep');
+import clone =  require('lodash/clone');
+import cloneDeep =  require('lodash/cloneDeep');
 
 import INucleusContext from './common/INucleusContext';
 import Entity from './Entity';
 import System from './System';
+import IInternalSystem from './internals/IInternalSystem';
 
 /**
  * Modular chunks of data that can add appearance, behaviors and/or functionality to an entity.
@@ -14,7 +15,7 @@ import System from './System';
 export default abstract class Component<
   TProps = {},
   TNode extends TransformNode = TransformNode,
-  TSystem extends System | {} = {}
+  TSystem extends System | unknown = unknown
 > {
   private _isEnabled: boolean = true;
   private _props: TProps;
@@ -93,7 +94,10 @@ export default abstract class Component<
    * @param entity - the entity to mount it to
    * @remarks Throws if a component of the same type is already mounted.
    */
-  public mountTo<T extends Entity<TNode>>(entity: T): this {
+  public mountTo<T extends Entity<TNode>>(entity: T | TNode): this {
+    if (entity instanceof TransformNode) {
+      entity = Entity.for(entity) as T;
+    }
     (entity as any)._mountComponent(this); // tslint:disable-line: no-any
     return this;
   }
@@ -146,7 +150,7 @@ export default abstract class Component<
    */
   public unmount(): void {
     this._throwIfNotMounted();
-    this.entity.unmountComponent(this);
+    this.entity.unmountComponent(this as Component<any, any>); // tslint:disable-line: no-any
   }
 
   /**
@@ -171,14 +175,19 @@ export default abstract class Component<
   }
 
   /**
-   * Adds the node to 'this.nodes` and parents it to the entity's node.
+   * Adds the node/entity to 'this.nodes` and parents it.
    * Automatically disposes of it after unmounting the component.
    * @param node - the node
    * @returns the entity for the node.
    */
-  protected mountNode(node: TransformNode): Entity {
-    this.addNode(node);
-    return Entity.for(node);
+  protected addEntity(node: TransformNode | Entity): Entity {
+    if (node instanceof Entity) {
+      this.addNode(node.node);
+      return node;
+    } else {
+      this.addNode(node);
+      return Entity.for(node);
+    }
   }
 
   /**
@@ -248,8 +257,15 @@ export default abstract class Component<
     this._system = system;
     this._isMounted = true;
 
-    if (this.isEnabled) {
-      this.didMount();
+    this.didMount();
+
+    if (system) {
+      const internalSystem: IInternalSystem = system as any; // tslint:disable-line: no-any
+      internalSystem.onComponentDidMount(this);
+    }
+
+    if (!this.isEnabled) {
+      this.onDisabled();
     }
   }
 
@@ -260,6 +276,11 @@ export default abstract class Component<
   private _internalUnmount(disposeMaterialAndTextures: boolean): void {
     if (!this._isMounted) {
       throw new Error('This component is not mounted.');
+    }
+
+    if (this._system) {
+      const internalSystem: IInternalSystem = this._system as any; // tslint:disable-line: no-any
+      internalSystem.onComponentWillUnmount(this);
     }
 
     if (this.isEnabled) {
