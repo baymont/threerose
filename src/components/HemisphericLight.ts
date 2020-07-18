@@ -1,3 +1,4 @@
+import { Vector3, HemisphericLight as BHemisphericLight } from 'babylonjs';
 import Component from '../core/Component';
 
 /**
@@ -6,9 +7,9 @@ import Component from '../core/Component';
  */
 export default class HemisphericLight extends Component {
   protected didMount(): void {
-    const light = new BABYLON.HemisphericLight(
+    const light = new BHemisphericLight(
       'skyLight',
-      new BABYLON.Vector3(0, 1, 0),
+      new Vector3(0, 1, 0),
       this.context.scene
     );
 

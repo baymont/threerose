@@ -1,12 +1,14 @@
-import SceneEntity from './common/SceneEntity';
-import Component from './Component';
-import Entity from './Entity';
-import IInternalComponent from './internals/IInternalComponent';
+import { TransformNode } from 'babylonjs';
 
-export default class InternalComponentCollection {
+import SystemRegistrar from '../common/SystemRegistrar';
+import Component from '../Component';
+import Entity from '../Entity';
+import IInternalComponent from '../internals/IInternalComponent';
+
+export default class InternalComponentCollection<TNode extends TransformNode> {
   private _isMounted: boolean;
-  private _entity?: Entity;
-  private _sceneEntity?: SceneEntity;
+  private _entity?: Entity<TNode>;
+  private _systemRegistrar?: SystemRegistrar;
 
   // tslint:disable-next-line:ban-types
   private _internalMap: Map<Function, IInternalComponent>
@@ -25,13 +27,13 @@ export default class InternalComponentCollection {
     return arr;
   }
 
-  public mount(entity: Entity, sceneEntity: SceneEntity): void {
+  public mount(entity: Entity<TNode>, systemRegistrar: SystemRegistrar): void {
     if (this._isMounted) {
       return;
     }
 
     this._entity = entity;
-    this._sceneEntity = sceneEntity as any; // tslint:disable-line:no-any
+    this._systemRegistrar = systemRegistrar as any; // tslint:disable-line:no-any
 
     this._isMounted = true;
 
@@ -39,37 +41,20 @@ export default class InternalComponentCollection {
     (this.array as any as IInternalComponent[]).forEach(component => { // tslint:disable-line:no-any
       component._internalMount(
         entity,
-        sceneEntity.getSystem(component.constructor as new() => Component)
+        systemRegistrar.getSystem(component.constructor as new() => Component)
       );
     });
   }
 
   public mountComponent(component: Component): void {
     const internalComponent: IInternalComponent = component as any; // tslint:disable-line:no-any
+    this._internalMap.set(component.constructor, internalComponent);
     if (this._isMounted) {
       internalComponent._internalMount(
         this._entity!,
-        // tslint:disable-next-line:no-any
-        this._sceneEntity!.getSystem(component.constructor as new() => Component)
+        this._systemRegistrar!.getSystem(component.constructor as new() => Component)
       );
     }
-    this._internalMap.set(component.constructor, internalComponent);
-  }
-
-  public onEntityPropsWillUpdate(oldProps: {}): void {
-    this._internalMap.forEach(component => {
-      if (component.isEnabled) {
-        component.onEntityPropsWillUpdate(oldProps);
-      }
-    });
-  }
-
-  public onEntityPropsUpdated(): void {
-    this._internalMap.forEach(component => {
-      if (component.isEnabled) {
-        component.onEntityPropsUpdated();
-      }
-    });
   }
 
   public unmountComponent(component: Component, disposeMaterialAndTextures: boolean): void {
@@ -82,8 +67,8 @@ export default class InternalComponentCollection {
   public unmount(disposeMaterialAndTextures: boolean): void {
     this._internalMap.forEach(component => {
       component._internalUnmount(disposeMaterialAndTextures);
+      this._internalMap.delete(component.constructor);
     });
-    this._internalMap.clear();
     this._entity = undefined;
     this._isMounted = false;
   }

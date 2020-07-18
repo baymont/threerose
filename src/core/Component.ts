@@ -1,23 +1,29 @@
-import * as BABYLON from 'babylonjs';
-import cloneDeep = require('lodash/cloneDeep');
+import { TransformNode, Node } from 'babylonjs';
+import clone from 'lodash/clone';
+import cloneDeep from 'lodash/cloneDeep';
 
 import INucleusContext from './common/INucleusContext';
 import Entity from './Entity';
 import System from './System';
+import IInternalSystem from './internals/IInternalSystem';
 
 /**
  * Modular chunks of data that can add appearance, behaviors and/or functionality to an entity.
  * @public
  */
 // tslint:disable-next-line:no-any
-export default abstract class Component<TProps = {}, TSystem extends System = any> {
+export default abstract class Component<
+  TProps = {},
+  TNode extends TransformNode = TransformNode,
+  TSystem extends System | unknown = unknown
+> {
   private _isEnabled: boolean = true;
   private _props: TProps;
-  private _isMounted: boolean;
+  private _isMounted: boolean = false;
   private _context?: INucleusContext;
   private _system?: TSystem;
-  private _entity: Entity;
-  private _nodes: BABYLON.Node[] = [];
+  private _entity: Entity<TNode>;
+  private _nodes: Node[] = [];
 
   /**
    * Constructs the component.
@@ -31,19 +37,15 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
    * Gets the context.
    */
   public get context(): INucleusContext {
-    if (!this.isMounted) {
-      this._throwNotMounted();
-    }
+    this._throwIfNotMounted();
     return this._context!;
   }
 
   /**
    * Gets the entity.
    */
-  public get entity(): Entity {
-    if (!this.isMounted) {
-      this._throwNotMounted();
-    }
+  public get entity(): Entity<TNode> {
+    this._throwIfNotMounted();
     return this._entity;
   }
 
@@ -64,10 +66,8 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * Gets all associated nodes with this component.
    */
-  public get nodes(): ReadonlyArray<BABYLON.Node> {
-    if (!this.isMounted) {
-      this._throwNotMounted();
-    }
+  public get nodes(): ReadonlyArray<Node> {
+    this._throwIfNotMounted();
     return this._nodes;
   }
 
@@ -81,11 +81,25 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   /**
    * Gets the associated system for the component class.
    */
-  public get system(): TSystem | undefined {
-    if (!this.isMounted) {
-      this._throwNotMounted();
+  public get system(): TSystem {
+    this._throwIfNotMounted();
+    if (!this._system) {
+      throw new Error('Ensure a system has been registered for this component.');
     }
     return this._system;
+  }
+
+  /**
+   * Mounts a component.
+   * @param entity - the entity to mount it to
+   * @remarks Throws if a component of the same type is already mounted.
+   */
+  public mountTo<T extends Entity<TNode>>(entity: T | TNode): this {
+    if (entity instanceof TransformNode) {
+      entity = Entity.for(entity) as T;
+    }
+    (entity as any)._mountComponent(this); // tslint:disable-line: no-any
+    return this;
   }
 
   /**
@@ -132,11 +146,19 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
   }
 
   /**
+   * Unmount the component from the entity.
+   */
+  public unmount(): void {
+    this._throwIfNotMounted();
+    this.entity.unmountComponent(this as Component<any, any>); // tslint:disable-line: no-any
+  }
+
+  /**
    * Adds the node to 'this.nodes' and parents it to the entity's node.
    * Automatically disposes of it after unmounting the component.
    * @param mesh - the node
    */
-  protected addNode<T extends BABYLON.Node>(node: T): T {
+  protected addNode<T extends Node>(node: T): T {
     node.parent = this.entity.node;
     this._nodes.push(node);
     return node;
@@ -147,20 +169,25 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
    * @param mesh - the node
    * @param disposeMaterialAndTextures - if true, disposes of materials and textures
    */
-  protected disposeNode<T extends BABYLON.Node>(node: T, disposeMaterialAndTextures: boolean = true): void {
+  protected disposeNode<T extends Node>(node: T, disposeMaterialAndTextures: boolean = true): void {
     this._nodes.splice(this._nodes.indexOf(node), 1);
     node.dispose(false, disposeMaterialAndTextures);
   }
 
   /**
-   * Adds the node to 'this.nodes` and parents it to the entity's node.
+   * Adds the node/entity to 'this.nodes` and parents it.
    * Automatically disposes of it after unmounting the component.
-   * @param mesh - the node
-   * @returns the entity for the mesh
+   * @param node - the node
+   * @returns the entity for the node.
    */
-  protected mountMesh(mesh: BABYLON.AbstractMesh): Entity {
-    this.addNode(mesh);
-    return Entity.for(mesh);
+  protected addEntity(node: TransformNode | Entity): Entity {
+    if (node instanceof Entity) {
+      this.addNode(node.node);
+      return node;
+    } else {
+      this.addNode(node);
+      return Entity.for(node);
+    }
   }
 
   /**
@@ -186,28 +213,13 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
    */
   protected onDisabled(): void {
     this.willUnmount();
-  }
-
-  /**
-   * Called before an entity's props are updated
-   * @deprecated Components should rely on their own props.
-   */
-  protected onEntityPropsWillUpdate(oldProps: any): void { // tslint:disable-line:no-any
-    // EMPTY BLOCK
-  }
-
-  /**
-   * Called after an entity's props are updated
-   * @deprecated Components should rely on their own props.
-   */
-  protected onEntityPropsUpdated(): void {
-    // EMPTY BLOCK
+    this._disposeOfNodes(true);
   }
 
   /**
    * Called before render.
    */
-  protected onUpdate(): void {
+  protected onBeforeRender(): void {
     // EMPTY BLOCK
   }
 
@@ -236,17 +248,24 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
    * @internal
    */
   // tslint:disable-next-line:no-unused-variable
-  private _internalMount(entity: Entity, system?: TSystem): void {
+  private _internalMount(entity: Entity<TNode>, system?: TSystem): void {
     if (this._isMounted) {
       throw new Error('This component is already mounted.');
     }
     this._entity = entity;
-    this._context = entity.context;
+    this._context = clone(entity.context);
     this._system = system;
     this._isMounted = true;
 
-    if (this.isEnabled) {
-      this.didMount();
+    this.didMount();
+
+    if (system) {
+      const internalSystem: IInternalSystem = system as any; // tslint:disable-line: no-any
+      internalSystem.onComponentDidMount(this);
+    }
+
+    if (!this.isEnabled) {
+      this.onDisabled();
     }
   }
 
@@ -259,10 +278,22 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
       throw new Error('This component is not mounted.');
     }
 
-    if (this.isEnabled) {
-      this.willUnmount();
+    if (this._system) {
+      const internalSystem: IInternalSystem = this._system as any; // tslint:disable-line: no-any
+      internalSystem.onComponentWillUnmount(this);
     }
 
+    if (this.isEnabled) {
+      this.willUnmount();
+      this._disposeOfNodes(disposeMaterialAndTextures);
+    }
+
+    this._context  = undefined;
+    this._system = undefined;
+    this._isMounted = false;
+  }
+
+  private _disposeOfNodes(disposeMaterialAndTextures: boolean): void {
     this._nodes.forEach(node => {
       if (!node.isDisposed()) {
         node.dispose(
@@ -273,12 +304,11 @@ export default abstract class Component<TProps = {}, TSystem extends System = an
     });
 
     this._nodes.length = 0;
-    this._context  = undefined;
-    this._system = undefined;
-    this._isMounted = false;
   }
 
-  private _throwNotMounted(): never {
-    throw new Error('Component has not been mounted.');
+  private _throwIfNotMounted(): never | void {
+    if (!this.isMounted) {
+      throw new Error('Component has not been mounted.');
+    }
   }
 }

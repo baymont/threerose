@@ -1,4 +1,4 @@
-import cloneDeep = require('lodash/cloneDeep');
+import cloneDeep from 'lodash/cloneDeep';
 
 import INucleusContext from './common/INucleusContext';
 import Component from './Component';
@@ -7,9 +7,9 @@ import Component from './Component';
  * Provide global scope, services, and management to classes of components.
  * @public
  */
-export default abstract class System<TProps = {}> {
+export default abstract class System<TProps = {}, TComponent extends Component = Component> {
   // tslint:disable-next-line:no-any
-  private _componentType: new(...args: any[]) => Component;
+  private _componentType: new(...args: any[]) => TComponent;
   private _props: TProps;
   private _context?: INucleusContext;
   private _isInitialized: boolean;
@@ -19,10 +19,10 @@ export default abstract class System<TProps = {}> {
    * @param componentType - the component type to associate with the system
    */
   // tslint:disable-next-line:no-any
-  constructor(componentType: new(...args: any[]) => Component) {
+  constructor(componentType: new(...args: any[]) => TComponent) {
     this._props = {} as TProps;
     this._componentType = componentType;
-    this.onUpdate = this.onUpdate.bind(this);
+    this.onBeforeRender = this.onBeforeRender.bind(this);
   }
 
   /**
@@ -82,7 +82,23 @@ export default abstract class System<TProps = {}> {
   /**
    * Called before render.
    */
-  protected onUpdate(): void {
+  protected onBeforeRender(): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called when a system related component is mounted.
+   * @param component - the new component
+   */
+  protected onComponentDidMount(component: TComponent): void {
+    // EMPTY BLOCK
+  }
+
+  /**
+   * Called when a system related component is about to be unmounted.
+   * @param component - the component
+   */
+  protected onComponentWillUnmount(component: TComponent): void {
     // EMPTY BLOCK
   }
 

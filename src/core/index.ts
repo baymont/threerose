@@ -1,10 +1,6 @@
-export { default as Entity } from './Entity';
+export { default as Entity, ClassType, MountingPoint, IMountingPointWithName } from './Entity';
 export { default as Component } from './Component';
-export { default as SceneEntity } from './common/SceneEntity';
+export { default as SystemRegistrar } from './common/SystemRegistrar';
 export { default as System } from './System';
 export { default as INucleusContext } from './common/INucleusContext';
-export { default as Color3 } from './common/Color3';
-export { default as Color4 } from './common/Color4';
-export { default as Vector2 } from './common/Vector2';
-export { default as Vector3 } from './common/Vector3';
-export { default as Vector4 } from './common/Vector4';
+export { default as NucleusHelper } from './common/NucleusHelper';
