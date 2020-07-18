@@ -1,6 +1,5 @@
 import { Observer, Scene, TransformNode, Tools } from 'babylonjs';
-import cloneDeep =  require('lodash/cloneDeep');
-import { getLogger, Logger } from 'loglevel';
+import cloneDeep = require('lodash/cloneDeep');
 
 import INucleusContext from './common/INucleusContext';
 import Component from './Component';
@@ -34,9 +33,6 @@ export default class Entity<
   TProps = {}
 > {
   private readonly _components: InternalComponentCollection<TNode> = new InternalComponentCollection<TNode>();
-
-  // Using double underscore to avoid conflicts with derived classes
-  private __logger: Logger = getLogger('Nucleus'); // tslint:disable-line:variable-name
 
   private _context?: INucleusContext;
 
@@ -397,7 +393,7 @@ export default class Entity<
     try {
       func();
     } catch (e) {
-      this.__logger.error(e);
+      // Fail silently.
     }
   }
 

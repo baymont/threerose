@@ -1,4 +1,4 @@
-import cloneDeep =  require('lodash/cloneDeep');
+import cloneDeep = require('lodash/cloneDeep');
 
 import INucleusContext from './common/INucleusContext';
 import Component from './Component';
