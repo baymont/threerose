@@ -33,10 +33,3 @@ Read the [Nucleus3D wiki](https://github.com/haroldma/nucleus3d/wiki) to go lear
 **Components** are modular chunks of data that can add appearance, behaviors and/or functionality to an entity.
 
 **Systems** provide global scope, services, and management to classes of components.
-
-## Quick Start
-
-## The Baskeball Demo
-
-[Make a simple bouncing basketball using Nucleus3D](https://stackblitz.com/edit/nucleus-basketball?embed=1&file=app.ts).
-![](https://i.imgur.com/KKR4B73.png)

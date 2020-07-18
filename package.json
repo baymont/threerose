@@ -32,12 +32,12 @@
     "tsdocFlavor": "AEDoc"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.157",
     "babylonjs": "^4.1.0",
     "lodash": "^4.17.19"
   },
   "devDependencies": {
     "@types/jest": "^26.0.4",
+    "@types/lodash": "^4.14.157",
     "awesome-typescript-loader": "^5.2.1",
     "coveralls": "^3.1.0",
     "hard-source-webpack-plugin": "^0.13.1",
